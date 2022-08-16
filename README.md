@@ -20,6 +20,8 @@ Try not to work on your branch for _more than a week_
 
 Keep main branch _free of bugs_
 
+All code goes under _lib_ folder
+
 ## Helpful Links
 Miro Board [Miro](https://miro.com/app/board/uXjVOh2lmtQ=/)
 
