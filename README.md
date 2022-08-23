@@ -9,8 +9,8 @@ DECO3801 Project for The Super 6!!!!!!
 
 ## Proposed Workflow
 1. Create a branch
-2. Make changes on that branch on your local machine
-3. Push the branch to GitHub 
+2. Make changes/commit to that branch on your local machine
+3. Push the branch/code in branch to GitHub 
 4. Create a pull request
 5. Address review comments
 6. Merge your pull request
@@ -21,6 +21,11 @@ Try not to work on your branch for _more than a week_
 Keep main branch _free of bugs_
 
 All code goes under _lib_ folder
+
+## Troubleshooting
+Change .vscode->setting.json file to ensure correct path to flutter sdk
+
+If you have issues with windows CMake files after cloning repo, ensure _No Active Kit_ is selected in bottom taskbar before running
 
 ## Helpful Links
 Miro Board [Miro](https://miro.com/app/board/uXjVOh2lmtQ=/)
