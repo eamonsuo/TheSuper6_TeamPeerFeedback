@@ -29,59 +29,108 @@ class _SignInPage extends State<SignInPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Team Pear Feedback'),
-      ),
       body: Center(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: <Widget>[
-            Container(
-                height: 50,
-                width: 250,
-                decoration: BoxDecoration(
-                    color: Colors.blue,
-                    borderRadius: BorderRadius.circular(20)),
-                child: TextButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => StudentHome()),
-                    );
-                  },
-                  child: const Text("Students",
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 35,
-                          fontWeight: FontWeight.bold)),
-                )),
-            const SizedBox(
-              height: 20,
+            Expanded(
+              flex: 2,
+              child: Container(
+                alignment: Alignment.topCenter,
+                padding: const EdgeInsets.all(20),
+                child: const Text(
+                  'TEAM PEER FEEDBACK',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontFamily: 'Arial',
+                    fontSize: 40,
+                    fontWeight: FontWeight.bold,
+                    color: Color.fromARGB(255, 38, 153, 251),
+                  ),
+                ),
+              ),
             ),
-            Container(
-                height: 50,
-                width: 250,
-                decoration: BoxDecoration(
-                    color: Colors.blue,
-                    borderRadius: BorderRadius.circular(20)),
-                child: TextButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => TutorHome()),
-                    );
-                  },
-                  child: const Text("Tutors",
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 35,
-                          fontWeight: FontWeight.bold)),
-                ))
+            Expanded(
+              flex: 4,
+              child: Container(
+                alignment: Alignment.topCenter,
+                height: MediaQuery.of(context).size.height / 2.7,
+                padding: const EdgeInsets.all(40),
+                child: Image.asset('assets/images/logo.png'),
+              ),
+            ),
+            Expanded(
+                flex: 3,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: TextButton(
+                          style: TextButton.styleFrom(
+                              backgroundColor:
+                                  const Color.fromARGB(255, 21, 91, 148),
+                              minimumSize: MediaQuery.of(context).size.width <
+                                      600
+                                  ? Size(
+                                      MediaQuery.of(context).size.width / 1.5,
+                                      50)
+                                  : const Size(400.0, 50.0)),
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => StudentHome()),
+                            );
+                          },
+                          child: const Text("Student",
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontFamily: 'Arial',
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold)),
+                        )),
+                    const SizedBox(
+                      height: 20,
+                    ),
+                    Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: TextButton(
+                          style: TextButton.styleFrom(
+                              backgroundColor:
+                                  const Color.fromARGB(255, 21, 91, 148),
+                              minimumSize: MediaQuery.of(context).size.width <
+                                      600
+                                  ? Size(
+                                      MediaQuery.of(context).size.width / 1.5,
+                                      50)
+                                  : const Size(400.0, 50.0)),
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => TutorHome()),
+                            );
+                          },
+                          child: const Text("Tutor",
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontFamily: 'Arial',
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold)),
+                        ))
+                  ],
+                )),
           ],
         ),
       ),
+      backgroundColor: Color.fromARGB(255, 241, 249, 255),
     );
   }
 }
