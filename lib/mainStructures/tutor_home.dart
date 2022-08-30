@@ -1,7 +1,10 @@
 import 'package:deco3801_project/pages/tutor_activity.dart';
 import 'package:deco3801_project/pages/tutor_dashboard.dart';
 import 'package:deco3801_project/pages/tutor_teams.dart';
+import 'package:deco3801_project/util/ui_colours.dart';
+import 'package:deco3801_project/widgets/nav_icon.dart';
 import 'package:flutter/material.dart';
+import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 
 class TutorHome extends StatefulWidget {
   @override
@@ -31,22 +34,20 @@ class _TutorHomePageState extends State<TutorHome> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      bottomNavigationBar: SizedBox(
-        width: MediaQuery.of(context).size.width,
-        child: Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
-          IconButton(
-              onPressed: () => changePageIndex(0),
-              icon: Icon(Icons.person),
-              tooltip: 'Dashboard'),
-          IconButton(
-              onPressed: () => changePageIndex(1),
-              icon: Icon(Icons.people),
-              tooltip: 'Teams'),
-          IconButton(
-              onPressed: () => changePageIndex(2),
-              icon: Icon(Icons.notifications),
-              tooltip: 'Activity')
-        ]),
+      bottomNavigationBar: CurvedNavigationBar (
+        color: UIColours.blue,
+        buttonBackgroundColor: UIColours.background,
+        backgroundColor: UIColours.background,
+        height: 50,
+        animationCurve: Curves.easeOut,
+        items: <Widget>[
+          NavIcon(Icon(Icons.person), "Dashboard"),
+          NavIcon(Icon(Icons.people), "Teams"),
+          NavIcon(Icon(Icons.notifications), "Activity"), 
+        ],
+        onTap: (index) {
+          changePageIndex(index);
+        },
       ),
       body: pages[currentIndex],
     );
