@@ -18,7 +18,7 @@ class Database {
   /// Needs to be called with await to get synchronous operation (double check https://dart.dev/codelabs/async-await)
   ///
   /// Returns a ...
-  static Future<List<String>> getAllUsers(
+  static Future<List<Map<String, String>>> getAllUsers(
       [List<String> columns = const ['*']]) async {
     try {
       // Create map which stores the values needed for our sql query
@@ -31,17 +31,17 @@ class Database {
 
       // HTTP POST message sent to server and JSON is returned
       http.Response response = await http.post(Uri.parse(url), body: map);
-      var data = jsonDecode(response.body);
-      print("Call to HTTP: ${data.toString()}");
+      List<dynamic> dataList = jsonDecode(response.body);
+      print("Call to HTTP: ${dataList.toString()}");
 
-      // Check if response is as expected and organise return type
-      if (response.statusCode == 200) {
-        print("done");
-        return []; // TODO: FIX THIS, Return something meaningful
-      } else {
-        print("BAD STATUS CODE - ${response.statusCode}");
-        return [];
+      List<Map<String, String>> results = [];
+      for (var i = 0; i < dataList.length; i++) {
+        results.add(Map<String, String>.from(dataList[i]));
       }
+      print("results: $results");
+
+      // TODO: Error Checking ... (need to check response is records)
+      return results;
     } catch (e) {
       return [];
     }
