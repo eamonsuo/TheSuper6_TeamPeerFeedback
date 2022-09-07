@@ -1,19 +1,10 @@
 /// Code inspired by Mobile Programmer, 2019 - https://www.youtube.com/watch?v=F4Q6lEhmwCY
 
 import 'dart:convert';
+import 'package:deco3801_project/databaseElements/DBConstants.dart';
 import 'package:http/http.dart' as http;
 
-class Database {
-  static const url = 'https://vegetarian-twenties.000webhostapp.com/query.php';
-  static const String _GET_ALL_ACTION = 'GET_ALL';
-  static const String _GET_ONE_ACTION = 'GET_SELECTION';
-  static const String _ADD_ACTION = 'ADD_RECORD';
-  static const String _UPDATE_ACTION = 'UPDATE_RECORD';
-  static const String _DELETE_ACTION = 'DELETE_RECORD';
-
-  static const String _USERS_TABLE = 'users';
-  static const String _ERROR_MESSAGE = 'error';
-
+class UsersTable {
   /// Returns all records in the users table.
   ///
   /// Needs to be called with await to get synchronous operation (double check https://dart.dev/codelabs/async-await)
@@ -26,14 +17,15 @@ class Database {
     try {
       // Create map which stores the values needed for our sql query
       var map = Map<String, dynamic>();
-      map["action"] = _GET_ALL_ACTION;
-      map["table"] = _USERS_TABLE;
+      map["action"] = DBConstants.GET_ALL_ACTION;
+      map["table"] = DBConstants.USERS_TABLE;
       map["columns"] = columns.join(', ');
       map["clause"] = '';
       print(map.toString());
 
       // HTTP POST message sent to server and JSON is returned
-      http.Response response = await http.post(Uri.parse(url), body: map);
+      http.Response response =
+          await http.post(Uri.parse(DBConstants.url), body: map);
       List<dynamic> dataList = jsonDecode(response.body);
       print("Call to HTTP");
 
@@ -56,30 +48,46 @@ class Database {
     }
   }
 
-//TODO: Work to do on this....
-/*
-  static Future<List<String>> getSelectedUser(String id,
+  /// Returns records based on the passed [userId]
+  ///
+  /// Needs to be called with await to get synchronous operation (double check https://dart.dev/codelabs/async-await)
+  ///
+  /// Returns a list of records in the format [{col1: value, col2: value, ...}, {col1: value, col2: value, ...}, ...]
+  /// where each Map is an individual record.
+  /// Returns an empty list on error
+  static Future<List<Map<String, String>>> getSelectedUser(String userId,
       [List<String> columns = const ['*']]) async {
     try {
       var map = Map<String, dynamic>();
-      map["action"] = _GET_ONE_ACTION;
-      map["table"] = _USERS_TABLE;
+      map["action"] = DBConstants.GET_ONE_ACTION;
+      map["table"] = DBConstants.USERS_TABLE;
       map["columns"] = columns.join(',');
-      map["clause"] = id;
+      map["clause"] = "user_id = $userId";
       print(map.toString());
 
-      http.Response response = await http.post(Uri.parse(url), body: map);
-      var data = jsonDecode(response.body);
-      print("Call to HTTP: ${data.toString()}");
+      http.Response response =
+          await http.post(Uri.parse(DBConstants.url), body: map);
+      List<dynamic> dataList = jsonDecode(response.body);
+      print("Call to HTTP");
 
-      // Error Checking...
+      // Error Checking on response from web serve
+      if (dataList.isEmpty || response.statusCode != 200) {
+        print("error in getSelectedUsers");
+        return [];
+      }
 
+      // Organise & output results in json style
+      List<Map<String, String>> results = [];
+      for (var i = 0; i < dataList.length; i++) {
+        results.add(Map<String, String>.from(dataList[i]));
+      }
+
+      print("results: $results");
+      return results;
     } catch (e) {
-      // return List<Employee>();
+      return [];
     }
-    return [];
   }
-  */
 
   /// Adds a record into the users table.
   ///
@@ -91,8 +99,8 @@ class Database {
       String username, String teamId, bool tutorStatus) async {
     try {
       var map = new Map<String, dynamic>();
-      map["action"] = _ADD_ACTION;
-      map["table"] = _USERS_TABLE;
+      map["action"] = DBConstants.ADD_ACTION;
+      map["table"] = DBConstants.USERS_TABLE;
       map["columns"] = '(user_id, username, team_id, tutor_status)';
 
       // Set up values for a new user in sql query
@@ -102,12 +110,13 @@ class Database {
       map["clause"] = "(NULL,'${newValues.join("','")}')";
       print(map);
 
-      http.Response response = await http.post(Uri.parse(url), body: map);
+      http.Response response =
+          await http.post(Uri.parse(DBConstants.url), body: map);
       var data = jsonDecode(response.body);
       print("Call to HTTP: ${data.toString()}");
 
       // Error Checking on response from web server
-      if (data == _ERROR_MESSAGE || response.statusCode != 200) {
+      if (data == DBConstants.ERROR_MESSAGE || response.statusCode != 200) {
         print("error in addUser");
         return false;
       }
@@ -132,8 +141,8 @@ class Database {
       String tutorStatus = ''}) async {
     try {
       var map = new Map<String, dynamic>();
-      map["action"] = _UPDATE_ACTION;
-      map["table"] = _USERS_TABLE;
+      map["action"] = DBConstants.UPDATE_ACTION;
+      map["table"] = DBConstants.USERS_TABLE;
 
       // Add columns which have been specified to be changed
       map["columns"] = '';
@@ -158,12 +167,13 @@ class Database {
       map["clause"] = "user_id = $userId";
       print(map);
 
-      http.Response response = await http.post(Uri.parse(url), body: map);
+      http.Response response =
+          await http.post(Uri.parse(DBConstants.url), body: map);
       var data = jsonDecode(response.body);
       print("Call to HTTP: ${data.toString()}");
 
       // Error Checking on response from web server
-      if (data == _ERROR_MESSAGE || response.statusCode != 200) {
+      if (data == DBConstants.ERROR_MESSAGE || response.statusCode != 200) {
         print("error in updateUser");
         return false;
       }
