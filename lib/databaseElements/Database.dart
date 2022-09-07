@@ -12,12 +12,15 @@ class Database {
   static const String _DELETE_ACTION = 'DELETE_RECORD';
 
   static const String _USERS_TABLE = 'users';
+  static const String _ERROR_MESSAGE = 'error';
 
   /// Returns all records in the users table.
   ///
   /// Needs to be called with await to get synchronous operation (double check https://dart.dev/codelabs/async-await)
   ///
-  /// Returns a ...
+  /// Returns a list of records in the format [{col1: value, col2: value, ...}, {col1: value, col2: value, ...}, ...]
+  /// where each Map is an individual record.
+  /// Returns an empty list on error
   static Future<List<Map<String, String>>> getAllUsers(
       [List<String> columns = const ['*']]) async {
     try {
@@ -32,15 +35,21 @@ class Database {
       // HTTP POST message sent to server and JSON is returned
       http.Response response = await http.post(Uri.parse(url), body: map);
       List<dynamic> dataList = jsonDecode(response.body);
-      print("Call to HTTP: ${dataList.toString()}");
+      print("Call to HTTP");
 
+      // Error Checking on response from web serve
+      if (dataList.isEmpty || response.statusCode != 200) {
+        print("error in getAllUsers");
+        return [];
+      }
+
+      // Organise & output results in json style
       List<Map<String, String>> results = [];
       for (var i = 0; i < dataList.length; i++) {
         results.add(Map<String, String>.from(dataList[i]));
       }
-      print("results: $results");
 
-      // TODO: Error Checking ... (need to check response is records)
+      print("results: $results");
       return results;
     } catch (e) {
       return [];
@@ -95,6 +104,12 @@ class Database {
       var data = jsonDecode(response.body);
       print("Call to HTTP: ${data.toString()}");
 
+      // Error Checking on response from web server
+      if (data == _ERROR_MESSAGE || response.statusCode != 200) {
+        print("error in addUser");
+        return false;
+      }
+
       //TODO: More error checking, Check when invalid message is returned
       return true;
     } catch (e) {
@@ -144,7 +159,13 @@ class Database {
       var data = jsonDecode(response.body);
       print("Call to HTTP: ${data.toString()}");
 
-      //TODO: More error checking, Check when invalid message is returned
+      // Error Checking on response from web server
+      if (data == _ERROR_MESSAGE || response.statusCode != 200) {
+        print("error in updateUser");
+        return false;
+      }
+
+      //TODO: returns true when invalid id provided
       return true;
     } catch (e) {
       return false;
