@@ -57,6 +57,7 @@ class Database {
   }
 
 //TODO: Work to do on this....
+/*
   static Future<List<String>> getSelectedUser(String id,
       [List<String> columns = const ['*']]) async {
     try {
@@ -78,13 +79,14 @@ class Database {
     }
     return [];
   }
+  */
 
   /// Adds a record into the users table.
   ///
   /// Needs to be called with await to get synchronous operation (double check https://dart.dev/codelabs/async-await)
   /// All fields need to be provided, a user_id is automatically generated
   ///
-  /// Returns a ... (int: user_id?)
+  /// Returns true when user added successfully, false on error      TODO: maybe return user_id?
   static Future<bool> addUser(
       String username, String teamId, bool tutorStatus) async {
     try {
@@ -93,7 +95,7 @@ class Database {
       map["table"] = _USERS_TABLE;
       map["columns"] = '(user_id, username, team_id, tutor_status)';
 
-      // Set up new values for sql query
+      // Set up values for a new user in sql query
       var tutorInput = '';
       (tutorStatus) ? tutorInput = '1' : tutorInput = '0';
       var newValues = [username, teamId, tutorInput];
@@ -110,7 +112,6 @@ class Database {
         return false;
       }
 
-      //TODO: More error checking, Check when invalid message is returned
       return true;
     } catch (e) {
       return false;
@@ -123,7 +124,8 @@ class Database {
   ///
   /// TODO: Decide on [tutorStatus] input type, when [userId] is not a valid user it returns true but nothing is affected
   ///
-  /// Returns a ... (int: user_id?)
+  /// Meant to Return true when user updated successfully, false on error      TODO: maybe return user_id?
+  /// TODO: FIX: returns true when invalid id provided
   static Future<bool> updateUser(String userId,
       {String username = '',
       String teamId = '',
@@ -133,7 +135,7 @@ class Database {
       map["action"] = _UPDATE_ACTION;
       map["table"] = _USERS_TABLE;
 
-      // Add columns which are specified to be changed
+      // Add columns which have been specified to be changed
       map["columns"] = '';
       if (username != '') {
         map["columns"] += "username = '$username',";
@@ -147,10 +149,11 @@ class Database {
       }
       if (map["columns"] == '') {
         print("no cols chosen for update");
-        return false; // TODO: What should I return when nothing passed??
+        return false;
       }
-      map["columns"] = map["columns"]
-          .substring(0, map["columns"].length - 1); //Remove trailing comma
+
+      //Remove trailing comma
+      map["columns"] = map["columns"].substring(0, map["columns"].length - 1);
 
       map["clause"] = "user_id = $userId";
       print(map);
@@ -165,7 +168,6 @@ class Database {
         return false;
       }
 
-      //TODO: returns true when invalid id provided
       return true;
     } catch (e) {
       return false;
@@ -173,6 +175,7 @@ class Database {
   }
 
   //TODO: Implement?
+  /*
   static Future<bool> deleteUser() async {
     try {
       // var map = new Map<String, dynamic>();
@@ -187,4 +190,5 @@ class Database {
       return false;
     }
   }
+  */
 }
