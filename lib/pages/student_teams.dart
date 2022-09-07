@@ -51,7 +51,57 @@ class StudentTeamsPage extends StatelessWidget {
                     color: Color.fromRGBO(21, 90, 148, 50),
                     fontSize: 15),
               ),
-              trailing: Icon(Icons.more_vert),
+              trailing: PopupMenuButton(
+                splashRadius: 20,
+                tooltip: '',
+                icon: Icon(Icons.more_vert),
+                itemBuilder: (BuildContext context) => <PopupMenuEntry>[
+                  const PopupMenuItem(
+                    child: ListTile(
+                      title: Text(
+                        'Write to tutors',
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Color.fromRGBO(38, 153, 251, 60),
+                            fontSize: 14),
+                      ),
+                    ),
+                  ),
+                  const PopupMenuItem(
+                    child: ListTile(
+                      title: Text(
+                        'See members',
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Color.fromRGBO(38, 153, 251, 60),
+                            fontSize: 14),
+                      ),
+                    ),
+                  ),
+                  const PopupMenuItem(
+                    child: ListTile(
+                      title: Text(
+                        'Add members',
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Color.fromRGBO(38, 153, 251, 60),
+                            fontSize: 14),
+                      ),
+                    ),
+                  ),
+                  const PopupMenuItem(
+                    child: ListTile(
+                      title: Text(
+                        'Leave team',
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Color.fromRGBO(38, 153, 251, 60),
+                            fontSize: 14),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
               onTap: () {
                 Navigator.push(
                   context,
