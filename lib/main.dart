@@ -2,6 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'package:deco3801_project/databaseElements/FeedbackTable.dart';
+import 'package:deco3801_project/databaseElements/TeamsTable.dart';
+import 'package:deco3801_project/databaseElements/UsersTable.dart';
 import 'package:deco3801_project/mainStructures/student_home.dart';
 import 'package:deco3801_project/mainStructures/tutor_home.dart';
 import 'package:flutter/material.dart';
@@ -130,7 +133,10 @@ class _SignInPage extends State<SignInPage> {
           ],
         ),
       ),
-      backgroundColor: Color.fromARGB(255, 241, 249, 255),
+      backgroundColor: Color.fromARGB(255, 241, 255, 241),
+      floatingActionButton: FloatingActionButton(onPressed: () {
+        TeamsTable.getAllTeams();
+      }),
     );
   }
 }
