@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 
 class TeamData {
@@ -128,20 +130,156 @@ class StudentTeamsPage extends StatelessWidget {
 
 class TeamDisplay extends StatelessWidget {
   // Requiring the list of todos.
-  const TeamDisplay({super.key, required this.teamData});
+  TeamDisplay({super.key, required this.teamData});
 
   final TeamData teamData;
+
+  List<List<String>> teamGoals = [
+    ["goal1", "finish this", "finish that"],
+    ["goal2", "finish this", "finish that"],
+    ["goal3", "finish this", "finish that"]
+  ];
+  double progress = 0.2;
 
   @override
   Widget build(BuildContext context) {
     // Use the Todo to create the UI.
+
     return Scaffold(
-      appBar: AppBar(
-        title: Text(teamData.teamName),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Text(teamData.teamName),
+        appBar: AppBar(
+          title: Text(teamData.teamName),
+        ),
+        backgroundColor: Color.fromRGBO(241, 249, 255, 1),
+        body: Column(
+          children: [
+            SizedBox(
+              height: 10,
+            ),
+            Text(
+              "Team Goals",
+              style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                  color: Color.fromRGBO(21, 90, 148, 10)),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: ListView.builder(
+                scrollDirection: Axis.vertical,
+                shrinkWrap: true,
+                physics: BouncingScrollPhysics(),
+                itemCount: teamGoals.length,
+                itemBuilder: (BuildContext context, int index) {
+                  return _buildList(teamGoals[index]);
+                },
+              ),
+            ),
+          ],
+        ));
+  }
+
+  Widget _buildList(List<String> item) {
+    String inTitle = item.removeAt(0);
+    return Card(
+      child: ExpansionTile(
+        title: Row(
+          mainAxisSize: MainAxisSize.max,
+          children: [
+            Text(
+              inTitle,
+              style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 15,
+                  color: Color.fromRGBO(21, 90, 148, 10)),
+            ),
+            const Spacer(),
+            IconButton(
+              splashRadius: 15,
+              icon: const Icon(
+                Icons.addchart,
+                size: 20,
+              ),
+              onPressed: () {
+                print('IconButton pressed ...');
+              },
+            ),
+            PopupMenuButton(
+              splashRadius: 20,
+              tooltip: '',
+              icon: Icon(Icons.more_vert),
+              itemBuilder: (BuildContext context) => <PopupMenuEntry>[
+                const PopupMenuItem(
+                  child: ListTile(
+                    title: Text(
+                      'Edit',
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Color.fromRGBO(38, 153, 251, 60),
+                          fontSize: 15),
+                    ),
+                  ),
+                ),
+                const PopupMenuItem(
+                  child: ListTile(
+                    title: Text(
+                      'Delete',
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Color.fromRGBO(38, 153, 251, 60),
+                          fontSize: 15),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+        subtitle: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(
+              height: 10,
+            ),
+            const Text(
+              "Goal description",
+              style: TextStyle(
+                  fontSize: 13, color: Color.fromRGBO(38, 153, 251, 10)),
+            ),
+            const SizedBox(
+              height: 10,
+            ),
+            Text(
+              "Progress: ${progress * 100}%",
+              style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 13,
+                  color: Color.fromRGBO(21, 90, 148, 10)),
+            ),
+            const SizedBox(
+              height: 10,
+            ),
+            ClipRRect(
+              borderRadius: const BorderRadius.all(Radius.circular(10)),
+              child: LinearProgressIndicator(
+                value: progress,
+                minHeight: 10,
+              ),
+            ),
+            const SizedBox(
+              height: 8,
+            ),
+          ],
+        ),
+        controlAffinity: ListTileControlAffinity.platform,
+        children: item.map((e) {
+          return ListTile(
+            title: Text(
+              e,
+              style: const TextStyle(fontWeight: FontWeight.w700),
+            ),
+          );
+        }).toList(),
       ),
     );
   }
