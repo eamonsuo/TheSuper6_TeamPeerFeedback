@@ -150,7 +150,8 @@ class TeamDisplay extends StatelessWidget {
           title: Text(teamData.teamName),
         ),
         backgroundColor: Color.fromRGBO(241, 249, 255, 1),
-        body: Column(
+        body: SingleChildScrollView(
+            child: Column(
           children: [
             SizedBox(
               height: 10,
@@ -175,7 +176,7 @@ class TeamDisplay extends StatelessWidget {
               ),
             ),
           ],
-        ));
+        )));
   }
 
   Widget _buildList(List<String> item) {
@@ -199,9 +200,7 @@ class TeamDisplay extends StatelessWidget {
                 Icons.addchart,
                 size: 20,
               ),
-              onPressed: () {
-                print('IconButton pressed ...');
-              },
+              onPressed: () {},
             ),
             PopupMenuButton(
               splashRadius: 20,
@@ -274,9 +273,133 @@ class TeamDisplay extends StatelessWidget {
         controlAffinity: ListTileControlAffinity.platform,
         children: item.map((e) {
           return ListTile(
-            title: Text(
-              e,
-              style: const TextStyle(fontWeight: FontWeight.w700),
+            title: Row(
+              mainAxisSize: MainAxisSize.max,
+              children: [
+                Text(
+                  e + " assigned person",
+                  style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 13,
+                      color: Color.fromRGBO(21, 90, 148, 10)),
+                ),
+                const Spacer(),
+                IconButton(
+                  splashRadius: 15,
+                  icon: const Icon(
+                    Icons.folder,
+                    size: 20,
+                  ),
+                  onPressed: () {},
+                ),
+                IconButton(
+                  splashRadius: 15,
+                  icon: const Icon(
+                    Icons.attach_file,
+                    size: 20,
+                  ),
+                  onPressed: () {},
+                ),
+                PopupMenuButton(
+                  splashRadius: 20,
+                  tooltip: '',
+                  icon: Icon(Icons.more_vert),
+                  itemBuilder: (BuildContext context) => <PopupMenuEntry>[
+                    const PopupMenuItem(
+                      child: ListTile(
+                        title: Text(
+                          'Write to tutor',
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Color.fromRGBO(38, 153, 251, 60),
+                              fontSize: 13),
+                        ),
+                      ),
+                    ),
+                    const PopupMenuItem(
+                      child: ListTile(
+                        title: Text(
+                          'View feedback',
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Color.fromRGBO(38, 153, 251, 60),
+                              fontSize: 13),
+                        ),
+                      ),
+                    ),
+                    const PopupMenuItem(
+                      child: ListTile(
+                        title: Text(
+                          'Give feedback',
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Color.fromRGBO(38, 153, 251, 60),
+                              fontSize: 13),
+                        ),
+                      ),
+                    ),
+                    const PopupMenuItem(
+                      child: ListTile(
+                        title: Text(
+                          'Edit',
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Color.fromRGBO(38, 153, 251, 60),
+                              fontSize: 13),
+                        ),
+                      ),
+                    ),
+                    const PopupMenuItem(
+                      child: ListTile(
+                        title: Text(
+                          'Delete',
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Color.fromRGBO(38, 153, 251, 60),
+                              fontSize: 13),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            subtitle: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(
+                  height: 10,
+                ),
+                const Text(
+                  "Goal description",
+                  style: TextStyle(
+                      fontSize: 11, color: Color.fromRGBO(38, 153, 251, 10)),
+                ),
+                const SizedBox(
+                  height: 10,
+                ),
+                Text(
+                  "Progress: ${progress * 100}%",
+                  style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 11,
+                      color: Color.fromRGBO(21, 90, 148, 10)),
+                ),
+                const SizedBox(
+                  height: 10,
+                ),
+                ClipRRect(
+                  borderRadius: const BorderRadius.all(Radius.circular(10)),
+                  child: LinearProgressIndicator(
+                    value: progress,
+                    minHeight: 8,
+                  ),
+                ),
+                const SizedBox(
+                  height: 8,
+                ),
+              ],
             ),
           );
         }).toList(),
