@@ -8,7 +8,7 @@
     // header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
     
     
-    require('db.php');
+    require('connect.php');
     
     $action = '';
     $columns = '*';
@@ -65,7 +65,7 @@
 			break;
 		
 		case 'GET_SELECTION':
-			$query = "SELECT $columns FROM $table WHERE $clause"; #UPDATE: Change to allow specific gets
+			$query = "SELECT $columns FROM $table WHERE $clause";
 			$stm = $connection->prepare($query);
 			$stm->execute();
 
