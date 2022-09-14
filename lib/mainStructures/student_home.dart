@@ -34,7 +34,7 @@ class _StudentHomePageState extends State<StudentHome> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      bottomNavigationBar: CurvedNavigationBar (
+      bottomNavigationBar: CurvedNavigationBar(
         color: UIColours.blue,
         buttonBackgroundColor: UIColours.background,
         backgroundColor: UIColours.background,
