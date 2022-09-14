@@ -131,6 +131,8 @@ class FeedbackTable {
       for (var i = 0; i < dataList.length; i++) {
         if (dataList[i]['feedback_goal_id'] == goalId)
           results.add(Map<String, String>.from(dataList[i]));
+        print(dataList[i]['feedback_goal_id']);
+        print(dataList[i]['feedback_goal_id'].runtimeType);
       }
 
       print("results: $results");

@@ -24,17 +24,20 @@ class UsersTable {
       print(map.toString());
 
       // HTTP POST message sent to server and JSON is returned
+      print('Start');
       http.Response response =
           await http.post(Uri.parse(DBConstants.url), body: map);
+      print(response);
+      print(jsonDecode(response.body));
       List<dynamic> dataList = jsonDecode(response.body);
-      print("Call to HTTP");
+      //print(dataList);
+      //print("Call to HTTP");
 
       // Error Checking on response from web serve
       if (dataList.isEmpty || response.statusCode != 200) {
         print("error in getAllUsers");
         return [];
       }
-
       // Organise & output results in json style
       List<Map<String, String>> results = [];
       for (var i = 0; i < dataList.length; i++) {
@@ -44,6 +47,7 @@ class UsersTable {
       print("results: $results");
       return results;
     } catch (e) {
+      print('Error');
       return [];
     }
   }
@@ -72,7 +76,7 @@ class UsersTable {
 
       // Error Checking on response from web serve
       if (dataList.isEmpty || response.statusCode != 200) {
-        print("error in getSelectedUsers");
+        print("error in getSelectedUser");
         return [];
       }
 

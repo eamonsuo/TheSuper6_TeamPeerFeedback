@@ -92,15 +92,15 @@ class TeamsTable {
   /// All fields need to be provided, a user_id is automatically generated
   ///
   /// Returns true when user added successfully, false on error      TODO: maybe return user_id?
-  static Future<bool> addTeam(String teamName, String teamGoals) async {
+  static Future<bool> addTeam(String teamName) async {
     try {
       var map = new Map<String, dynamic>();
       map["action"] = DBConstants.ADD_ACTION;
       map["table"] = DBConstants.TEAMS_TABLE;
       map["columns"] = '(team_id, team_name, team_goal)';
 
-      var newValues = [teamName, teamGoals];
-      map["clause"] = "(NULL,'${newValues.join("','")}')";
+      var newValues = [teamName];
+      map["clause"] = "(NULL,'${newValues.join("','")}', NULL)";
       print(map);
 
       http.Response response =
@@ -171,4 +171,13 @@ class TeamsTable {
       return false;
     }
   }
+
+  ///
+  /// Create new function, assignUserToTeam(username/user_id, team_id)
+  ///   Call this in add team
+  ///   Assign user to team in userInTeams Table
+  ///
+  ///
+  ///
+  ///
 }
