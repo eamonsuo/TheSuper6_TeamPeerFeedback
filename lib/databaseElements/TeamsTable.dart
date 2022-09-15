@@ -29,8 +29,8 @@ class TeamsTable {
           await http.post(Uri.parse(DBConstants.url), body: map);
       print(response);
       List<dynamic> dataList = jsonDecode(response.body);
-      // print(dataList);
-      // print("Call to HTTP");
+      print(dataList);
+      print("Call to HTTP");
 
       // Error Checking on response from web serve
       if (dataList.isEmpty || response.statusCode != 200) {
@@ -43,7 +43,8 @@ class TeamsTable {
       for (var i = 0; i < dataList.length; i++) {
         results.add(Map<String, String>.from(dataList[i]));
       }
-
+      print("Type of var");
+      print(results.runtimeType);
       print("results: $results");
       return results;
     } catch (e) {
@@ -97,10 +98,10 @@ class TeamsTable {
       var map = new Map<String, dynamic>();
       map["action"] = DBConstants.ADD_ACTION;
       map["table"] = DBConstants.TEAMS_TABLE;
-      map["columns"] = '(team_id, team_name, team_goal)';
+      map["columns"] = '(team_id, team_name)';
 
       var newValues = [teamName];
-      map["clause"] = "(NULL,'${newValues.join("','")}', NULL)";
+      map["clause"] = "(NULL,'${newValues.join("','")}')";
       print(map);
 
       http.Response response =
@@ -114,6 +115,8 @@ class TeamsTable {
         return false;
       }
 
+      addUserToTeam(
+          '28114'); //Change to get userId() or whatever function does it
       return true;
     } catch (e) {
       return false;
@@ -139,9 +142,6 @@ class TeamsTable {
       map["columns"] = '';
       if (teamName != '') {
         map["columns"] += "team_name = '$teamName',";
-      }
-      if (teamGoals != '') {
-        map["columns"] += "team_goal = '$teamGoals',";
       }
 
       if (map["columns"] == '') {
@@ -177,7 +177,39 @@ class TeamsTable {
   ///   Call this in add team
   ///   Assign user to team in userInTeams Table
   ///
+  /// Adds a given user to a given team
   ///
+  /// Needs to be called with await to get synchronous operation (double check https://dart.dev/codelabs/async-await)
   ///
-  ///
+  static Future<bool> addUserToTeam(String userId) async {
+    try {
+      var allTeams = await getAllTeams();
+      var teamId = (allTeams[allTeams.length - 1]['team_id']);
+
+      var map = new Map<String, dynamic>();
+      map["action"] = DBConstants.ADD_ACTION;
+      map["table"] = DBConstants.USERS_IN_TEAM_TABLE;
+      map["columns"] = '(team_id, user_id)';
+
+      var newValues = [teamId, userId];
+      map["clause"] = "('${newValues.join("','")}')";
+      print(map);
+
+      http.Response response =
+          await http.post(Uri.parse(DBConstants.url), body: map);
+      var data = jsonDecode(response.body);
+      print("Call to HTTP: ${data.toString()}");
+
+      // Error Checking on response from web server
+      if (data == DBConstants.ERROR_MESSAGE || response.statusCode != 200) {
+        print("Error in addTeam");
+        return false;
+      }
+
+      return true;
+    } catch (e) {
+      print('Rip Error is actually here lol');
+      return false;
+    }
+  }
 }
