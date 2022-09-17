@@ -141,4 +141,104 @@ class FeedbackTable {
       return [];
     }
   }
+
+  /// Adds a record into the feedback table.
+  ///
+  /// [userId] is the user who created the feedback TODO: CHECK??
+  /// [goalId] is the goal the feedback belongs to
+  /// [feedbackString] can only be 200 characters long
+  ///
+  /// Needs to be called with await to get synchronous operation (double check https://dart.dev/codelabs/async-await)
+  /// All fields need to be provided, a user_id is automatically generated
+  ///
+  /// Returns true when user added successfully, false on error      TODO: maybe return user_id?
+  static Future<bool> addFeedback(
+      String userId, String goalId, String feedbackString) async {
+    try {
+      var map = new Map<String, dynamic>();
+      map["action"] = DBConstants.ADD_ACTION;
+      map["table"] = DBConstants.FEEDBACK_TABLE;
+      map["columns"] =
+          '(feedback_id, feedback_user_id, feedback_goal_id, feedback_contents)';
+
+      // Set up values for a new user in sql query
+      var newValues = [userId, goalId, feedbackString];
+      map["clause"] = "(NULL,'${newValues.join("','")}')";
+      print(map);
+
+      http.Response response =
+          await http.post(Uri.parse(DBConstants.url), body: map);
+      var data = jsonDecode(response.body);
+      print("Call to HTTP: ${data.toString()}");
+
+      // Error Checking on response from web server
+      if (data == DBConstants.ERROR_MESSAGE || response.statusCode != 200) {
+        print("error in addFeedback");
+        return false;
+      }
+
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// Updates an existing record in the feedback table.
+  ///
+  /// [userId] is the user who created the feedback TODO: CHECK??
+  /// [goalId] is the goal the feedback belongs to
+  /// [feedbackString] can only be 200 characters long
+  ///
+  /// Needs to be called with await to get synchronous operation (double check https://dart.dev/codelabs/async-await)
+  ///
+  /// Meant to Return true when user updated successfully, false on error
+  /// TODO: FIX: returns true when invalid id provided
+  static Future<bool> updateFeedback(String feedbackId,
+      {String userId = '',
+      String goalId = '',
+      String feedbackString = ''}) async {
+    try {
+      var map = new Map<String, dynamic>();
+      map["action"] = DBConstants.UPDATE_ACTION;
+      map["table"] = DBConstants.FEEDBACK_TABLE;
+
+      // Add columns which have been specified to be changed
+      map["columns"] = '';
+      if (userId != '') {
+        map["columns"] += "feedback_user_id = '$userId',";
+      }
+      if (goalId != '') {
+        map["columns"] += "feedback_goal_id = '$goalId',";
+      }
+      if (feedbackString != '') {
+        map["columns"] += "feedback_contents = "
+            '"$feedbackString",'; // Can't be over 200 characters, also some fancy footwork to allow apostrophese
+      }
+      if (map["columns"] == '') {
+        print("no cols chosen for update");
+        return false;
+      }
+
+      //Remove trailing comma
+      map["columns"] = map["columns"].substring(0, map["columns"].length - 1);
+
+      map["clause"] = "feedback_id = $feedbackId";
+      print(map);
+
+      http.Response response =
+          await http.post(Uri.parse(DBConstants.url), body: map);
+      var data = jsonDecode(response.body);
+      print("Call to HTTP: ${data.toString()}");
+
+      // Error Checking on response from web server
+      if (data == DBConstants.ERROR_MESSAGE || response.statusCode != 200) {
+        print("error in updateFeedback");
+        return false;
+      }
+
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
 }

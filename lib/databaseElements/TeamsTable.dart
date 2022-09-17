@@ -89,11 +89,13 @@ class TeamsTable {
 
   /// Adds a record into the users table.
   ///
+  /// [userId] is the id of the user creating the team, they will automatically get added to the team they create
+  ///
   /// Needs to be called with await to get synchronous operation (double check https://dart.dev/codelabs/async-await)
   /// All fields need to be provided, a user_id is automatically generated
   ///
   /// Returns true when user added successfully, false on error      TODO: maybe return user_id?
-  static Future<bool> addTeam(String teamName) async {
+  static Future<bool> addTeam(String teamName, String userId) async {
     try {
       var map = new Map<String, dynamic>();
       map["action"] = DBConstants.ADD_ACTION;
@@ -115,8 +117,7 @@ class TeamsTable {
         return false;
       }
 
-      addUserToTeam(
-          '28114'); //Change to get userId() or whatever function does it
+      addUserToTeam(userId);
       return true;
     } catch (e) {
       return false;

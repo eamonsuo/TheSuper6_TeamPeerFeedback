@@ -125,7 +125,7 @@
 			break;
 
 		default:
-			echo json_encode(array("message" => "No valid action"));
+			echo json_encode(array("message" => "No valid action")); //TODO: send correct error message
 			break;
 	}
 

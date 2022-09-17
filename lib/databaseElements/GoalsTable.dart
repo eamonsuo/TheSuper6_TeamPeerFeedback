@@ -121,6 +121,9 @@ class GoalsTable {
         return false;
       }
 
+      _addGoalToTeam(
+          teamId); //TODO: Goal is still added even if this fails, not error checked
+
       return true;
     } catch (e) {
       return false;
@@ -181,6 +184,46 @@ class GoalsTable {
 
       return true;
     } catch (e) {
+      return false;
+    }
+  }
+
+  /// Create new function, addGoalToTeam(team_id)
+  ///   Call this in add goal
+  ///   Assign goal to team in teamGoals Table
+  ///
+  /// Adds a given goal to a given team
+  ///
+  /// Needs to be called with await to get synchronous operation (double check https://dart.dev/codelabs/async-await)
+  ///
+  static Future<bool> _addGoalToTeam(String teamId) async {
+    try {
+      var allGoals = await getAllGoals();
+      var goalId = (allGoals[allGoals.length - 1]['goal_id']);
+
+      var map = new Map<String, dynamic>();
+      map["action"] = DBConstants.ADD_ACTION;
+      map["table"] = DBConstants.TEAM_GOALS_TABLE;
+      map["columns"] = '(team_id, goal_id)';
+
+      var newValues = [teamId, goalId];
+      map["clause"] = "('${newValues.join("','")}')";
+      print(map);
+
+      http.Response response =
+          await http.post(Uri.parse(DBConstants.url), body: map);
+      var data = jsonDecode(response.body);
+      print("Call to HTTP: ${data.toString()}");
+
+      // Error Checking on response from web server
+      if (data == DBConstants.ERROR_MESSAGE || response.statusCode != 200) {
+        print("Error in addGoalToTeam");
+        return false;
+      }
+
+      return true;
+    } catch (e) {
+      print('Rip Error is actually here lol');
       return false;
     }
   }
