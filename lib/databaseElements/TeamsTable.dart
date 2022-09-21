@@ -7,12 +7,16 @@ import 'package:http/http.dart' as http;
 class TeamsTable {
   /// Returns all records in the teams table.
   ///
-  /// Needs to be called with await to get synchronous operation
+  /// Needs to be called with await to get synchronous operation (double check https://dart.dev/codelabs/async-await)
+  ///
+  /// Can be called with a list of columns to return specific columns
+  ///   e.g. columns = ['team_name']
   ///
   /// Returns a list of records in the format [{col1: value, col2: value, ...}, {col1: value, col2: value, ...}, ...]
-  /// where each Map is an individual record
-  /// Returns an empty list on error
+  /// Each element of the list is a Map which representa an individual record
+  ///   {team_id: value, team_name: value}
   ///
+  /// Returns an empty list on error
   static Future<List<Map<String, String>>> getAllTeams(
       [List<String> columns = const ['*']]) async {
     try {
@@ -53,6 +57,18 @@ class TeamsTable {
     }
   }
 
+  /// Returns records based on the passed [teamId]
+  ///
+  /// Needs to be called with await to get synchronous operation (double check https://dart.dev/codelabs/async-await)
+  ///
+  /// Can be called with a list of columns to return specific columns
+  ///   e.g. columns = ['team_name']
+  ///
+  /// Returns a list of records in the format [{col1: value, col2: value, ...}, {col1: value, col2: value, ...}, ...]
+  /// Each element of the list is a Map which representa an individual record
+  ///   {team_id: value, team_name: value}
+  ///
+  /// Returns an empty list on error
   static Future<List<Map<String, String>>> getSelectedTeam(String teamId,
       [List<String> columns = const ['*']]) async {
     try {
@@ -87,14 +103,15 @@ class TeamsTable {
     }
   }
 
-  /// Adds a record into the users table.
+  /// Adds a record into the teams table. Adds a record in usersInTeams table
   ///
-  /// [userId] is the id of the user creating the team, they will automatically get added to the team they create
+  /// [teamName] is the name of the team
+  /// [userId] is the user who is creating the team
   ///
   /// Needs to be called with await to get synchronous operation (double check https://dart.dev/codelabs/async-await)
-  /// All fields need to be provided, a user_id is automatically generated
+  /// All fields need to be provided, a team_id is automatically generated
   ///
-  /// Returns true when user added successfully, false on error      TODO: maybe return user_id?
+  /// Returns true when user added successfully, false on error      TODO: maybe return goal_id?
   static Future<bool> addTeam(String teamName, String userId) async {
     try {
       var map = new Map<String, dynamic>();
@@ -124,13 +141,17 @@ class TeamsTable {
     }
   }
 
-  /// Updates an existing record in the users table.
+  /// Updates an existing record in the teams table.
+  ///
+  /// To update columns, pass them as positional parameters
+  ///   e.g. updateTeam('1', teamName: 'Team ChangedName')
+  ///
+  /// [teamName] is the percentage completion of the goal (e.g. 20% = '20')
+  /// [teamGoals] is the user the goal is assigned to TODO: REMOVE?
   ///
   /// Needs to be called with await to get synchronous operation (double check https://dart.dev/codelabs/async-await)
   ///
-  /// TODO: Decide on [tutorStatus] input type, when [userId] is not a valid user it returns true but nothing is affected
-  ///
-  /// Meant to Return true when user updated successfully, false on error      TODO: maybe return user_id?
+  /// Returns true when record updated successfully, false on error
   /// TODO: FIX: returns true when invalid id provided
   static Future<bool> updateTeam(String teamId,
       {String teamName = '', String teamGoals = ''}) async {

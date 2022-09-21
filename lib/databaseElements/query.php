@@ -113,15 +113,15 @@
 			break;
 
 		case 'DELETE_RECORD':
-			// $query = "DELETE FROM $table WHERE id = $emp_id";
-			// $stm = $connection->prepare($query);
+			$query = "DELETE FROM $table WHERE $clause";
+			$stm = $connection->prepare($query);
 
-			// if ($stm->execute() === TRUE) {
-			// 	echo "success";
-			// } else {
-			// 	echo "error";
-			// }
-			echo json_encode(array("message" => "Delete Not Implemented"));
+			if ($stm->execute() === TRUE) {
+				echo json_encode("success");
+			} else {
+				echo json_encode("error");
+			}
+			
 			break;
 
 		default:

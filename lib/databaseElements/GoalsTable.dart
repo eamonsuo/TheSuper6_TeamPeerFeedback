@@ -5,12 +5,17 @@ import 'package:deco3801_project/databaseElements/DBConstants.dart';
 import 'package:http/http.dart' as http;
 
 class GoalsTable {
-  /// Returns all records in the users table.
+  /// Returns all records in the goals table.
   ///
   /// Needs to be called with await to get synchronous operation (double check https://dart.dev/codelabs/async-await)
   ///
+  /// Can be called with a list of columns to return specific columns
+  ///   e.g. columns = ['goal_id', 'goal_progress']
+  ///
   /// Returns a list of records in the format [{col1: value, col2: value, ...}, {col1: value, col2: value, ...}, ...]
-  /// where each Map is an individual record.
+  /// Each element of the list is a Map which representa an individual record
+  ///   {goal_id: value, goal_desc: value, goal_progress: value, goal_user_id: value, goal_team_id: value}
+  ///
   /// Returns an empty list on error
   static Future<List<Map<String, String>>> getAllGoals(
       [List<String> columns = const ['*']]) async {
@@ -52,8 +57,13 @@ class GoalsTable {
   ///
   /// Needs to be called with await to get synchronous operation (double check https://dart.dev/codelabs/async-await)
   ///
+  /// Can be called with a list of columns to return specific columns
+  ///   e.g. columns = ['goal_id', 'goal_progress']
+  ///
   /// Returns a list of records in the format [{col1: value, col2: value, ...}, {col1: value, col2: value, ...}, ...]
-  /// where each Map is an individual record.
+  /// Each element of the list is a Map which representa an individual record
+  ///   {goal_id: value, goal_desc: value, goal_progress: value, goal_user_id: value, goal_team_id: value}
+  ///
   /// Returns an empty list on error
   static Future<List<Map<String, String>>> getSelectedGoal(String goalId,
       [List<String> columns = const ['*']]) async {
@@ -89,12 +99,16 @@ class GoalsTable {
     }
   }
 
-  /// Adds a record into the users table.
+  /// Adds a record into the goals table. Adds a record in teamGoals table
+  ///
+  /// [description] is the description of the goal TODO: CHECK, Do we need a goal title??
+  /// [userId] is the user the goal is assigned to
+  /// [teamId] is the team the goal belongs to
   ///
   /// Needs to be called with await to get synchronous operation (double check https://dart.dev/codelabs/async-await)
-  /// All fields need to be provided, a user_id is automatically generated
+  /// All fields need to be provided, a goal_id is automatically generated
   ///
-  /// Returns true when user added successfully, false on error      TODO: maybe return user_id?
+  /// Returns true when user added successfully, false on error      TODO: maybe return goal_id?
   static Future<bool> addGoal(
       String description, String userId, String teamId) async {
     try {
@@ -121,7 +135,7 @@ class GoalsTable {
         return false;
       }
 
-      _addGoalToTeam(
+      addGoalToTeam(
           teamId); //TODO: Goal is still added even if this fails, not error checked
 
       return true;
@@ -130,11 +144,19 @@ class GoalsTable {
     }
   }
 
-  /// Updates an existing record in the users table.
+  /// Updates an existing record in the goals table.
+  ///
+  /// To update columns, pass them as positional parameters
+  ///   e.g. updateGoal('1', progress: '25')
+  ///
+  /// [description] is the description of the goal
+  /// [progress] is the percentage completion of the goal (e.g. 20% = '20')
+  /// [userId] is the user the goal is assigned to TODO: REMOVE?
+  /// [teamId] is the team the goal belongs to TODO: REMOVE?
   ///
   /// Needs to be called with await to get synchronous operation (double check https://dart.dev/codelabs/async-await)
   ///
-  /// Meant to Return true when user updated successfully, false on error
+  /// Returns true when record updated successfully, false on error
   /// TODO: FIX: returns true when invalid id provided
   static Future<bool> updateGoal(String goalId,
       {String description = '',
@@ -196,7 +218,8 @@ class GoalsTable {
   ///
   /// Needs to be called with await to get synchronous operation (double check https://dart.dev/codelabs/async-await)
   ///
-  static Future<bool> _addGoalToTeam(String teamId) async {
+  /// Returns true when record updated successfully, false on error
+  static Future<bool> addGoalToTeam(String teamId) async {
     try {
       var allGoals = await getAllGoals();
       var goalId = (allGoals[allGoals.length - 1]['goal_id']);

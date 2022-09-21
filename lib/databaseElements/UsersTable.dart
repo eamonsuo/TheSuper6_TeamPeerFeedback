@@ -9,8 +9,13 @@ class UsersTable {
   ///
   /// Needs to be called with await to get synchronous operation (double check https://dart.dev/codelabs/async-await)
   ///
+  /// Can be called with a list of columns to return specific columns
+  ///   e.g. columns = ['username', 'tutor_status']
+  ///
   /// Returns a list of records in the format [{col1: value, col2: value, ...}, {col1: value, col2: value, ...}, ...]
-  /// where each Map is an individual record.
+  /// Each element of the list is a Map which representa an individual record
+  ///   {user_id: value, username: value, team_id: value, tutor_status: value} TODO: Remove team_id??
+  ///
   /// Returns an empty list on error
   static Future<List<Map<String, String>>> getAllUsers(
       [List<String> columns = const ['*']]) async {
@@ -56,8 +61,13 @@ class UsersTable {
   ///
   /// Needs to be called with await to get synchronous operation (double check https://dart.dev/codelabs/async-await)
   ///
+  /// Can be called with a list of columns to return specific columns
+  ///   e.g. columns = ['username', 'tutor_status']
+  ///
   /// Returns a list of records in the format [{col1: value, col2: value, ...}, {col1: value, col2: value, ...}, ...]
-  /// where each Map is an individual record.
+  /// Each element of the list is a Map which representa an individual record
+  ///   {user_id: value, username: value, team_id: value, tutor_status: value} TODO: Remove team_id??
+  ///
   /// Returns an empty list on error
   static Future<List<Map<String, String>>> getSelectedUser(String userId,
       [List<String> columns = const ['*']]) async {
@@ -93,12 +103,16 @@ class UsersTable {
     }
   }
 
-  /// Adds a record into the users table.
+  /// Adds a record into the users table. TODO: Add into UsersInTeams Table??
+  ///
+  /// [username] is the name of the user
+  /// [teamId] is the team which the user is being added to TODO: what to do with this??
+  /// [tutorStatus] true is a user is a tutor, else false
   ///
   /// Needs to be called with await to get synchronous operation (double check https://dart.dev/codelabs/async-await)
   /// All fields need to be provided, a user_id is automatically generated
   ///
-  /// Returns true when user added successfully, false on error      TODO: maybe return user_id?
+  /// Returns true when user added successfully, false on error      TODO: maybe return goal_id?
   static Future<bool> addUser(
       String username, String teamId, bool tutorStatus) async {
     try {
@@ -133,11 +147,16 @@ class UsersTable {
 
   /// Updates an existing record in the users table.
   ///
+  /// To update columns, pass them as positional parameters
+  ///   e.g. updateTeam('1', username: 'TooCoolForSchool')
+  ///
+  /// [username] is the name of the user
+  /// [teamId] is the team which the user is being added to TODO: REMOVE??
+  /// [tutorStatus] true is a user is a tutor, else false TODO: REMOVE??
+  ///
   /// Needs to be called with await to get synchronous operation (double check https://dart.dev/codelabs/async-await)
   ///
-  /// TODO: Decide on [tutorStatus] input type, when [userId] is not a valid user it returns true but nothing is affected
-  ///
-  /// Meant to Return true when user updated successfully, false on error      TODO: maybe return user_id?
+  /// Returns true when record updated successfully, false on error
   /// TODO: FIX: returns true when invalid id provided
   static Future<bool> updateUser(String userId,
       {String username = '',
