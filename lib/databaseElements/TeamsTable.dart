@@ -147,14 +147,12 @@ class TeamsTable {
   ///   e.g. updateTeam('1', teamName: 'Team ChangedName')
   ///
   /// [teamName] is the percentage completion of the goal (e.g. 20% = '20')
-  /// [teamGoals] is the user the goal is assigned to TODO: REMOVE?
   ///
   /// Needs to be called with await to get synchronous operation (double check https://dart.dev/codelabs/async-await)
   ///
   /// Returns true when record updated successfully, false on error
   /// TODO: FIX: returns true when invalid id provided
-  static Future<bool> updateTeam(String teamId,
-      {String teamName = '', String teamGoals = ''}) async {
+  static Future<bool> updateTeam(String teamId, {String teamName = ''}) async {
     try {
       var map = new Map<String, dynamic>();
       map["action"] = DBConstants.UPDATE_ACTION;

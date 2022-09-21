@@ -159,7 +159,7 @@ class FeedbackTable {
 
   /// Adds a record into the feedback table.
   ///
-  /// [userId] is the user who created the feedback TODO: CHECK??
+  /// [userId] is the user who created the feedback
   /// [goalId] is the goal the feedback belongs to
   /// [feedbackString] can only be 200 characters long
   ///
