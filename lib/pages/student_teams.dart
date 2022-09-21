@@ -132,6 +132,9 @@ class TeamDisplay extends StatelessWidget {
   // Requiring the list of todos.
   TeamDisplay({super.key, required this.teamData});
 
+  //Used to store feedback input
+  TextEditingController feedbackController = new TextEditingController();
+
   final TeamData teamData;
 
   List<List<String>> teamGoals = [
@@ -139,6 +142,13 @@ class TeamDisplay extends StatelessWidget {
     ["goal2", "finish this", "finish that"],
     ["goal3", "finish this", "finish that"]
   ];
+
+  final List<String> feedback = <String>[
+    'This is so cool',
+    'Lots of effort',
+    'Very good, top sensation'
+  ];
+
   double progress = 0.2;
 
   @override
@@ -171,7 +181,7 @@ class TeamDisplay extends StatelessWidget {
                 physics: BouncingScrollPhysics(),
                 itemCount: teamGoals.length,
                 itemBuilder: (BuildContext context, int index) {
-                  return _buildList(teamGoals[index]);
+                  return _buildList(teamGoals[index], context);
                 },
               ),
             ),
@@ -179,7 +189,7 @@ class TeamDisplay extends StatelessWidget {
         )));
   }
 
-  Widget _buildList(List<String> item) {
+  Widget _buildList(List<String> item, BuildContext context) {
     String inTitle = item.removeAt(0);
     return Card(
       child: ExpansionTile(
@@ -326,6 +336,7 @@ class TeamDisplay extends StatelessWidget {
                               fontSize: 13),
                         ),
                       ),
+                      value: 1,
                     ),
                     const PopupMenuItem(
                       child: ListTile(
@@ -337,6 +348,7 @@ class TeamDisplay extends StatelessWidget {
                               fontSize: 13),
                         ),
                       ),
+                      value: 2,
                     ),
                     const PopupMenuItem(
                       child: ListTile(
@@ -361,6 +373,128 @@ class TeamDisplay extends StatelessWidget {
                       ),
                     ),
                   ],
+                  onSelected: (result) {
+                    if (result == 1) {
+                      showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return AlertDialog(
+                              insetPadding:
+                                  EdgeInsets.only(left: 20, right: 20),
+                              scrollable: true,
+                              title: Row(
+                                children: [
+                                  const Text(
+                                    "Feedback",
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 17,
+                                        color: Color.fromRGBO(21, 90, 148, 10)),
+                                  ),
+                                  const Spacer(),
+                                  IconButton(
+                                    onPressed: () =>
+                                        Navigator.of(context).pop(),
+                                    icon: const Icon(Icons.close),
+                                    splashRadius: 15,
+                                  )
+                                ],
+                              ),
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20),
+                                  side: const BorderSide(
+                                      color: Color.fromRGBO(21, 90, 148, 10),
+                                      width: 1.5)),
+                              content: Container(
+                                width: MediaQuery.of(context).size.width * 0.7,
+                                height:
+                                    MediaQuery.of(context).size.height * 0.7,
+                                child: ListView.separated(
+                                  itemCount: feedback.length,
+                                  itemBuilder: (context, index) {
+                                    return ListTile(
+                                      title: Text(feedback[index],
+                                          style: const TextStyle(
+                                              fontSize: 13,
+                                              color: Color.fromRGBO(
+                                                  38, 153, 251, 10))),
+                                      shape: RoundedRectangleBorder(
+                                        side: const BorderSide(
+                                            color:
+                                                Color.fromRGBO(21, 90, 148, 10),
+                                            width: 0.5),
+                                        borderRadius: BorderRadius.circular(5),
+                                      ),
+                                    );
+                                  },
+                                  separatorBuilder:
+                                      (BuildContext context, int index) =>
+                                          const Divider(),
+                                ),
+                              ),
+                            );
+                          });
+                    }
+                    if (result == 2) {
+                      showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return AlertDialog(
+                              insetPadding:
+                                  EdgeInsets.only(left: 20, right: 20),
+                              scrollable: true,
+                              title: Row(
+                                children: [
+                                  const Text(
+                                    "Give Feedback",
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 17,
+                                        color: Color.fromRGBO(21, 90, 148, 10)),
+                                  ),
+                                  const Spacer(),
+                                  IconButton(
+                                    onPressed: () =>
+                                        Navigator.of(context).pop(),
+                                    icon: const Icon(Icons.close),
+                                    splashRadius: 15,
+                                  )
+                                ],
+                              ),
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20),
+                                  side: const BorderSide(
+                                      color: Color.fromRGBO(21, 90, 148, 10),
+                                      width: 1.5)),
+                              content: Container(
+                                  width:
+                                      MediaQuery.of(context).size.width * 0.7,
+                                  height:
+                                      MediaQuery.of(context).size.height * 0.7,
+                                  child: TextField(
+                                    controller: feedbackController,
+                                    maxLines: null,
+                                    textAlign: TextAlign.left,
+                                    decoration: InputDecoration(
+                                        border: InputBorder.none,
+                                        hintText: 'Enter feedback',
+                                        enabledBorder: OutlineInputBorder(
+                                          borderSide: const BorderSide(
+                                              width: 3, color: Colors.blue),
+                                          borderRadius:
+                                              BorderRadius.circular(15),
+                                        ),
+                                        focusedBorder: OutlineInputBorder(
+                                          borderSide: const BorderSide(
+                                              width: 3, color: Colors.red),
+                                          borderRadius:
+                                              BorderRadius.circular(15),
+                                        )),
+                                  )),
+                            );
+                          });
+                    }
+                  },
                 ),
               ],
             ),
