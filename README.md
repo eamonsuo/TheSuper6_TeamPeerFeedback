@@ -1,26 +1,15 @@
 # The Super 6!!!!!! Team Peer Feedback Project (Title TBD)
 DECO3801 Project for The Super 6!!!!!!
 
-## Instructions on getting started
-1. Clone the repo to your machine
-2. Open the repository in VSCode
-3. Create a new branch
-4. Edit away!
-
-## Proposed Workflow
-1. Create a branch
-2. Make changes/commit to that branch on your local machine
-3. Push the branch/code in branch to GitHub 
-4. Create a pull request
-5. Address review comments
-6. Merge your pull request
-7. Delete your branch
-
-Try not to work on your branch for _more than a week_
-
-Keep main branch _free of bugs_
-
-All code goes under _lib_ folder
+## Instructions on putting your code from you branch in main
+1. Commit and push your changes on your branch
+2. Checkout the main branch
+3. In terminal in VSCode -> git pull main
+4. Checkout your branch again
+5. In terminal in VSCode -> git merge main
+6. Fix any conflicts & Check your code works with main
+7. Commit and push your merged code to your branch 
+8. Create a pull request on GitHub and merge your code in
 
 ## Troubleshooting
 Change .vscode->setting.json file to ensure correct path to flutter sdk
