@@ -14,7 +14,7 @@ class GoalsTable {
   ///
   /// Returns a list of records in the format [{col1: value, col2: value, ...}, {col1: value, col2: value, ...}, ...]
   /// Each element of the list is a Map which representa an individual record
-  ///   {goal_id: value, goal_desc: value, goal_progress: value, goal_user_id: value, goal_team_id: value, goal_deadline: value}
+  ///   {goal_id: value, goal_desc: value, goal_progress: value, goal_deadline: value}
   ///
   /// Returns an empty list on error
   static Future<List<Map<String, String>>> getAllGoals(
@@ -62,7 +62,7 @@ class GoalsTable {
   ///
   /// Returns a list of records in the format [{col1: value, col2: value, ...}, {col1: value, col2: value, ...}, ...]
   /// Each element of the list is a Map which representa an individual record
-  ///   {goal_id: value, goal_desc: value, goal_progress: value, goal_user_id: value, goal_team_id: value, goal_deadline: value}
+  ///   {goal_id: value, goal_desc: value, goal_progress: value, goal_deadline: value}
   ///
   /// Returns an empty list on error
   static Future<List<Map<String, String>>> getSelectedGoal(String goalId,
@@ -102,26 +102,22 @@ class GoalsTable {
   /// Adds a record into the goals table. Adds a record in teamGoals table
   ///
   /// [description] is the description of the goal TODO: CHECK, Do we need a goal title??
-  /// [userId] is the user the goal is assigned to
-  /// [teamId] is the team the goal belongs to
   /// [deadline] date for goal to be due by in format 'DD-MM-YY'
   ///
   /// Needs to be called with await to get synchronous operation (double check https://dart.dev/codelabs/async-await)
   /// All fields need to be provided, a goal_id is automatically generated
   ///
   /// Returns true when user added successfully, false on error      TODO: maybe return goal_id?
-  static Future<bool> addGoal(
-      String description, String userId, String teamId, String deadline) async {
+  static Future<bool> addGoal(String description, String deadline) async {
     try {
       var map = new Map<String, dynamic>();
       map["action"] = DBConstants.ADD_ACTION;
       map["table"] = DBConstants.GOALS_TABLE;
-      map["columns"] =
-          '(goal_id, goal_desc, goal_progress, goal_user_id, goal_team_id, goal_deadline)';
+      map["columns"] = '(goal_id, goal_desc, goal_progress, goal_deadline)';
 
       // Set up values for a new user in sql query
       var progress = '0'; // Start new goal with 0 progress
-      var newValues = [description, progress, userId, teamId, deadline];
+      var newValues = [description, progress, deadline];
       map["clause"] = "(NULL,'${newValues.join("','")}')";
       print(map);
 
@@ -136,9 +132,6 @@ class GoalsTable {
         return false;
       }
 
-      addGoalToTeam(
-          teamId); //TODO: Goal is still added even if this fails, not error checked
-
       return true;
     } catch (e) {
       return false;
@@ -152,8 +145,6 @@ class GoalsTable {
   ///
   /// [description] is the description of the goal
   /// [progress] is the percentage completion of the goal (e.g. 20% = '20')
-  /// [userId] is the user the goal is assigned to
-  /// [teamId] is the team the goal belongs to
   /// [deadline] date for goal to be due by in format 'DD-MM-YY'
   ///
   /// Needs to be called with await to get synchronous operation (double check https://dart.dev/codelabs/async-await)
@@ -163,8 +154,6 @@ class GoalsTable {
   static Future<bool> updateGoal(String goalId,
       {String description = '',
       String progress = '',
-      String userId = '',
-      String teamId = '',
       String deadline = ''}) async {
     try {
       var map = new Map<String, dynamic>();
@@ -178,12 +167,6 @@ class GoalsTable {
       }
       if (progress != '') {
         map["columns"] += "goal_progress = '$progress',";
-      }
-      if (userId != '') {
-        map["columns"] += "goal_user_id = '$userId',";
-      }
-      if (teamId != '') {
-        map["columns"] += "goal_team_id = '$teamId',";
       }
       if (deadline != '') {
         map["columns"] += "goal_deadline = '$deadline',";
