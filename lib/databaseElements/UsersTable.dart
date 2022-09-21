@@ -199,21 +199,29 @@ class UsersTable {
     }
   }
 
-  //TODO: Implement?
-  /*
-  static Future<bool> deleteUser() async {
+  /// Deletes an existing user from the Users table.
+  ///
+  /// [userId] is the ID of the user
+  ///
+  /// Needs to be called with await to get synchronous operation (double check https://dart.dev/codelabs/async-await)
+  ///
+  /// Returns true when record updated successfully, false on error
+  static Future<bool> deleteUser(String userId) async {
     try {
-      // var map = new Map<String, dynamic>();
-      // map["action"] = _DELETE_EMP_ACTION;
-      // map["emp_id"] = empId;
+      var map = new Map<String, dynamic>();
+      map["action"] = DBConstants.DELETE_ACTION;
+      map["table"] = DBConstants.USERS_TABLE;
+      map["columns"] = '';
+      map["clause"] = "user_id = $userId";
 
-      // http.Response response = await http.post(Uri.parse(url), body: map);
-      // var data = jsonDecode(response.body);
-      // print(data.toString());
-      return false;
+      http.Response response =
+          await http.post(Uri.parse(DBConstants.url), body: map);
+      var data = jsonDecode(response.body);
+      print(data.toString());
+
+      return true;
     } catch (e) {
       return false;
     }
   }
-  */
 }
