@@ -20,6 +20,7 @@ class DBConstants {
   static const String GOALS_COL_PROGRESS = 'goal_progress';
   static const String GOALS_COL_USER_ID = 'goal_user_id';
   static const String GOALS_COL_TEAM_ID = 'goal_team_id';
+  static const String GOALS_COL_DEADLINE = 'goal_deadline';
 
   static const String TEAMS_TABLE = 'teams';
   static const String TEAMS_COL_ID = 'team_id';

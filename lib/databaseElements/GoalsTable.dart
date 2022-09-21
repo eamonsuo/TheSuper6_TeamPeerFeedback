@@ -14,7 +14,7 @@ class GoalsTable {
   ///
   /// Returns a list of records in the format [{col1: value, col2: value, ...}, {col1: value, col2: value, ...}, ...]
   /// Each element of the list is a Map which representa an individual record
-  ///   {goal_id: value, goal_desc: value, goal_progress: value, goal_user_id: value, goal_team_id: value}
+  ///   {goal_id: value, goal_desc: value, goal_progress: value, goal_user_id: value, goal_team_id: value, goal_deadline: value}
   ///
   /// Returns an empty list on error
   static Future<List<Map<String, String>>> getAllGoals(
@@ -62,7 +62,7 @@ class GoalsTable {
   ///
   /// Returns a list of records in the format [{col1: value, col2: value, ...}, {col1: value, col2: value, ...}, ...]
   /// Each element of the list is a Map which representa an individual record
-  ///   {goal_id: value, goal_desc: value, goal_progress: value, goal_user_id: value, goal_team_id: value}
+  ///   {goal_id: value, goal_desc: value, goal_progress: value, goal_user_id: value, goal_team_id: value, goal_deadline: value}
   ///
   /// Returns an empty list on error
   static Future<List<Map<String, String>>> getSelectedGoal(String goalId,
@@ -104,23 +104,24 @@ class GoalsTable {
   /// [description] is the description of the goal TODO: CHECK, Do we need a goal title??
   /// [userId] is the user the goal is assigned to
   /// [teamId] is the team the goal belongs to
+  /// [deadline] date for goal to be due by in format 'DD-MM-YY'
   ///
   /// Needs to be called with await to get synchronous operation (double check https://dart.dev/codelabs/async-await)
   /// All fields need to be provided, a goal_id is automatically generated
   ///
   /// Returns true when user added successfully, false on error      TODO: maybe return goal_id?
   static Future<bool> addGoal(
-      String description, String userId, String teamId) async {
+      String description, String userId, String teamId, String deadline) async {
     try {
       var map = new Map<String, dynamic>();
       map["action"] = DBConstants.ADD_ACTION;
       map["table"] = DBConstants.GOALS_TABLE;
       map["columns"] =
-          '(goal_id, goal_desc, goal_progress, goal_user_id, goal_team_id)';
+          '(goal_id, goal_desc, goal_progress, goal_user_id, goal_team_id, goal_deadline)';
 
       // Set up values for a new user in sql query
       var progress = '0'; // Start new goal with 0 progress
-      var newValues = [description, progress, userId, teamId];
+      var newValues = [description, progress, userId, teamId, deadline];
       map["clause"] = "(NULL,'${newValues.join("','")}')";
       print(map);
 
@@ -151,8 +152,9 @@ class GoalsTable {
   ///
   /// [description] is the description of the goal
   /// [progress] is the percentage completion of the goal (e.g. 20% = '20')
-  /// [userId] is the user the goal is assigned to TODO: REMOVE?
-  /// [teamId] is the team the goal belongs to TODO: REMOVE?
+  /// [userId] is the user the goal is assigned to
+  /// [teamId] is the team the goal belongs to
+  /// [deadline] date for goal to be due by in format 'DD-MM-YY'
   ///
   /// Needs to be called with await to get synchronous operation (double check https://dart.dev/codelabs/async-await)
   ///
@@ -162,7 +164,8 @@ class GoalsTable {
       {String description = '',
       String progress = '',
       String userId = '',
-      String teamId = ''}) async {
+      String teamId = '',
+      String deadline = ''}) async {
     try {
       var map = new Map<String, dynamic>();
       map["action"] = DBConstants.UPDATE_ACTION;
@@ -181,6 +184,9 @@ class GoalsTable {
       }
       if (teamId != '') {
         map["columns"] += "goal_team_id = '$teamId',";
+      }
+      if (deadline != '') {
+        map["columns"] += "goal_deadline = '$deadline',";
       }
       if (map["columns"] == '') {
         print("no cols chosen for update");
