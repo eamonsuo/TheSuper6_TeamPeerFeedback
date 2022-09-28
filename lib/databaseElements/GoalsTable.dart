@@ -36,7 +36,7 @@ class GoalsTable {
 
       // Error Checking on response from web serve
       if (dataList.isEmpty || response.statusCode != 200) {
-        print("error in getAllUsers");
+        print("error in getAllGoals");
         return [];
       }
 
@@ -128,7 +128,7 @@ class GoalsTable {
 
       // Error Checking on response from web server
       if (data == DBConstants.ERROR_MESSAGE || response.statusCode != 200) {
-        print("error in addUser");
+        print("error in addGoal");
         return false;
       }
 
@@ -189,7 +189,7 @@ class GoalsTable {
 
       // Error Checking on response from web server
       if (data == DBConstants.ERROR_MESSAGE || response.statusCode != 200) {
-        print("error in updateUser");
+        print("error in updateGoal");
         return false;
       }
 
@@ -263,7 +263,7 @@ class GoalsTable {
 
       // Error Checking on response from web server
       if (data == DBConstants.ERROR_MESSAGE || response.statusCode != 200) {
-        print("error in deleteFeedback");
+        print("error in deleteGoal");
         return false;
       }
 

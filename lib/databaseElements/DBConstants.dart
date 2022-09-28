@@ -49,4 +49,5 @@ class DBConstants {
 
   static const String ERROR_MESSAGE = 'error';
   static const String SUCCESS_MESSAGE = 'success';
+  static const String NULL_STRING = 'NULL';
 }

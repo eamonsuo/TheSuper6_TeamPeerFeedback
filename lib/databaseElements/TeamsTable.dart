@@ -38,7 +38,7 @@ class TeamsTable {
 
       // Error Checking on response from web serve
       if (dataList.isEmpty || response.statusCode != 200) {
-        print("error in getAllUsers");
+        print("error in getAllTeams");
         return [];
       }
 
