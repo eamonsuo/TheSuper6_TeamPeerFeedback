@@ -201,17 +201,23 @@ class TeamsTable {
   ///
   /// Needs to be called with await to get synchronous operation (double check https://dart.dev/codelabs/async-await)
   ///
-  static Future<bool> addUserToTeam(String userId) async {
+  static Future<bool> addUserToTeam(String userId, {String teamId = ''}) async {
     try {
-      var allTeams = await getAllTeams();
-      var teamId = (allTeams[allTeams.length - 1]['team_id']);
+      var futureTeamId = '';
+      if (teamId == '') {
+        // Add to most recently created team
+        var allTeams = await getAllTeams();
+        futureTeamId = (allTeams[allTeams.length - 1]['team_id'])!;
+      } else {
+        futureTeamId = teamId;
+      }
 
       var map = new Map<String, dynamic>();
       map["action"] = DBConstants.ADD_ACTION;
       map["table"] = DBConstants.USERS_IN_TEAM_TABLE;
       map["columns"] = '(team_id, user_id)';
 
-      var newValues = [teamId, userId];
+      var newValues = [futureTeamId, userId];
       map["clause"] = "('${newValues.join("','")}')";
       print(map);
 
@@ -222,13 +228,80 @@ class TeamsTable {
 
       // Error Checking on response from web server
       if (data == DBConstants.ERROR_MESSAGE || response.statusCode != 200) {
-        print("Error in addTeam");
+        print("Error in addUserToTeam");
         return false;
       }
 
       return true;
     } catch (e) {
       print('Rip Error is actually here lol');
+      return false;
+    }
+  }
+
+  /// Deletes an existing team from the teams table.
+  /// Propogates through database and deletes records related to [teamId].
+  ///
+  /// [teamId] is the ID of the team
+  ///
+  /// Needs to be called with await to get synchronous operation (double check https://dart.dev/codelabs/async-await)
+  ///
+  /// Returns true when record updated successfully, false on error
+  /// TODO: Returns success when invalid ids are used
+  static Future<bool> deleteTeam(String teamId) async {
+    try {
+      var map = new Map<String, dynamic>();
+      map["action"] = DBConstants.DELETE_ACTION;
+      map["table"] = DBConstants.TEAMS_TABLE;
+      map["columns"] = '';
+      map["clause"] = "team_id = $teamId";
+
+      http.Response response =
+          await http.post(Uri.parse(DBConstants.url), body: map);
+      var data = jsonDecode(response.body);
+      print(data.toString());
+
+      // Error Checking on response from web server
+      if (data == DBConstants.ERROR_MESSAGE || response.statusCode != 200) {
+        print("error in deleteTeam");
+        return false;
+      }
+
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// Deletes an existing user from a team in the usersInTeams table.
+  ///
+  /// [teamId] is the ID of the team
+  ///
+  /// Needs to be called with await to get synchronous operation (double check https://dart.dev/codelabs/async-await)
+  ///
+  /// Returns true when record updated successfully, false on error
+  /// TODO: Returns success when invalid ids are used
+  static Future<bool> deleteUserFromTeam(String userId, String teamId) async {
+    try {
+      var map = new Map<String, dynamic>();
+      map["action"] = DBConstants.DELETE_ACTION;
+      map["table"] = DBConstants.USERS_IN_TEAM_TABLE;
+      map["columns"] = '';
+      map["clause"] = "team_id = $teamId AND user_id = $userId";
+
+      http.Response response =
+          await http.post(Uri.parse(DBConstants.url), body: map);
+      var data = jsonDecode(response.body);
+      print(data.toString());
+
+      // Error Checking on response from web server
+      if (data == DBConstants.ERROR_MESSAGE || response.statusCode != 200) {
+        print("error in deleteUserFromTeam");
+        return false;
+      }
+
+      return true;
+    } catch (e) {
       return false;
     }
   }

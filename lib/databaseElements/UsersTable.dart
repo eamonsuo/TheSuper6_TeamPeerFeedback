@@ -200,6 +200,7 @@ class UsersTable {
   }
 
   /// Deletes an existing user from the Users table.
+  /// Propogates through database and deletes records related to [userId].
   ///
   /// [userId] is the ID of the user
   ///
@@ -218,6 +219,12 @@ class UsersTable {
           await http.post(Uri.parse(DBConstants.url), body: map);
       var data = jsonDecode(response.body);
       print(data.toString());
+
+      // Error Checking on response from web server
+      if (data == DBConstants.ERROR_MESSAGE || response.statusCode != 200) {
+        print("error in deleteUser");
+        return false;
+      }
 
       return true;
     } catch (e) {

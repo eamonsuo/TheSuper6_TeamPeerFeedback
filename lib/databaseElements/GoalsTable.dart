@@ -239,4 +239,37 @@ class GoalsTable {
       return false;
     }
   }
+
+  /// Deletes a goal from the goals table.
+  ///
+  /// [goalId] is the ID of the goal
+  ///
+  /// Needs to be called with await to get synchronous operation (double check https://dart.dev/codelabs/async-await)
+  ///
+  /// Returns true when record updated successfully, false on error
+  /// TODO: Returns success when invalid ids are used
+  static Future<bool> deleteGoal(String goalId) async {
+    try {
+      var map = new Map<String, dynamic>();
+      map["action"] = DBConstants.DELETE_ACTION;
+      map["table"] = DBConstants.GOALS_TABLE;
+      map["columns"] = '';
+      map["clause"] = "goal_id = $goalId";
+
+      http.Response response =
+          await http.post(Uri.parse(DBConstants.url), body: map);
+      var data = jsonDecode(response.body);
+      print(data.toString());
+
+      // Error Checking on response from web server
+      if (data == DBConstants.ERROR_MESSAGE || response.statusCode != 200) {
+        print("error in deleteFeedback");
+        return false;
+      }
+
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
 }

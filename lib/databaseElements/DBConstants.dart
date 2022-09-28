@@ -41,6 +41,12 @@ class DBConstants {
   static const String TG_COL_TEAM_ID = 'team_id';
   static const String TG_COL_GOAL_ID = 'goal_id';
 
+  static const String USER_GOALS_TABLE = 'userGoals';
+
+  static const String SUB_GOALS_TABLE = 'subGoals';
+
+  static const String TUTOR_MESSAGES_TABLE = 'tutorMessages';
+
   static const String ERROR_MESSAGE = 'error';
   static const String SUCCESS_MESSAGE = 'success';
 }

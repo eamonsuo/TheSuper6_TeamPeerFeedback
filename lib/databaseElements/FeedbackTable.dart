@@ -259,4 +259,37 @@ class FeedbackTable {
       return false;
     }
   }
+
+  /// Deletes an existing piece of feedback from the feedback table.
+  ///
+  /// [feedbackId] is the ID of the feedback
+  ///
+  /// Needs to be called with await to get synchronous operation (double check https://dart.dev/codelabs/async-await)
+  ///
+  /// Returns true when record updated successfully, false on error
+  /// TODO: Returns success when invalid ids are used
+  static Future<bool> deleteFeedback(String feedbackId) async {
+    try {
+      var map = new Map<String, dynamic>();
+      map["action"] = DBConstants.DELETE_ACTION;
+      map["table"] = DBConstants.FEEDBACK_TABLE;
+      map["columns"] = '';
+      map["clause"] = "feedback_id = $feedbackId";
+
+      http.Response response =
+          await http.post(Uri.parse(DBConstants.url), body: map);
+      var data = jsonDecode(response.body);
+      print(data.toString());
+
+      // Error Checking on response from web server
+      if (data == DBConstants.ERROR_MESSAGE || response.statusCode != 200) {
+        print("error in deleteFeedback");
+        return false;
+      }
+
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
 }
