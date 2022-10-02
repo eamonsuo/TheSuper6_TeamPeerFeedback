@@ -1,6 +1,7 @@
 /// Code inspired by Mobile Programmer, 2019 - https://www.youtube.com/watch?v=F4Q6lEhmwCY
 
 import 'dart:convert';
+import 'dart:ffi';
 import 'package:deco3801_project/databaseElements/DBConstants.dart';
 import 'package:http/http.dart' as http;
 
@@ -103,12 +104,18 @@ class GoalsTable {
   ///
   /// [description] is the description of the goal TODO: CHECK, Do we need a goal title??
   /// [deadline] date for goal to be due by in format 'DD-MM-YY'
+  /// [teamId] ID of team assigned to goal
+  /// [userId] ID of user assigned to goal
+  /// [subGoal] Whether this goal is a sub goal or not
+  /// [teamGoalId] The goalId of the teamGoal for this subGoal
   ///
   /// Needs to be called with await to get synchronous operation (double check https://dart.dev/codelabs/async-await)
   /// All fields need to be provided, a goal_id is automatically generated
   ///
   /// Returns true when user added successfully, false on error      TODO: maybe return goal_id?
-  static Future<bool> addGoal(String description, String deadline) async {
+  static Future<bool> addGoal(String description, String deadline,
+      String teamId, String userId, bool subGoal,
+      {String teamGoalId = ''}) async {
     try {
       var map = new Map<String, dynamic>();
       map["action"] = DBConstants.ADD_ACTION;
@@ -130,6 +137,17 @@ class GoalsTable {
       if (data == DBConstants.ERROR_MESSAGE || response.statusCode != 200) {
         print("error in addGoal");
         return false;
+      }
+
+      // Get most recent goal, goal just created
+      var allGoals = await getAllGoals();
+      var goalId = (allGoals[allGoals.length - 1]['goal_id']) ?? '{}';
+
+      if (subGoal) {
+        await addGoalToUser(userId, goalId);
+        await addGoalTosubGoals(goalId, teamGoalId);
+      } else {
+        await addGoalToTeam(teamId, goalId);
       }
 
       return true;
@@ -199,20 +217,17 @@ class GoalsTable {
     }
   }
 
-  /// Create new function, addGoalToTeam(team_id)
-  ///   Call this in add goal
-  ///   Assign goal to team in teamGoals Table
+  /// Links the given goalId and teamId in the teamsGoals Table
   ///
-  /// Adds a given goal to a given team
+  ///
+  /// [teamId] is the team ID to be linked to the goal
+  /// [goalId] is the goal ID to be linked to the team
   ///
   /// Needs to be called with await to get synchronous operation (double check https://dart.dev/codelabs/async-await)
   ///
-  /// Returns true when record updated successfully, false on error
-  static Future<bool> addGoalToTeam(String teamId) async {
+  /// Returns true when record added successfully
+  static Future<bool> addGoalToTeam(String teamId, String goalId) async {
     try {
-      var allGoals = await getAllGoals();
-      var goalId = (allGoals[allGoals.length - 1]['goal_id']);
-
       var map = new Map<String, dynamic>();
       map["action"] = DBConstants.ADD_ACTION;
       map["table"] = DBConstants.TEAM_GOALS_TABLE;
@@ -235,7 +250,82 @@ class GoalsTable {
 
       return true;
     } catch (e) {
-      print('Rip Error is actually here lol');
+      print('Error in addGoalToTeam');
+      return false;
+    }
+  }
+
+  /// Links the given goal and user to the userGoals Table
+  ///
+  /// [userId] is the user ID to be linked to the goal
+  /// [goalId] is the goal ID to be linked to the user
+  ///
+  /// Needs to be called with await to get synchronous operation (double check https://dart.dev/codelabs/async-await)
+  ///
+  /// Returns true when record updated successfully, false on error
+  static Future<bool> addGoalToUser(String userId, String goalId) async {
+    try {
+      var map = new Map<String, dynamic>();
+      map["action"] = DBConstants.ADD_ACTION;
+      map["table"] = DBConstants.USER_GOALS_TABLE;
+      map["columns"] = '(user_id, goal_id)';
+
+      var newValues = [userId, goalId];
+      map["clause"] = "('${newValues.join("','")}')";
+      print(map);
+
+      http.Response response =
+          await http.post(Uri.parse(DBConstants.url), body: map);
+      var data = jsonDecode(response.body);
+      print("Call to HTTP: ${data.toString()}");
+
+      // Error Checking on response from web server
+      if (data == DBConstants.ERROR_MESSAGE || response.statusCode != 200) {
+        print("Error in addGoalToUser");
+        return false;
+      }
+
+      return true;
+    } catch (e) {
+      print('Error in addGoalToUser');
+      return false;
+    }
+  }
+
+  /// Links the subGoal to the teamGoal
+  ///
+  /// [subGoalId] is the subGoal to be linked to the teamGoal
+  /// [teamGoalId] is the teamGoal to be linked to the subGoal
+  ///
+  /// Needs to be called with await to get synchronous operation (double check https://dart.dev/codelabs/async-await)
+  ///
+  /// Returns true when record updated successfully, false on error
+  static Future<bool> addGoalTosubGoals(
+      String subGoalId, String teamGoalId) async {
+    try {
+      var map = new Map<String, dynamic>();
+      map["action"] = DBConstants.ADD_ACTION;
+      map["table"] = DBConstants.SUB_GOALS_TABLE;
+      map["columns"] = '(user_goal, team_goal)';
+
+      var newValues = [subGoalId, teamGoalId];
+      map["clause"] = "('${newValues.join("','")}')";
+      print(map);
+
+      http.Response response =
+          await http.post(Uri.parse(DBConstants.url), body: map);
+      var data = jsonDecode(response.body);
+      print("Call to HTTP: ${data.toString()}");
+
+      // Error Checking on response from web server
+      if (data == DBConstants.ERROR_MESSAGE || response.statusCode != 200) {
+        print("Error in addGoalToUser");
+        return false;
+      }
+
+      return true;
+    } catch (e) {
+      print('Error in addGoalTosubGoals');
       return false;
     }
   }
@@ -270,6 +360,89 @@ class GoalsTable {
       return true;
     } catch (e) {
       return false;
+    }
+  }
+
+  /// Gets all goals associated with a team
+  ///
+  /// [teamId] is the ID of the team
+  ///
+  /// Needs to be called with await to get synchronous operation (double check https://dart.dev/codelabs/async-await)
+  ///
+  /// Returns a dictionary mapping teamGoals to subGoals
+  ///   {teamGoalId1: (subGoalId1, subGoalId2), teamGoalId2: (subGoalId3, subGoalId4) }
+  /// TODO: Returns success when invalid ids are used
+  static Future<Map<String, List>> getTeamGoals(String teamId,
+      [List<String> columns = const ['*']]) async {
+    try {
+      var map = new Map<String, dynamic>();
+      map["action"] = DBConstants.GET_ALL_ACTION;
+      map["table"] = DBConstants.TEAM_GOALS_TABLE;
+      map["columns"] = columns.join(',');
+      map["clause"] = "${DBConstants.TG_COL_TEAM_ID} = $teamId";
+      Map<String, List> teamGoals = {};
+
+      http.Response response =
+          await http.post(Uri.parse(DBConstants.url), body: map);
+      var data = jsonDecode(response.body);
+
+      for (var i = 0; i < data.length; i++) {
+        var team = data[i]['team_id'];
+        var teamGoalId = data[i]['goal_id'];
+        if (team == teamId) {
+          var subGoals = await getsubGoals(teamGoalId);
+          teamGoals[teamGoalId] = subGoals;
+        }
+      }
+
+      // Error Checking on response from web server
+      if (data == DBConstants.ERROR_MESSAGE || response.statusCode != 200) {
+        print("error in getTeamGoals");
+        return {};
+      }
+
+      return teamGoals;
+    } catch (e) {
+      return {};
+    }
+  }
+
+  /// Gets all subGoals associated with a teamGoal
+  ///
+  /// [goalId] is the goalId of the teamGoal
+  ///
+  /// Needs to be called with await to get synchronous operation (double check https://dart.dev/codelabs/async-await)
+  ///
+  /// returns a list of all subGoals
+  static Future<List> getsubGoals(String goalId,
+      [List<String> columns = const ['*']]) async {
+    try {
+      var map = new Map<String, dynamic>();
+      map["action"] = DBConstants.GET_ALL_ACTION;
+      map["table"] = DBConstants.SUB_GOALS_TABLE;
+      map["columns"] = columns.join(',');
+      map["clause"] = '';
+      var subGoals = [];
+
+      http.Response response =
+          await http.post(Uri.parse(DBConstants.url), body: map);
+      var data = jsonDecode(response.body);
+
+      for (var i = 0; i < data.length; i++) {
+        var teamGoal = data[i]['team_goal'];
+        if (teamGoal == goalId) {
+          subGoals.add(data[i]['user_goal']);
+        }
+      }
+
+      // Error Checking on response from web server
+      if (data == DBConstants.ERROR_MESSAGE || response.statusCode != 200) {
+        print("error in getSubGoals");
+        return [];
+      }
+      return subGoals;
+    } catch (e) {
+      return [];
     }
   }
 }
