@@ -159,6 +159,59 @@ class TutorMessagesTable {
     }
   }
 
+  /// Returns all messages related to [teamId]
+  ///
+  /// Needs to be called with await to get synchronous operation (double check https://dart.dev/codelabs/async-await)
+  ///
+  /// Can be called with a list of columns to return specific columns
+  ///   e.g. columns = ['sender_id', 'receiver_id']
+  ///
+  /// Returns a list of records in the format [{col1: value, col2: value, ...}, {col1: value, col2: value, ...}, ...]
+  /// Each element of the list is a Map which representa an individual record
+  ///   {message_id: value, sender_id: value, receiver_id: value, team_id: value, subgoal_id: value, message_contents: value, tutor_id: value}
+  ///
+  /// Returns an empty list on error
+  static Future<List<Map<String, String>>> getTeamMessages(String teamId,
+      [List<String> columns = const ['*']]) async {
+    try {
+      // Create map which stores the values needed for our sql query
+      var map = Map<String, dynamic>();
+      map["action"] = DBConstants.GET_ONE_ACTION;
+      map["table"] = DBConstants.TUTOR_MESSAGES_TABLE;
+      map["columns"] = columns.join(', ');
+      map["clause"] = 'team_id = $teamId';
+      print(map.toString());
+
+      // HTTP POST message sent to server and JSON is returned
+      // print('Start');
+      http.Response response =
+          await http.post(Uri.parse(DBConstants.url), body: map);
+      // print(response);
+      List<dynamic> dataList = jsonDecode(response.body);
+      // print(dataList);
+      print("Call to HTTP");
+
+      // Error Checking on response from web serve
+      if (dataList.isEmpty || response.statusCode != 200) {
+        print("error in getReceivedMessages");
+        return [];
+      }
+      // Organise & output results in json style
+      List<Map<String, String>> results = [];
+      for (var i = 0; i < dataList.length; i++) {
+        (dataList[i]['subgoal_id'] == null)
+            ? dataList[i]['subgoal_id'] = DBConstants.NULL_STRING
+            : true; // Trickery to avoid null error when casting responses (subgoal_id can be null)
+        results.add(Map<String, String>.from(dataList[i]));
+      }
+
+      print("results: $results");
+      return results;
+    } catch (e) {
+      return [];
+    }
+  }
+
   /// Adds a record into the tutorMessages table.
   ///
   /// [senderId] is the user who created the message

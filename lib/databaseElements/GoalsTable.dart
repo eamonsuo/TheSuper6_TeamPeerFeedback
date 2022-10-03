@@ -106,7 +106,7 @@ class GoalsTable {
   /// [deadline] date for goal to be due by in format 'DD-MM-YY'
   /// [teamId] ID of team assigned to goal
   /// [userId] ID of user assigned to goal
-  /// [subGoal] Whether this goal is a sub goal or not
+  /// [subGoal] Boolean value based on whether this goal is a sub goal or not
   /// [teamGoalId] The goalId of the teamGoal for this subGoal
   ///
   /// Needs to be called with await to get synchronous operation (double check https://dart.dev/codelabs/async-await)
@@ -120,11 +120,17 @@ class GoalsTable {
       var map = new Map<String, dynamic>();
       map["action"] = DBConstants.ADD_ACTION;
       map["table"] = DBConstants.GOALS_TABLE;
-      map["columns"] = '(goal_id, goal_desc, goal_progress, goal_deadline)';
+      map["columns"] =
+          '(goal_id, goal_desc, goal_progress, goal_starttime, goal_deadline)';
 
       // Set up values for a new user in sql query
       var progress = '0'; // Start new goal with 0 progress
-      var newValues = [description, progress, deadline];
+      var currentTime =
+          DateTime.now(); // Start time of goal is time of creation
+      var year = '${currentTime.year}';
+      var startTime =
+          "${currentTime.day}-${currentTime.month}-${year.substring(2, 4)}";
+      var newValues = [description, progress, startTime, deadline];
       map["clause"] = "(NULL,'${newValues.join("','")}')";
       print(map);
 
