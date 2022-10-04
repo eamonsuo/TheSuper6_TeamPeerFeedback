@@ -2,6 +2,7 @@
 
 import 'dart:convert';
 import 'dart:ffi';
+import 'dart:math';
 import 'package:deco3801_project/databaseElements/DBConstants.dart';
 import 'package:http/http.dart' as http;
 
@@ -100,23 +101,29 @@ class GoalsTable {
     }
   }
 
-  /// Adds a record into the goals table. Adds a record in teamGoals table
+  /// Adds a record into the goals table
+  /// Adds a record in teamGoals (for a team goal) or the userGoals & subGoals table (for a sub goal)
   ///
   /// [description] is the description of the goal TODO: CHECK, Do we need a goal title??
   /// [deadline] date for goal to be due by in format 'DD-MM-YY'
   /// [teamId] ID of team assigned to goal
-  /// [userId] ID of user assigned to goal
-  /// [subGoal] Boolean value based on whether this goal is a sub goal or not
+  /// [subGoal] Boolean value based on whether this goal is a sub goal or not (if true, MUST pass [teamGoalId] and [userId])
   /// [teamGoalId] The goalId of the teamGoal for this subGoal
+  /// [userId] ID of user assigned to goal
   ///
   /// Needs to be called with await to get synchronous operation (double check https://dart.dev/codelabs/async-await)
   /// All fields need to be provided, a goal_id is automatically generated
   ///
   /// Returns true when user added successfully, false on error      TODO: maybe return goal_id?
-  static Future<bool> addGoal(String description, String deadline,
-      String teamId, String userId, bool subGoal,
-      {String teamGoalId = ''}) async {
+  static Future<bool> addGoal(
+      String description, String deadline, String teamId, bool subGoal,
+      {String teamGoalId = '', String userId = ''}) async {
     try {
+      // If a subgoal exists it must have a teamGoal and user associated
+      if (subGoal && teamGoalId == '' && userId == '') {
+        return false;
+      }
+
       var map = new Map<String, dynamic>();
       map["action"] = DBConstants.ADD_ACTION;
       map["table"] = DBConstants.GOALS_TABLE;
@@ -170,6 +177,7 @@ class GoalsTable {
   /// [description] is the description of the goal
   /// [progress] is the percentage completion of the goal (e.g. 20% = '20')
   /// [deadline] date for goal to be due by in format 'DD-MM-YY'
+  /// [updateTeamGoalProgress] IGONORE THIS PARAMETER - internal use only
   ///
   /// Needs to be called with await to get synchronous operation (double check https://dart.dev/codelabs/async-await)
   ///
@@ -178,7 +186,8 @@ class GoalsTable {
   static Future<bool> updateGoal(String goalId,
       {String description = '',
       String progress = '',
-      String deadline = ''}) async {
+      String deadline = '',
+      bool updateTeamGoalProgress = true}) async {
     try {
       var map = new Map<String, dynamic>();
       map["action"] = DBConstants.UPDATE_ACTION;
@@ -191,6 +200,8 @@ class GoalsTable {
       }
       if (progress != '') {
         map["columns"] += "goal_progress = '$progress',";
+      } else {
+        updateTeamGoalProgress = false;
       }
       if (deadline != '') {
         map["columns"] += "goal_deadline = '$deadline',";
@@ -215,6 +226,10 @@ class GoalsTable {
       if (data == DBConstants.ERROR_MESSAGE || response.statusCode != 200) {
         print("error in updateGoal");
         return false;
+      }
+
+      if (updateTeamGoalProgress) {
+        _updateTeamGoalProgress(goalId);
       }
 
       return true;
@@ -325,7 +340,7 @@ class GoalsTable {
 
       // Error Checking on response from web server
       if (data == DBConstants.ERROR_MESSAGE || response.statusCode != 200) {
-        print("Error in addGoalToUser");
+        print("Error in addGoalTosubGoals");
         return false;
       }
 
@@ -413,6 +428,28 @@ class GoalsTable {
     }
   }
 
+  /// Returns records based on the passed [teamId].
+  /// Returns all the information related to the team goals
+  ///
+  /// Returns a list of records in the format [{col1: value, col2: value, ...}, {col1: value, col2: value, ...}, ...]
+  ///
+  /// Returns an empty list on error
+  static Future<List<Map<String, String>>> getTeamGoalInfo(
+      String teamId) async {
+    Map<String, List> teamGoals = await GoalsTable.getTeamGoals(teamId);
+    List<Map<String, String>> goalInfo = [];
+    List<String> teamGoalIds = teamGoals.keys.toList();
+
+    // Get goal info for each team goal
+    for (int i = 0; i < teamGoalIds.length; i++) {
+      List<Map<String, String>> goal =
+          await GoalsTable.getSelectedGoal(teamGoalIds[i]);
+      goalInfo.add(goal[0]);
+    }
+
+    return goalInfo;
+  }
+
   /// Gets all subGoals associated with a teamGoal
   ///
   /// [goalId] is the goalId of the teamGoal
@@ -450,5 +487,81 @@ class GoalsTable {
     } catch (e) {
       return [];
     }
+  }
+
+  /// Returns records based on the passed [teamGoalId].
+  /// Returns all the information related to the subGoals of a teamGoal
+  ///
+  /// Returns a list of records in the format [{col1: value, col2: value, ...}, {col1: value, col2: value, ...}, ...]
+  ///
+  /// Returns an empty list on error
+  static Future<List<Map<String, String>>> getSubGoalInfo(
+      String teamGoalId) async {
+    List subGoalIds = await GoalsTable.getsubGoals(teamGoalId);
+    List<Map<String, String>> goalInfo = [];
+
+    // Get goal info for each team goal
+    for (int i = 0; i < subGoalIds.length; i++) {
+      List<Map<String, String>> goal =
+          await GoalsTable.getSelectedGoal(subGoalIds[i]);
+      goalInfo.add(goal[0]);
+    }
+
+    return goalInfo;
+  }
+
+  /// Returns the team goal id of the passed sub goal id
+  ///
+  /// Returns an empty string on error
+  static Future<String> getTeamGoalFromSubGoal(String subGoalId,
+      [List<String> columns = const ['*']]) async {
+    var map = new Map<String, dynamic>();
+    map["action"] = DBConstants.GET_ONE_ACTION;
+    map["table"] = DBConstants.SUB_GOALS_TABLE;
+    map["columns"] = columns.join(',');
+    map["clause"] = "user_goal = $subGoalId";
+
+    http.Response response =
+        await http.post(Uri.parse(DBConstants.url), body: map);
+    var data = jsonDecode(response.body);
+
+    // Error Checking on response from web server
+    if (data == DBConstants.ERROR_MESSAGE || response.statusCode != 200) {
+      print("error in getTeamGoalFromSubGoal");
+      return "";
+    }
+
+    String teamGoalId = data[0]['team_goal'];
+    return teamGoalId;
+  }
+
+  /// Used to update a team goal's progress when the progress of one of its subgoals' is updated
+  /// Used in the updateGoal function
+  ///
+  /// returns true on success, false on error
+  static Future<bool> _updateTeamGoalProgress(String subGoalId) async {
+    // Get teamGoal id
+    String teamGoalId = await getTeamGoalFromSubGoal(subGoalId);
+    if (teamGoalId == "") {
+      return false;
+    }
+
+    // Get information of all subGoals of teamGoal
+    List subGoalsInfo = await getSubGoalInfo(teamGoalId);
+
+    // Get progress of each subgoal
+    // Calculate new teamgoal progress
+    int goalsCount = subGoalsInfo.length;
+    double teamGoalProgress = 0;
+    for (int i = 0; i < goalsCount; i++) {
+      int subgoalProgress = int.parse(subGoalsInfo[i]["goal_progress"]);
+      teamGoalProgress += subgoalProgress / goalsCount;
+    }
+
+    // Update team goal progress, bound above by 100
+    int goalProgress = min(teamGoalProgress.ceil(), 100);
+    bool result = await updateGoal(teamGoalId,
+        progress: goalProgress.toString(), updateTeamGoalProgress: false);
+    return result;
   }
 }

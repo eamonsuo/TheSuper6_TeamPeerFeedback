@@ -2,14 +2,21 @@ import 'dart:ffi';
 import 'dart:math';
 
 import 'package:deco3801_project/databaseElements/GoalsTable.dart';
+import 'package:deco3801_project/databaseElements/TeamsTable.dart';
 import 'package:deco3801_project/databaseElements/TutorMessagesTable.dart';
 
 class HealthScore {
+  /// Calculates the health score of a team based on certain properties
+  ///
+  /// The health score is currently based on how much progress has been made on
+  /// completing goals (weighted at 70%) and how many messages have been sent to
+  /// a tutor (weighted at 30%).
+  ///
+  /// Returns an integer between 0 and 100 indicating the health score
   static Future<int> getHealthScore(String teamId) async {
-    // Individual components scaled to be out of 100
-
     // Get information of each team goal
-    List<Map<String, String>> goalInfo = await _getTeamGoalInfo(teamId);
+    List<Map<String, String>> goalInfo =
+        await GoalsTable.getTeamGoalInfo(teamId);
 
     // Get goal health (progress on goals vs time used)
     int goalHealth = _calculateGoalHealth(goalInfo);
@@ -28,22 +35,10 @@ class HealthScore {
     return max(health, 0);
   }
 
-  static Future<List<Map<String, String>>> _getTeamGoalInfo(
-      String teamId) async {
-    Map<String, List> teamGoals = await GoalsTable.getTeamGoals(teamId);
-    List<Map<String, String>> goalInfo = [];
-    List<String> teamGoalIds = teamGoals.keys.toList();
-
-    // Get goal info for each team goal
-    for (int i = 0; i < teamGoalIds.length; i++) {
-      List<Map<String, String>> goal =
-          await GoalsTable.getSelectedGoal(teamGoalIds[i]);
-      goalInfo.add(goal[0]);
-    }
-
-    return goalInfo;
-  }
-
+  /// This is an internal function which is used to calculate the health score
+  ///   of the goal progress
+  ///
+  /// Returns and integer between 0 and 100
   static int _calculateGoalHealth(List<Map<String, String>> goalsInfo) {
     // print(5 ~/ 3);
     // print("CALCULATE GOALS: $goalsInfo");
@@ -92,6 +87,10 @@ class HealthScore {
     return goalHealth.ceil();
   }
 
+  /// This is an internal function which is used to calculate the health score
+  ///   based on messages sent to a tutor
+  ///
+  /// Returns and integer between 0 and 100
   static int _calculateTutorHealth(List<Map<String, String>> messageInfo) {
     int tutorHealth = 100;
 
