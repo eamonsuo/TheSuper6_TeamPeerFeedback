@@ -28,9 +28,9 @@ class _StudentTeamsPageState extends State<StudentTeamsPage> {
   }
 
   List<TeamData> teamData = [
-    TeamData("team1"),
-    TeamData("team2"),
-    TeamData("team3")
+    const TeamData("team1"),
+    const TeamData("team2"),
+    const TeamData("team3")
   ];
 
   @override
@@ -48,113 +48,97 @@ class _StudentTeamsPageState extends State<StudentTeamsPage> {
             appBar: AppBar(
               title: const Text('Teams'),
             ),
-            backgroundColor: Color.fromRGBO(241, 249, 255, 50),
+            backgroundColor: const Color.fromRGBO(241, 249, 255, 50),
             body: ListView.separated(
               padding: const EdgeInsets.all(8),
-              itemCount: _teamData.length + 1,
+              itemCount: _teamData.length,
               itemBuilder: (BuildContext context, int index) {
-                if (index == _teamData.length) {
-                  return ListTile(
-                    contentPadding: EdgeInsets.symmetric(horizontal: 30.0),
-                    title: const Text(
-                      "Create new team",
-                      style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Color.fromRGBO(21, 90, 148, 50),
-                          fontSize: 15),
-                    ),
-                    trailing: Icon(Icons.add),
-                    onTap: () {
-                      //CREATE NEW TEAM
-                    },
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
-                        side: const BorderSide(
-                            color: Color.fromRGBO(21, 90, 148, 50))),
-                    tileColor: Colors.white,
-                  );
-                } else {
-                  return ListTile(
-                    contentPadding: EdgeInsets.symmetric(horizontal: 30.0),
-                    title: Text(
-                      _teamData.elementAt(index).entries.last.value,
-                      style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Color.fromRGBO(21, 90, 148, 50),
-                          fontSize: 15),
-                    ),
-                    trailing: PopupMenuButton(
-                      splashRadius: 20,
-                      tooltip: '',
-                      icon: Icon(Icons.more_vert),
-                      itemBuilder: (BuildContext context) => <PopupMenuEntry>[
-                        const PopupMenuItem(
-                          child: ListTile(
-                            title: Text(
-                              'Write to tutors',
-                              style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: Color.fromRGBO(38, 153, 251, 60),
-                                  fontSize: 14),
-                            ),
+                return ListTile(
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 30.0),
+                  title: Text(
+                    _teamData.elementAt(index).entries.last.value,
+                    style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Color.fromRGBO(21, 90, 148, 50),
+                        fontSize: 15),
+                  ),
+                  trailing: PopupMenuButton(
+                    splashRadius: 20,
+                    tooltip: '',
+                    icon: const Icon(Icons.more_vert),
+                    itemBuilder: (BuildContext context) => <PopupMenuEntry>[
+                      const PopupMenuItem(
+                        child: ListTile(
+                          title: Text(
+                            'Write to tutors',
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Color.fromRGBO(38, 153, 251, 60),
+                                fontSize: 14),
                           ),
                         ),
-                        const PopupMenuItem(
-                          child: ListTile(
-                            title: Text(
-                              'See members',
-                              style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: Color.fromRGBO(38, 153, 251, 60),
-                                  fontSize: 14),
-                            ),
+                      ),
+                      const PopupMenuItem(
+                        child: ListTile(
+                          title: Text(
+                            'See members',
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Color.fromRGBO(38, 153, 251, 60),
+                                fontSize: 14),
                           ),
                         ),
-                        const PopupMenuItem(
-                          child: ListTile(
-                            title: Text(
-                              'Add members',
-                              style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: Color.fromRGBO(38, 153, 251, 60),
-                                  fontSize: 14),
-                            ),
+                      ),
+                      const PopupMenuItem(
+                        child: ListTile(
+                          title: Text(
+                            'Add members',
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Color.fromRGBO(38, 153, 251, 60),
+                                fontSize: 14),
                           ),
                         ),
-                        const PopupMenuItem(
-                          child: ListTile(
-                            title: Text(
-                              'Leave team',
-                              style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: Color.fromRGBO(38, 153, 251, 60),
-                                  fontSize: 14),
-                            ),
+                      ),
+                      const PopupMenuItem(
+                        child: ListTile(
+                          title: Text(
+                            'Leave team',
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Color.fromRGBO(38, 153, 251, 60),
+                                fontSize: 14),
                           ),
                         ),
-                      ],
-                    ),
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) =>
-                              TeamDisplay(teamData: _teamData.elementAt(index)),
-                        ),
-                      );
-                    },
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
-                        side:
-                            BorderSide(color: Color.fromRGBO(21, 90, 148, 50))),
-                    tileColor: Colors.white,
-                  );
-                }
+                      ),
+                    ],
+                  ),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            TeamDisplay(teamData: _teamData.elementAt(index)),
+                      ),
+                    );
+                  },
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30),
+                      side: const BorderSide(
+                          color: Color.fromRGBO(21, 90, 148, 50))),
+                  tileColor: Colors.white,
+                );
               },
               separatorBuilder: (BuildContext context, int index) =>
                   const Divider(
                 color: Colors.transparent,
               ),
+            ),
+            floatingActionButton: FloatingActionButton(
+              onPressed: () {
+                // Add your onPressed code here!
+              },
+              child: const Icon(Icons.add),
             ),
           );
         } else {
@@ -188,7 +172,7 @@ class _TeamDisplayState extends State<TeamDisplay> {
 
   //Used to store feedback input
   TextEditingController feedbackController = TextEditingController();
-  TextEditingController goalNameController = TextEditingController();
+  TextEditingController goalDeadlineController = TextEditingController();
   TextEditingController goalDescriptionController = TextEditingController();
   TextEditingController subGoalAssignedPersonController =
       TextEditingController();
@@ -227,38 +211,140 @@ class _TeamDisplayState extends State<TeamDisplay> {
             if _goalData.elementAt(i).entries.elementAt(2)
           }*/
           return Scaffold(
-              appBar: AppBar(
-                title: Text(widget.teamData.entries.last.value),
-              ),
-              backgroundColor: Color.fromRGBO(241, 249, 255, 1),
-              body: SingleChildScrollView(
-                  child: Column(
-                children: [
-                  SizedBox(
-                    height: 10,
+            appBar: AppBar(
+              title: Text(widget.teamData.entries.last.value),
+            ),
+            backgroundColor: const Color.fromRGBO(241, 249, 255, 1),
+            body: SingleChildScrollView(
+                child: Column(
+              children: [
+                const SizedBox(
+                  height: 10,
+                ),
+                const Text(
+                  "Team Goals",
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                      color: const Color.fromRGBO(21, 90, 148, 10)),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(10.0),
+                  child: ListView.builder(
+                    scrollDirection: Axis.vertical,
+                    shrinkWrap: true,
+                    physics: const BouncingScrollPhysics(),
+                    itemCount: _goalData.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      return _buildList(
+                          _goalData.elementAt(index), context, index);
+                    },
                   ),
-                  Text(
-                    "Team Goals",
-                    style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 18,
-                        color: Color.fromRGBO(21, 90, 148, 10)),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(10.0),
-                    child: ListView.builder(
-                      scrollDirection: Axis.vertical,
-                      shrinkWrap: true,
-                      physics: BouncingScrollPhysics(),
-                      itemCount: _goalData.length,
-                      itemBuilder: (BuildContext context, int index) {
-                        return _buildList(
-                            _goalData.elementAt(index), context, index);
-                      },
-                    ),
-                  ),
-                ],
-              )));
+                ),
+              ],
+            )),
+            floatingActionButton: FloatingActionButton(
+              onPressed: () {
+                goalDescriptionController.clear();
+                goalDeadlineController.clear();
+                //ADD Goal
+                showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                          insetPadding:
+                              const EdgeInsets.only(left: 20, right: 20),
+                          scrollable: true,
+                          title: Row(
+                            children: [
+                              const Text(
+                                "Add a Goal",
+                                style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 17,
+                                    color: Color.fromRGBO(21, 90, 148, 10)),
+                              ),
+                              const Spacer(),
+                              IconButton(
+                                onPressed: () => Navigator.of(context).pop(),
+                                icon: const Icon(Icons.close),
+                                splashRadius: 15,
+                              )
+                            ],
+                          ),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20),
+                              side: const BorderSide(
+                                  color: Color.fromRGBO(21, 90, 148, 10),
+                                  width: 1.5)),
+                          content: Column(
+                            children: [
+                              Column(
+                                children: [
+                                  Container(
+                                      padding: const EdgeInsets.all(10),
+                                      width: MediaQuery.of(context).size.width *
+                                          0.7,
+                                      child: TextField(
+                                        controller: goalDeadlineController,
+                                        maxLines: 1,
+                                        textAlign: TextAlign.left,
+                                        decoration: InputDecoration(
+                                            border: InputBorder.none,
+                                            labelText: "Deadline",
+                                            enabledBorder: OutlineInputBorder(
+                                              borderSide: const BorderSide(
+                                                  width: 3, color: Colors.blue),
+                                              borderRadius:
+                                                  BorderRadius.circular(15),
+                                            ),
+                                            focusedBorder: OutlineInputBorder(
+                                              borderSide: const BorderSide(
+                                                  width: 3, color: Colors.red),
+                                              borderRadius:
+                                                  BorderRadius.circular(15),
+                                            )),
+                                      )),
+                                  Container(
+                                      padding: const EdgeInsets.all(10),
+                                      width: MediaQuery.of(context).size.width *
+                                          0.7,
+                                      child: TextField(
+                                        controller: goalDescriptionController,
+                                        maxLines: 2,
+                                        textAlign: TextAlign.left,
+                                        decoration: InputDecoration(
+                                            border: InputBorder.none,
+                                            labelText: "Description",
+                                            enabledBorder: OutlineInputBorder(
+                                              borderSide: const BorderSide(
+                                                  width: 3, color: Colors.blue),
+                                              borderRadius:
+                                                  BorderRadius.circular(15),
+                                            ),
+                                            focusedBorder: OutlineInputBorder(
+                                              borderSide: const BorderSide(
+                                                  width: 3, color: Colors.red),
+                                              borderRadius:
+                                                  BorderRadius.circular(15),
+                                            )),
+                                      ))
+                                ],
+                              ),
+                              TextButton(
+                                  onPressed: () {
+                                    //Add new goal to database
+                                  },
+                                  child: const Text("Add"))
+                            ],
+                          )
+                          /**/
+                          );
+                    });
+              },
+              child: const Icon(Icons.add),
+            ),
+          );
         } else {
           return Container();
         }
@@ -289,12 +375,111 @@ class _TeamDisplayState extends State<TeamDisplay> {
                 Icons.addchart,
                 size: 20,
               ),
-              onPressed: () {},
+              onPressed: () {
+                subGoalAssignedPersonController.clear();
+                subGoalDescriptionController.clear();
+                //Add a new subgoal
+                showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                          insetPadding:
+                              const EdgeInsets.only(left: 20, right: 20),
+                          scrollable: true,
+                          title: Row(
+                            children: [
+                              const Text(
+                                "Add a Subgoal",
+                                style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 17,
+                                    color: Color.fromRGBO(21, 90, 148, 10)),
+                              ),
+                              const Spacer(),
+                              IconButton(
+                                onPressed: () => Navigator.of(context).pop(),
+                                icon: const Icon(Icons.close),
+                                splashRadius: 15,
+                              )
+                            ],
+                          ),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20),
+                              side: const BorderSide(
+                                  color: Color.fromRGBO(21, 90, 148, 10),
+                                  width: 1.5)),
+                          content: Column(
+                            children: [
+                              Column(
+                                children: [
+                                  Container(
+                                      padding: const EdgeInsets.all(10),
+                                      width: MediaQuery.of(context).size.width *
+                                          0.7,
+                                      child: TextField(
+                                        controller:
+                                            subGoalAssignedPersonController,
+                                        maxLines: 1,
+                                        textAlign: TextAlign.left,
+                                        decoration: InputDecoration(
+                                            border: InputBorder.none,
+                                            labelText: "Assigned person",
+                                            enabledBorder: OutlineInputBorder(
+                                              borderSide: const BorderSide(
+                                                  width: 3, color: Colors.blue),
+                                              borderRadius:
+                                                  BorderRadius.circular(15),
+                                            ),
+                                            focusedBorder: OutlineInputBorder(
+                                              borderSide: const BorderSide(
+                                                  width: 3, color: Colors.red),
+                                              borderRadius:
+                                                  BorderRadius.circular(15),
+                                            )),
+                                      )),
+                                  Container(
+                                      padding: const EdgeInsets.all(10),
+                                      width: MediaQuery.of(context).size.width *
+                                          0.7,
+                                      child: TextField(
+                                        controller:
+                                            subGoalDescriptionController,
+                                        maxLines: 2,
+                                        textAlign: TextAlign.left,
+                                        decoration: InputDecoration(
+                                            border: InputBorder.none,
+                                            labelText: "Description",
+                                            enabledBorder: OutlineInputBorder(
+                                              borderSide: const BorderSide(
+                                                  width: 3, color: Colors.blue),
+                                              borderRadius:
+                                                  BorderRadius.circular(15),
+                                            ),
+                                            focusedBorder: OutlineInputBorder(
+                                              borderSide: const BorderSide(
+                                                  width: 3, color: Colors.red),
+                                              borderRadius:
+                                                  BorderRadius.circular(15),
+                                            )),
+                                      ))
+                                ],
+                              ),
+                              TextButton(
+                                  onPressed: () {
+                                    //Add new sub goal to database
+                                  },
+                                  child: const Text("Add"))
+                            ],
+                          )
+                          /**/
+                          );
+                    });
+              },
             ),
             PopupMenuButton(
               splashRadius: 20,
               tooltip: '',
-              icon: Icon(Icons.more_vert),
+              icon: const Icon(Icons.more_vert),
               itemBuilder: (BuildContext context) => <PopupMenuEntry>[
                 const PopupMenuItem(
                   value: 0,
@@ -326,12 +511,13 @@ class _TeamDisplayState extends State<TeamDisplay> {
                   //EDIT GOAL
                   goalDescriptionController.text =
                       item.entries.elementAt(1).value;
-                  //COMPLETE THIS LINE goalDescription.text = database goal description
+                  goalDeadlineController.text = item.entries.elementAt(4).value;
                   showDialog(
                       context: context,
                       builder: (BuildContext context) {
                         return AlertDialog(
-                            insetPadding: EdgeInsets.only(left: 20, right: 20),
+                            insetPadding:
+                                const EdgeInsets.only(left: 20, right: 20),
                             scrollable: true,
                             title: Row(
                               children: [
@@ -364,27 +550,8 @@ class _TeamDisplayState extends State<TeamDisplay> {
                                         width:
                                             MediaQuery.of(context).size.width *
                                                 0.7,
-                                        child: TextField(
-                                          controller: goalNameController,
-                                          maxLines: 1,
-                                          textAlign: TextAlign.left,
-                                          decoration: InputDecoration(
-                                              border: InputBorder.none,
-                                              enabledBorder: OutlineInputBorder(
-                                                borderSide: const BorderSide(
-                                                    width: 3,
-                                                    color: Colors.blue),
-                                                borderRadius:
-                                                    BorderRadius.circular(15),
-                                              ),
-                                              focusedBorder: OutlineInputBorder(
-                                                borderSide: const BorderSide(
-                                                    width: 3,
-                                                    color: Colors.red),
-                                                borderRadius:
-                                                    BorderRadius.circular(15),
-                                              )),
-                                        )),
+                                        child: Text(
+                                            "Team Goal $index - Deadline: $deadline")),
                                     Container(
                                         padding: const EdgeInsets.all(10),
                                         width:
@@ -414,7 +581,10 @@ class _TeamDisplayState extends State<TeamDisplay> {
                                   ],
                                 ),
                                 TextButton(
-                                    onPressed: () {}, child: Text("Update"))
+                                    onPressed: () {
+                                      //StudentTeamsPage();
+                                    },
+                                    child: const Text("Update"))
                               ],
                             )
                             /**/
@@ -437,8 +607,8 @@ class _TeamDisplayState extends State<TeamDisplay> {
             ),
             Text(
               item.entries.elementAt(1).value,
-              style: TextStyle(
-                  fontSize: 13, color: Color.fromRGBO(38, 153, 251, 10)),
+              style: const TextStyle(
+                  fontSize: 13, color: const Color.fromRGBO(38, 153, 251, 10)),
             ),
             const SizedBox(
               height: 10,
