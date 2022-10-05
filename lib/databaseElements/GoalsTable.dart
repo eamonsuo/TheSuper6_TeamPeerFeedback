@@ -1,7 +1,6 @@
 /// Code inspired by Mobile Programmer, 2019 - https://www.youtube.com/watch?v=F4Q6lEhmwCY
 
 import 'dart:convert';
-import 'dart:ffi';
 import 'dart:math';
 import 'package:deco3801_project/databaseElements/DBConstants.dart';
 import 'package:http/http.dart' as http;
