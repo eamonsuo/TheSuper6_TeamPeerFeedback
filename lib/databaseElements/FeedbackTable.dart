@@ -26,13 +26,10 @@ class FeedbackTable {
       map["table"] = DBConstants.FEEDBACK_TABLE;
       map["columns"] = columns.join(', ');
       map["clause"] = '';
-      print(map.toString());
 
       // HTTP POST message sent to server and JSON is returned
-      print('Start');
       http.Response response =
           await http.post(Uri.parse(DBConstants.url), body: map);
-      print(response);
       List<dynamic> dataList = jsonDecode(response.body);
       //print(dataList);
       //print("Call to HTTP");
@@ -77,12 +74,10 @@ class FeedbackTable {
       map["table"] = DBConstants.FEEDBACK_TABLE;
       map["columns"] = columns.join(',');
       map["clause"] = "feedback_id = $feedbackId";
-      print(map.toString());
 
       http.Response response =
           await http.post(Uri.parse(DBConstants.url), body: map);
       List<dynamic> dataList = jsonDecode(response.body);
-      print("Call to HTTP");
 
       // Error Checking on response from web serve
       if (dataList.isEmpty || response.statusCode != 200) {
@@ -125,16 +120,12 @@ class FeedbackTable {
       map["table"] = DBConstants.FEEDBACK_TABLE;
       map["columns"] = columns.join(', ');
       map["clause"] = '';
-      print(map.toString());
 
       // HTTP POST message sent to server and JSON is returned
       // print('Start');
       http.Response response =
           await http.post(Uri.parse(DBConstants.url), body: map);
-      // print(response);
       List<dynamic> dataList = jsonDecode(response.body);
-      // print(dataList);
-      print("Call to HTTP");
 
       // Error Checking on response from web serve
       if (dataList.isEmpty || response.statusCode != 200) {
@@ -146,8 +137,6 @@ class FeedbackTable {
       for (var i = 0; i < dataList.length; i++) {
         if (dataList[i]['feedback_goal_id'] == goalId)
           results.add(Map<String, String>.from(dataList[i]));
-        // print(dataList[i]['feedback_goal_id']);
-        // print(dataList[i]['feedback_goal_id'].runtimeType);
       }
 
       print("results: $results");
@@ -179,12 +168,10 @@ class FeedbackTable {
       // Set up values for a new user in sql query
       var newValues = [userId, goalId, feedbackString];
       map["clause"] = "(NULL,'${newValues.join("','")}')";
-      print(map);
 
       http.Response response =
           await http.post(Uri.parse(DBConstants.url), body: map);
       var data = jsonDecode(response.body);
-      print("Call to HTTP: ${data.toString()}");
 
       // Error Checking on response from web server
       if (data == DBConstants.ERROR_MESSAGE || response.statusCode != 200) {
@@ -241,12 +228,10 @@ class FeedbackTable {
       map["columns"] = map["columns"].substring(0, map["columns"].length - 1);
 
       map["clause"] = "feedback_id = $feedbackId";
-      print(map);
 
       http.Response response =
           await http.post(Uri.parse(DBConstants.url), body: map);
       var data = jsonDecode(response.body);
-      print("Call to HTTP: ${data.toString()}");
 
       // Error Checking on response from web server
       if (data == DBConstants.ERROR_MESSAGE || response.statusCode != 200) {
@@ -279,7 +264,6 @@ class FeedbackTable {
       http.Response response =
           await http.post(Uri.parse(DBConstants.url), body: map);
       var data = jsonDecode(response.body);
-      print(data.toString());
 
       // Error Checking on response from web server
       if (data == DBConstants.ERROR_MESSAGE || response.statusCode != 200) {

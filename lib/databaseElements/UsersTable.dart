@@ -26,14 +26,10 @@ class UsersTable {
       map["table"] = DBConstants.USERS_TABLE;
       map["columns"] = columns.join(', ');
       map["clause"] = '';
-      print(map.toString());
 
       // HTTP POST message sent to server and JSON is returned
-      print('Start');
       http.Response response =
           await http.post(Uri.parse(DBConstants.url), body: map);
-      print(response);
-      print(jsonDecode(response.body));
       List<dynamic> dataList = jsonDecode(response.body);
       //print(dataList);
       //print("Call to HTTP");
@@ -77,12 +73,10 @@ class UsersTable {
       map["table"] = DBConstants.USERS_TABLE;
       map["columns"] = columns.join(',');
       map["clause"] = "user_id = $userId";
-      print(map.toString());
 
       http.Response response =
           await http.post(Uri.parse(DBConstants.url), body: map);
       List<dynamic> dataList = jsonDecode(response.body);
-      print("Call to HTTP");
 
       // Error Checking on response from web serve
       if (dataList.isEmpty || response.statusCode != 200) {
@@ -124,12 +118,10 @@ class UsersTable {
       (tutorStatus) ? tutorInput = '1' : tutorInput = '0';
       var newValues = [username, tutorInput];
       map["clause"] = "(NULL,'${newValues.join("','")}')";
-      print(map);
 
       http.Response response =
           await http.post(Uri.parse(DBConstants.url), body: map);
       var data = jsonDecode(response.body);
-      print("Call to HTTP: ${data.toString()}");
 
       // Error Checking on response from web server
       if (data == DBConstants.ERROR_MESSAGE || response.statusCode != 200) {
@@ -180,12 +172,10 @@ class UsersTable {
       map["columns"] = map["columns"].substring(0, map["columns"].length - 1);
 
       map["clause"] = "user_id = $userId";
-      print(map);
 
       http.Response response =
           await http.post(Uri.parse(DBConstants.url), body: map);
       var data = jsonDecode(response.body);
-      print("Call to HTTP: ${data.toString()}");
 
       // Error Checking on response from web server
       if (data == DBConstants.ERROR_MESSAGE || response.statusCode != 200) {
@@ -218,7 +208,6 @@ class UsersTable {
       http.Response response =
           await http.post(Uri.parse(DBConstants.url), body: map);
       var data = jsonDecode(response.body);
-      print(data.toString());
 
       // Error Checking on response from web server
       if (data == DBConstants.ERROR_MESSAGE || response.statusCode != 200) {

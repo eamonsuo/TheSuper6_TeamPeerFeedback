@@ -26,15 +26,11 @@ class TeamsTable {
       map["table"] = DBConstants.TEAMS_TABLE;
       map["columns"] = columns.join(', ');
       map["clause"] = '';
-      print(map.toString());
 
       // HTTP POST message sent to server and JSON is returned
       http.Response response =
           await http.post(Uri.parse(DBConstants.url), body: map);
-      print(response);
       List<dynamic> dataList = jsonDecode(response.body);
-      print(dataList);
-      print("Call to HTTP");
 
       // Error Checking on response from web serve
       if (dataList.isEmpty || response.statusCode != 200) {
@@ -47,9 +43,6 @@ class TeamsTable {
       for (var i = 0; i < dataList.length; i++) {
         results.add(Map<String, String>.from(dataList[i]));
       }
-      print("Type of var");
-      print(results.runtimeType);
-      print("results: $results");
       return results;
     } catch (e) {
       print('Error');
@@ -77,12 +70,10 @@ class TeamsTable {
       map["table"] = DBConstants.TEAMS_TABLE;
       map["columns"] = columns.join(',');
       map["clause"] = "team_id = $teamId";
-      print(map.toString());
 
       http.Response response =
           await http.post(Uri.parse(DBConstants.url), body: map);
       List<dynamic> dataList = jsonDecode(response.body);
-      print("Call to HTTP");
 
       // Error Checking on response from web serve
       if (dataList.isEmpty || response.statusCode != 200) {
@@ -121,12 +112,10 @@ class TeamsTable {
 
       var newValues = [teamName];
       map["clause"] = "(NULL,'${newValues.join("','")}')";
-      print(map);
 
       http.Response response =
           await http.post(Uri.parse(DBConstants.url), body: map);
       var data = jsonDecode(response.body);
-      print("Call to HTTP: ${data.toString()}");
 
       // Error Checking on response from web server
       if (data == DBConstants.ERROR_MESSAGE || response.statusCode != 200) {
@@ -173,12 +162,10 @@ class TeamsTable {
       map["columns"] = map["columns"].substring(0, map["columns"].length - 1);
 
       map["clause"] = "team_id = $teamId";
-      print(map);
 
       http.Response response =
           await http.post(Uri.parse(DBConstants.url), body: map);
       var data = jsonDecode(response.body);
-      print("Call to HTTP: ${data.toString()}");
 
       // Error Checking on response from web server
       if (data == DBConstants.ERROR_MESSAGE || response.statusCode != 200) {
@@ -219,12 +206,10 @@ class TeamsTable {
 
       var newValues = [futureTeamId, userId];
       map["clause"] = "('${newValues.join("','")}')";
-      print(map);
 
       http.Response response =
           await http.post(Uri.parse(DBConstants.url), body: map);
       var data = jsonDecode(response.body);
-      print("Call to HTTP: ${data.toString()}");
 
       // Error Checking on response from web server
       if (data == DBConstants.ERROR_MESSAGE || response.statusCode != 200) {
@@ -259,7 +244,6 @@ class TeamsTable {
       http.Response response =
           await http.post(Uri.parse(DBConstants.url), body: map);
       var data = jsonDecode(response.body);
-      print(data.toString());
 
       // Error Checking on response from web server
       if (data == DBConstants.ERROR_MESSAGE || response.statusCode != 200) {
@@ -292,7 +276,6 @@ class TeamsTable {
       http.Response response =
           await http.post(Uri.parse(DBConstants.url), body: map);
       var data = jsonDecode(response.body);
-      print(data.toString());
 
       // Error Checking on response from web server
       if (data == DBConstants.ERROR_MESSAGE || response.statusCode != 200) {

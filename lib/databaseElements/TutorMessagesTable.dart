@@ -26,14 +26,11 @@ class TutorMessagesTable {
       map["table"] = DBConstants.TUTOR_MESSAGES_TABLE;
       map["columns"] = columns.join(', ');
       map["clause"] = '';
-      print(map.toString());
 
       // HTTP POST message sent to server and JSON is returned
       http.Response response =
           await http.post(Uri.parse(DBConstants.url), body: map);
       List<dynamic> dataList = jsonDecode(response.body);
-      print(dataList);
-      print("Call to HTTP");
 
       // Error Checking on response from web serve
       if (dataList.isEmpty || response.statusCode != 200) {
@@ -77,12 +74,10 @@ class TutorMessagesTable {
       map["table"] = DBConstants.TUTOR_MESSAGES_TABLE;
       map["columns"] = columns.join(',');
       map["clause"] = "message_id = $messageId";
-      print(map.toString());
 
       http.Response response =
           await http.post(Uri.parse(DBConstants.url), body: map);
       List<dynamic> dataList = jsonDecode(response.body);
-      print("Call to HTTP");
 
       // Error Checking on response from web serve
       if (dataList.isEmpty || response.statusCode != 200) {
@@ -127,7 +122,6 @@ class TutorMessagesTable {
       map["table"] = DBConstants.TUTOR_MESSAGES_TABLE;
       map["columns"] = columns.join(', ');
       map["clause"] = 'receiver_id = $userId';
-      print(map.toString());
 
       // HTTP POST message sent to server and JSON is returned
       // print('Start');
@@ -136,7 +130,6 @@ class TutorMessagesTable {
       // print(response);
       List<dynamic> dataList = jsonDecode(response.body);
       // print(dataList);
-      print("Call to HTTP");
 
       // Error Checking on response from web serve
       if (dataList.isEmpty || response.statusCode != 200) {
@@ -180,7 +173,6 @@ class TutorMessagesTable {
       map["table"] = DBConstants.TUTOR_MESSAGES_TABLE;
       map["columns"] = columns.join(', ');
       map["clause"] = 'team_id = $teamId';
-      print(map.toString());
 
       // HTTP POST message sent to server and JSON is returned
       // print('Start');
@@ -188,8 +180,6 @@ class TutorMessagesTable {
           await http.post(Uri.parse(DBConstants.url), body: map);
       // print(response);
       List<dynamic> dataList = jsonDecode(response.body);
-      // print(dataList);
-      print("Call to HTTP");
 
       // Error Checking on response from web serve
       if (dataList.isEmpty || response.statusCode != 200) {
@@ -242,16 +232,12 @@ class TutorMessagesTable {
       } else {
         map["clause"] = "(NULL, '${newValues.join("','")}', '$subGoalId')";
       }
-      print(map);
-
       http.Response response =
           await http.post(Uri.parse(DBConstants.url), body: map);
       var data = jsonDecode(response.body);
-      print("Call to HTTP: ${data.toString()}");
 
       // Error Checking on response from web server
       if (data == DBConstants.ERROR_MESSAGE || response.statusCode != 200) {
-        print("error in addMessage");
         return false;
       }
 
@@ -296,12 +282,10 @@ class TutorMessagesTable {
       map["columns"] = map["columns"].substring(0, map["columns"].length - 1);
 
       map["clause"] = "message_id = $messageId";
-      print(map);
 
       http.Response response =
           await http.post(Uri.parse(DBConstants.url), body: map);
       var data = jsonDecode(response.body);
-      print("Call to HTTP: ${data.toString()}");
 
       // Error Checking on response from web server
       if (data == DBConstants.ERROR_MESSAGE || response.statusCode != 200) {
@@ -334,7 +318,6 @@ class TutorMessagesTable {
       http.Response response =
           await http.post(Uri.parse(DBConstants.url), body: map);
       var data = jsonDecode(response.body);
-      print(data.toString());
 
       // Error Checking on response from web server
       if (data == DBConstants.ERROR_MESSAGE || response.statusCode != 200) {

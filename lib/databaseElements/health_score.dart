@@ -17,7 +17,6 @@ class HealthScore {
 
     // Get goal health (progress on goals vs time used)
     int goalHealth = _calculateGoalHealth(goalInfo);
-    print("Goal Health: $goalHealth");
 
     // Get messages sent to a tutor by the team
     List<Map<String, String>> messageResults =
@@ -49,11 +48,6 @@ class HealthScore {
       List<String> goalEnd = goalsInfo[i]["goal_deadline"]!.split('-');
       int goalProgress = int.parse(goalsInfo[i]["goal_progress"]!);
 
-      //TODO Remove this condition, just to stop errors during testing
-      if (goalStart.length != 3) {
-        continue;
-      }
-
       DateTime startDate = DateTime(int.parse("20${goalStart[2]}"),
           int.parse(goalStart[1]), int.parse(goalStart[0]));
       DateTime endDate = DateTime(int.parse("20${goalEnd[2]}"),
@@ -62,9 +56,6 @@ class HealthScore {
       int goalDuration = endDate.difference(startDate).inDays;
       int timeUsed = currentDate.difference(startDate).inDays;
       int timeRemaining = endDate.difference(currentDate).inDays;
-
-      print(
-          "duration: $goalDuration,  time used: $timeUsed,  remaining: $timeRemaining");
 
       double percentPerDay = 100 / goalDuration;
 

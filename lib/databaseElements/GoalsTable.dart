@@ -34,7 +34,6 @@ class GoalsTable {
       http.Response response =
           await http.post(Uri.parse(DBConstants.url), body: map);
       List<dynamic> dataList = jsonDecode(response.body);
-      print("Call to HTTP");
 
       // Error Checking on response from web serve
       if (dataList.isEmpty || response.statusCode != 200) {
@@ -80,7 +79,6 @@ class GoalsTable {
       http.Response response =
           await http.post(Uri.parse(DBConstants.url), body: map);
       List<dynamic> dataList = jsonDecode(response.body);
-      //print("Call to HTTP");
 
       // Error Checking on response from web serve
       if (dataList.isEmpty || response.statusCode != 200) {
@@ -139,12 +137,10 @@ class GoalsTable {
           "${currentTime.day}-${currentTime.month}-${year.substring(2, 4)}";
       var newValues = [description, progress, startTime, deadline];
       map["clause"] = "(NULL,'${newValues.join("','")}')";
-      print(map);
 
       http.Response response =
           await http.post(Uri.parse(DBConstants.url), body: map);
       var data = jsonDecode(response.body);
-      print("Call to HTTP: ${data.toString()}");
 
       // Error Checking on response from web server
       if (data == DBConstants.ERROR_MESSAGE || response.statusCode != 200) {
@@ -215,12 +211,10 @@ class GoalsTable {
       map["columns"] = map["columns"].substring(0, map["columns"].length - 1);
 
       map["clause"] = "goal_id = $goalId";
-      print(map);
 
       http.Response response =
           await http.post(Uri.parse(DBConstants.url), body: map);
       var data = jsonDecode(response.body);
-      print("Call to HTTP: ${data.toString()}");
 
       // Error Checking on response from web server
       if (data == DBConstants.ERROR_MESSAGE || response.statusCode != 200) {
@@ -256,12 +250,10 @@ class GoalsTable {
 
       var newValues = [teamId, goalId];
       map["clause"] = "('${newValues.join("','")}')";
-      print(map);
 
       http.Response response =
           await http.post(Uri.parse(DBConstants.url), body: map);
       var data = jsonDecode(response.body);
-      print("Call to HTTP: ${data.toString()}");
 
       // Error Checking on response from web server
       if (data == DBConstants.ERROR_MESSAGE || response.statusCode != 200) {
@@ -293,12 +285,10 @@ class GoalsTable {
 
       var newValues = [userId, goalId];
       map["clause"] = "('${newValues.join("','")}')";
-      print(map);
 
       http.Response response =
           await http.post(Uri.parse(DBConstants.url), body: map);
       var data = jsonDecode(response.body);
-      print("Call to HTTP: ${data.toString()}");
 
       // Error Checking on response from web server
       if (data == DBConstants.ERROR_MESSAGE || response.statusCode != 200) {
@@ -331,12 +321,10 @@ class GoalsTable {
 
       var newValues = [subGoalId, teamGoalId];
       map["clause"] = "('${newValues.join("','")}')";
-      print(map);
 
       http.Response response =
           await http.post(Uri.parse(DBConstants.url), body: map);
       var data = jsonDecode(response.body);
-      print("Call to HTTP: ${data.toString()}");
 
       // Error Checking on response from web server
       if (data == DBConstants.ERROR_MESSAGE || response.statusCode != 200) {
@@ -370,7 +358,6 @@ class GoalsTable {
       http.Response response =
           await http.post(Uri.parse(DBConstants.url), body: map);
       var data = jsonDecode(response.body);
-      print(data.toString());
 
       // Error Checking on response from web server
       if (data == DBConstants.ERROR_MESSAGE || response.statusCode != 200) {
@@ -422,7 +409,7 @@ class GoalsTable {
         print("error in getTeamGoals");
         return {};
       }
-      // print(teamGoals);
+      print(teamGoals);
       return teamGoals;
     } catch (e) {
       return {};
@@ -437,7 +424,6 @@ class GoalsTable {
   ///
   /// Returns a dictionary mapping teamGoals to subGoals
   ///   {teamGoalId1: (subGoal1Info, subGoal2Info), teamGoalId2: (subGoal3Info, subGoal4Info) }
-  /// TODO: Returns success when invalid ids are used
   static Future<Map<String, List>> getAllTeamSubGoals(String teamId,
       [List<String> columns = const ['*']]) async {
     try {
@@ -523,6 +509,8 @@ class GoalsTable {
         print("error in getSubGoals");
         return [];
       }
+
+      print(subGoals);
       return subGoals;
     } catch (e) {
       return [];
