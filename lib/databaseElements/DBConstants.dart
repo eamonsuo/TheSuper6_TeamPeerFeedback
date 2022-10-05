@@ -1,6 +1,5 @@
 class DBConstants {
-  static const url = 'https://vegetarian-twenties.000webhostapp.com/query.php';
-  // static const url = 'https://deco3801-thesupersix.uqcloud.net/getData.php';
+  static const url = 'https://deco3801-thesupersix.uqcloud.net/query.php';
 
   static const String GET_ALL_ACTION = 'GET_ALL';
   static const String GET_ONE_ACTION = 'GET_SELECTION';
@@ -20,6 +19,7 @@ class DBConstants {
   static const String GOALS_COL_PROGRESS = 'goal_progress';
   static const String GOALS_COL_USER_ID = 'goal_user_id';
   static const String GOALS_COL_TEAM_ID = 'goal_team_id';
+  static const String GOALS_COL_DEADLINE = 'goal_deadline';
 
   static const String TEAMS_TABLE = 'teams';
   static const String TEAMS_COL_ID = 'team_id';
@@ -40,6 +40,13 @@ class DBConstants {
   static const String TG_COL_TEAM_ID = 'team_id';
   static const String TG_COL_GOAL_ID = 'goal_id';
 
+  static const String USER_GOALS_TABLE = 'userGoals';
+
+  static const String SUB_GOALS_TABLE = 'subGoals';
+
+  static const String TUTOR_MESSAGES_TABLE = 'tutorMessages';
+
   static const String ERROR_MESSAGE = 'error';
   static const String SUCCESS_MESSAGE = 'success';
+  static const String NULL_STRING = 'NULL';
 }

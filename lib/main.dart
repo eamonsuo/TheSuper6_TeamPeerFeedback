@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 import 'package:deco3801_project/databaseElements/FeedbackTable.dart';
+import 'package:deco3801_project/databaseElements/GoalsTable.dart';
 import 'package:deco3801_project/databaseElements/TeamsTable.dart';
 import 'package:deco3801_project/databaseElements/UsersTable.dart';
 import 'package:deco3801_project/mainStructures/student_home.dart';
@@ -135,7 +136,7 @@ class _SignInPage extends State<SignInPage> {
       ),
       backgroundColor: Color.fromARGB(255, 241, 255, 241),
       floatingActionButton: FloatingActionButton(onPressed: () {
-        TeamsTable.getAllTeams();
+        TeamsTable.addUserToTeam("28115");
       }),
     );
   }
