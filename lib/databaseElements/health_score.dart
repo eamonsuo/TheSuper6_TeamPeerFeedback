@@ -1,8 +1,5 @@
-import 'dart:ffi';
 import 'dart:math';
-
 import 'package:deco3801_project/databaseElements/GoalsTable.dart';
-import 'package:deco3801_project/databaseElements/TeamsTable.dart';
 import 'package:deco3801_project/databaseElements/TutorMessagesTable.dart';
 
 class HealthScore {
@@ -102,7 +99,6 @@ class HealthScore {
       }
     }
 
-    //TODO Change bounds on messages
     if (tutorMessages > 20) {
       tutorHealth -= 100;
     } else if (tutorMessages > 15) {
