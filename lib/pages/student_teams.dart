@@ -27,11 +27,11 @@ class _StudentTeamsPageState extends State<StudentTeamsPage> {
     _teams = TeamsTable.getAllTeams();
   }
 
-  List<TeamData> teamData = [
+  /*List<TeamData> teamData = [
     const TeamData("team1"),
     const TeamData("team2"),
     const TeamData("team3")
-  ];
+  ];*/
 
   @override
   Widget build(BuildContext context) {
@@ -332,8 +332,14 @@ class _TeamDisplayState extends State<TeamDisplay> {
                                 ],
                               ),
                               TextButton(
-                                  onPressed: () {
-                                    //Add new goal to database
+                                  onPressed: () async {
+                                    await GoalsTable.addGoal(
+                                        goalDescriptionController.text,
+                                        goalDeadlineController.text,
+                                        widget.teamData.entries
+                                            .elementAt(0)
+                                            .value,
+                                        false);
                                   },
                                   child: const Text("Add"))
                             ],
@@ -353,7 +359,7 @@ class _TeamDisplayState extends State<TeamDisplay> {
   }
 
   Widget _buildList(Map<String, String> item, BuildContext context, int index) {
-    String deadline = item.entries.elementAt(3).value;
+    String deadline = item.entries.elementAt(4).value;
     double progress = double.parse(item.entries.elementAt(2).value);
     index += 1;
     return Card(
