@@ -436,7 +436,7 @@ class GoalsTable {
   /// Needs to be called with await to get synchronous operation (double check https://dart.dev/codelabs/async-await)
   ///
   /// Returns a dictionary mapping teamGoals to subGoals
-  ///   {teamGoalId1: (subGoalId1, subGoalId2), teamGoalId2: (subGoalId3, subGoalId4) }
+  ///   {teamGoalId1: (subGoal1Info, subGoal2Info), teamGoalId2: (subGoal3Info, subGoal4Info) }
   /// TODO: Returns success when invalid ids are used
   static Future<Map<String, List>> getAllTeamSubGoals(String teamId,
       [List<String> columns = const ['*']]) async {
