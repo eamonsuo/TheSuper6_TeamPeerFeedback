@@ -75,12 +75,12 @@ class GoalsTable {
       map["table"] = DBConstants.GOALS_TABLE;
       map["columns"] = columns.join(',');
       map["clause"] = "${DBConstants.GOALS_COL_GOAL_ID} = $goalId";
-      print(map.toString());
+      //print(map.toString());
 
       http.Response response =
           await http.post(Uri.parse(DBConstants.url), body: map);
       List<dynamic> dataList = jsonDecode(response.body);
-      print("Call to HTTP");
+      //print("Call to HTTP");
 
       // Error Checking on response from web serve
       if (dataList.isEmpty || response.statusCode != 200) {
@@ -402,6 +402,7 @@ class GoalsTable {
       map["columns"] = columns.join(',');
       map["clause"] = "${DBConstants.TG_COL_TEAM_ID} = $teamId";
       Map<String, List> teamGoals = {};
+      List<Map<String, String>> subGoalInfo = [];
 
       http.Response response =
           await http.post(Uri.parse(DBConstants.url), body: map);
@@ -421,8 +422,47 @@ class GoalsTable {
         print("error in getTeamGoals");
         return {};
       }
-
+      // print(teamGoals);
       return teamGoals;
+    } catch (e) {
+      return {};
+    }
+  }
+
+  /// Gets all goals associated with a team
+  ///
+  /// [teamId] is the ID of the team
+  ///
+  /// Needs to be called with await to get synchronous operation (double check https://dart.dev/codelabs/async-await)
+  ///
+  /// Returns a dictionary mapping teamGoals to subGoals
+  ///   {teamGoalId1: (subGoalId1, subGoalId2), teamGoalId2: (subGoalId3, subGoalId4) }
+  /// TODO: Returns success when invalid ids are used
+  static Future<Map<String, List>> getAllTeamSubGoals(String teamId,
+      [List<String> columns = const ['*']]) async {
+    try {
+      Map<String, List> teamGoals = await getTeamGoals(teamId);
+      List<String> teamGoalIds = teamGoals.keys.toList();
+
+      Map<String, List> theAnswer = {};
+
+      for (var i = 0; i < teamGoalIds.length; i++) {
+        String teamGoalId = teamGoalIds[i];
+        var subGoalIds = teamGoals[teamGoalId]!;
+        List<Map<String, String>> allSubGoals =
+            []; //List of all sub goal info for given teamGoalId
+
+        for (var j = 0; j < subGoalIds.length; j++) {
+          List<Map<String, String>> subGoalInfo =
+              await getSelectedGoal(subGoalIds[j]);
+          Map<String, String> subGoalInfod = subGoalInfo[0];
+          allSubGoals.add(subGoalInfod);
+        }
+        theAnswer[teamGoalId] = allSubGoals;
+      }
+
+      print(theAnswer);
+      return theAnswer;
     } catch (e) {
       return {};
     }
@@ -446,7 +486,7 @@ class GoalsTable {
           await GoalsTable.getSelectedGoal(teamGoalIds[i]);
       goalInfo.add(goal[0]);
     }
-
+    print(goalInfo);
     return goalInfo;
   }
 
@@ -506,7 +546,7 @@ class GoalsTable {
           await GoalsTable.getSelectedGoal(subGoalIds[i]);
       goalInfo.add(goal[0]);
     }
-
+    print(goalInfo);
     return goalInfo;
   }
 
