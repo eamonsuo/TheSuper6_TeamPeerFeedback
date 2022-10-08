@@ -182,7 +182,8 @@ class _TeamDisplayState extends State<TeamDisplay> {
   void initState() {
     super.initState();
     _feedback = FeedbackTable.getAllFeedback();
-    _goals = GoalsTable.getAllGoals();
+    _goals =
+        GoalsTable.getTeamGoalInfo(widget.teamData.entries.elementAt(0).value);
   }
 
   //Used to store feedback input
