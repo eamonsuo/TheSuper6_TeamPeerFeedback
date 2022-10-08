@@ -5,6 +5,7 @@ import 'package:deco3801_project/databaseElements/FeedbackTable.dart';
 import 'package:flutter/material.dart';
 import '../databaseElements/GoalsTable.dart';
 import '../databaseElements/TeamsTable.dart';
+import '../databaseElements/UsersTable.dart';
 
 class TeamData {
   final String teamName;
@@ -19,12 +20,14 @@ class StudentTeamsPage extends StatefulWidget {
 
 class _StudentTeamsPageState extends State<StudentTeamsPage> {
   late Future<List<Map<String, String>>> _teams;
+  late Future<List<String>> _userTeams;
 
   @override
   void initState() {
     super.initState();
 
     _teams = TeamsTable.getAllTeams();
+    _userTeams = UsersTable.getTeamsofUser('28121');
   }
 
   /*List<TeamData> teamData = [
@@ -36,14 +39,26 @@ class _StudentTeamsPageState extends State<StudentTeamsPage> {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-      future: _teams,
-      builder: (BuildContext context, AsyncSnapshot snapshot) {
+      //future: _teams,
+      future: Future.wait([_teams, _userTeams]),
+      builder:
+          (BuildContext context, AsyncSnapshot<List<List<Object>>> snapshot) {
+        //builder: (BuildContext context, AsyncSnapshot snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
         }
         if (snapshot.hasData) {
-          List<Map<String, String>> _teamData = snapshot.data;
+          List<Map<String, String>> _teamData =
+              snapshot.data![0] as List<Map<String, String>>;
+          List<String> _userTeams = snapshot.data![1] as List<String>;
 
+          List<Map<String, String>> _specificTeams = [];
+          for (int i = 0; i < _teamData.length; i++) {
+            if (_userTeams
+                .contains(_teamData.elementAt(i).entries.elementAt(0).value)) {
+              _specificTeams.add(_teamData.elementAt(i));
+            }
+          }
           return Scaffold(
             appBar: AppBar(
               title: const Text('Teams'),
@@ -51,12 +66,12 @@ class _StudentTeamsPageState extends State<StudentTeamsPage> {
             backgroundColor: const Color.fromRGBO(241, 249, 255, 50),
             body: ListView.separated(
               padding: const EdgeInsets.all(8),
-              itemCount: _teamData.length,
+              itemCount: _specificTeams.length,
               itemBuilder: (BuildContext context, int index) {
                 return ListTile(
                   contentPadding: const EdgeInsets.symmetric(horizontal: 30.0),
                   title: Text(
-                    _teamData.elementAt(index).entries.last.value,
+                    _specificTeams.elementAt(index).entries.last.value,
                     style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         color: Color.fromRGBO(21, 90, 148, 50),
@@ -117,8 +132,8 @@ class _StudentTeamsPageState extends State<StudentTeamsPage> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) =>
-                            TeamDisplay(teamData: _teamData.elementAt(index)),
+                        builder: (context) => TeamDisplay(
+                            teamData: _specificTeams.elementAt(index)),
                       ),
                     );
                   },
@@ -340,6 +355,13 @@ class _TeamDisplayState extends State<TeamDisplay> {
                                             .elementAt(0)
                                             .value,
                                         false);
+                                    Navigator.pop(context);
+                                    Navigator.pushReplacement(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (BuildContext context) =>
+                                              super.widget),
+                                    );
                                   },
                                   child: const Text("Add"))
                             ],
@@ -598,7 +620,69 @@ class _TeamDisplayState extends State<TeamDisplay> {
                       });
                 }
                 if (value == 1) {
-                  //DELETE
+                  //DELETE A Goal
+                  showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                            insetPadding:
+                                const EdgeInsets.only(left: 20, right: 20),
+                            scrollable: true,
+                            title: Row(
+                              children: [
+                                const Text(
+                                  "Delete Goal",
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 17,
+                                      color: Color.fromRGBO(21, 90, 148, 10)),
+                                ),
+                                const Spacer(),
+                                IconButton(
+                                  onPressed: () => Navigator.of(context).pop(),
+                                  icon: const Icon(Icons.close),
+                                  splashRadius: 15,
+                                )
+                              ],
+                            ),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20),
+                                side: const BorderSide(
+                                    color: Color.fromRGBO(21, 90, 148, 10),
+                                    width: 1.5)),
+                            content: Column(
+                              children: [
+                                Container(
+                                    padding: const EdgeInsets.all(10),
+                                    width:
+                                        MediaQuery.of(context).size.width * 0.7,
+                                    child: const Text(
+                                        "Are you sure you want to delete this goal?")),
+                                TextButton(
+                                    onPressed: () async {
+                                      /*await GoalsTable.addGoal(
+                                          goalDescriptionController.text,
+                                          goalDeadlineController.text,
+                                          widget.teamData.entries
+                                              .elementAt(0)
+                                              .value,
+                                          false);*/
+                                      await GoalsTable.deleteGoal(
+                                          item.entries.elementAt(0).value);
+                                      Navigator.pop(context);
+                                      Navigator.pushReplacement(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (BuildContext context) =>
+                                                super.widget),
+                                      );
+                                    },
+                                    child: const Text("Delete"))
+                              ],
+                            )
+                            /**/
+                            );
+                      });
                 }
               },
             ),
