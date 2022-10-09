@@ -177,6 +177,7 @@ class TeamDisplay extends StatefulWidget {
 class _TeamDisplayState extends State<TeamDisplay> {
   late Future<List<Map<String, String>>> _feedback;
   late Future<List<Map<String, String>>> _goals;
+  late Future<Map<String, List>> _subgoals;
 
   @override
   void initState() {
@@ -184,6 +185,8 @@ class _TeamDisplayState extends State<TeamDisplay> {
     _feedback = FeedbackTable.getAllFeedback();
     _goals =
         GoalsTable.getTeamGoalInfo(widget.teamData.entries.elementAt(0).value);
+    _subgoals = GoalsTable.getAllTeamSubGoals(
+        widget.teamData.entries.elementAt(0).value);
   }
 
   //Used to store feedback input
@@ -195,11 +198,11 @@ class _TeamDisplayState extends State<TeamDisplay> {
   TextEditingController subGoalDescriptionController = TextEditingController();
   TextEditingController writeToTutorController = TextEditingController();
 
-  List<List<String>> teamGoals = [
+  /*List<List<String>> teamGoals = [
     ["goal1", "finish this", "finish that"],
     ["goal2", "finish this", "finish that"],
     ["goal3", "finish this", "finish that"]
-  ];
+  ];*/
 
   final List<String> feedback = <String>[
     'This is so cool',
@@ -207,25 +210,28 @@ class _TeamDisplayState extends State<TeamDisplay> {
     'Very good, top sensation'
   ];
 
-  double progress = 0.2;
+  //double progress = 0.2;
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-      future: Future.wait([_feedback, _goals]),
-      builder: (BuildContext context,
-          AsyncSnapshot<List<List<Map<String, String>>>> snapshot) {
+      future: Future.wait([_feedback, _goals, _subgoals]),
+      builder: (BuildContext context, AsyncSnapshot<List<Object>> snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
         }
         if (snapshot.hasData) {
-          List<Map<String, String>> _feedbackData = snapshot.data![0];
-          List<Map<String, String>> _goalData = snapshot.data![1];
+          List<Map<String, String>> _feedbackData =
+              snapshot.data![0] as List<Map<String, String>>;
+          List<Map<String, String>> _goalData =
+              snapshot.data![1] as List<Map<String, String>>;
+          Map<String, List> _subgoalData =
+              snapshot.data![2] as Map<String, List>;
 
           List<Map<String, String>> teamSpecificGoals;
-          /*for (var i = 0; i < _goalData.length; i++) {
-            if _goalData.elementAt(i).entries.elementAt(2)
-          }*/
+
+          //Subgoals for the current goal
+
           return Scaffold(
             appBar: AppBar(
               title: Text(widget.teamData.entries.last.value),
@@ -252,8 +258,8 @@ class _TeamDisplayState extends State<TeamDisplay> {
                     physics: const BouncingScrollPhysics(),
                     itemCount: _goalData.length,
                     itemBuilder: (BuildContext context, int index) {
-                      return _buildList(
-                          _goalData.elementAt(index), context, index);
+                      return _buildList(_goalData.elementAt(index), context,
+                          index, _subgoalData);
                     },
                   ),
                 ),
@@ -381,9 +387,18 @@ class _TeamDisplayState extends State<TeamDisplay> {
     );
   }
 
-  Widget _buildList(Map<String, String> item, BuildContext context, int index) {
+  Widget _buildList(Map<String, String> item, BuildContext context, int index,
+      Map<String, List> subgoals) {
     String deadline = item.entries.elementAt(4).value;
     double progress = double.parse(item.entries.elementAt(2).value);
+    List<Map<String, String>> specificSubgoals = [];
+    for (int i = 0; i < subgoals.length; i++) {
+      if (subgoals.entries.elementAt(i).key ==
+          item.entries.elementAt(0).value) {
+        specificSubgoals =
+            subgoals.entries.elementAt(i).value as List<Map<String, String>>;
+      }
+    }
     index += 1;
     return Card(
       child: ExpansionTile(
@@ -727,13 +742,14 @@ class _TeamDisplayState extends State<TeamDisplay> {
           ],
         ),
         controlAffinity: ListTileControlAffinity.platform,
-        /*children: item.map((e) {
+        children: specificSubgoals.map((e) {
           return ListTile(
             title: Row(
               mainAxisSize: MainAxisSize.max,
               children: [
                 Text(
-                  e + " assigned person",
+                  e.entries.elementAt(0).value,
+                  //Link this to user goal table TODO
                   style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 13,
@@ -1159,8 +1175,8 @@ class _TeamDisplayState extends State<TeamDisplay> {
                 const SizedBox(
                   height: 10,
                 ),
-                const Text(
-                  "Goal description",
+                Text(
+                  e.entries.elementAt(1).value,
                   style: TextStyle(
                       fontSize: 11, color: Color.fromRGBO(38, 153, 251, 10)),
                 ),
@@ -1168,7 +1184,7 @@ class _TeamDisplayState extends State<TeamDisplay> {
                   height: 10,
                 ),
                 Text(
-                  "Progress: ${progress * 100}%",
+                  "Progress: ${e.entries.elementAt(2).value}%",
                   style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 11,
@@ -1190,7 +1206,7 @@ class _TeamDisplayState extends State<TeamDisplay> {
               ],
             ),
           );
-        }).toList(),*/
+        }).toList(),
       ),
     );
   }
