@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:ffi';
 //import 'dart:html';
 
@@ -174,6 +175,7 @@ class _TeamDisplayState extends State<TeamDisplay> {
   late Future<List<Map<String, String>>> _feedback;
   late Future<List<Map<String, String>>> _goals;
   late Future<Map<String, List>> _subgoals;
+  late Future<List<Map<String, String>>> _usersInTeam;
 
   @override
   void initState() {
@@ -182,6 +184,8 @@ class _TeamDisplayState extends State<TeamDisplay> {
     _goals =
         GoalsTable.getTeamGoalInfo(widget.teamData.entries.elementAt(0).value);
     _subgoals = GoalsTable.getAllTeamSubGoals(
+        widget.teamData.entries.elementAt(0).value);
+    _usersInTeam = TeamsTable.getUsersInTeamInfo(
         widget.teamData.entries.elementAt(0).value);
   }
 
@@ -194,24 +198,10 @@ class _TeamDisplayState extends State<TeamDisplay> {
   TextEditingController subGoalDescriptionController = TextEditingController();
   TextEditingController writeToTutorController = TextEditingController();
 
-  /*List<List<String>> teamGoals = [
-    ["goal1", "finish this", "finish that"],
-    ["goal2", "finish this", "finish that"],
-    ["goal3", "finish this", "finish that"]
-  ];*/
-
-  /*final List<String> feedback = <String>[
-    'This is so cool',
-    'Lots of effort',
-    'Very good, top sensation'
-  ];*/
-
-  //double progress = 0.2;
-
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-      future: Future.wait([_feedback, _goals, _subgoals]),
+      future: Future.wait([_feedback, _goals, _subgoals, _usersInTeam]),
       builder: (BuildContext context, AsyncSnapshot<List<Object>> snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
@@ -223,6 +213,8 @@ class _TeamDisplayState extends State<TeamDisplay> {
               snapshot.data![1] as List<Map<String, String>>;
           Map<String, List> _subgoalData =
               snapshot.data![2] as Map<String, List>;
+          List<Map<String, String>> _usersInTeamData =
+              snapshot.data![3] as List<Map<String, String>>;
 
           List<Map<String, String>> teamSpecificGoals;
 
@@ -255,7 +247,7 @@ class _TeamDisplayState extends State<TeamDisplay> {
                     itemCount: _goalData.length,
                     itemBuilder: (BuildContext context, int index) {
                       return _buildList(_goalData.elementAt(index), context,
-                          index, _subgoalData, _feedbackData);
+                          index, _subgoalData, _feedbackData, _usersInTeamData);
                     },
                   ),
                 ),
@@ -383,10 +375,16 @@ class _TeamDisplayState extends State<TeamDisplay> {
     );
   }
 
-  Widget _buildList(Map<String, String> item, BuildContext context, int index,
-      Map<String, List> subgoals, List<Map<String, String>> feedback) {
+  Widget _buildList(
+      Map<String, String> item,
+      BuildContext context,
+      int index,
+      Map<String, List> subgoals,
+      List<Map<String, String>> feedback,
+      List<Map<String, String>> userData) {
     String deadline = item.entries.elementAt(4).value;
     double progress = double.parse(item.entries.elementAt(2).value);
+
     List<Map<String, String>> specificSubgoals = [];
     for (int i = 0; i < subgoals.length; i++) {
       if (subgoals.entries.elementAt(i).key ==
@@ -416,103 +414,127 @@ class _TeamDisplayState extends State<TeamDisplay> {
                 size: 20,
               ),
               onPressed: () {
+                //Add a new subgoal
                 subGoalAssignedPersonController.clear();
                 subGoalDescriptionController.clear();
-                //Add a new subgoal
+
+                //Setup dropdown box
+                List<DropdownMenuItem<String>> dropdownItems = [];
+                for (Map<String, String> userDetails in userData) {
+                  if (userDetails.entries.elementAt(2).value == '0') {
+                    dropdownItems.add(DropdownMenuItem(
+                        child: Text(userDetails.entries.elementAt(1).value),
+                        value: userDetails.entries.elementAt(0).value));
+                  }
+                }
+
+                String selectedValue = widget.userId;
+
                 showDialog(
                     context: context,
                     builder: (BuildContext context) {
-                      return AlertDialog(
-                          insetPadding:
-                              const EdgeInsets.only(left: 20, right: 20),
-                          scrollable: true,
-                          title: Row(
-                            children: [
-                              const Text(
-                                "Add a Subgoal",
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 17,
-                                    color: Color.fromRGBO(21, 90, 148, 10)),
-                              ),
-                              const Spacer(),
-                              IconButton(
-                                onPressed: () => Navigator.of(context).pop(),
-                                icon: const Icon(Icons.close),
-                                splashRadius: 15,
-                              )
-                            ],
-                          ),
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20),
-                              side: const BorderSide(
-                                  color: Color.fromRGBO(21, 90, 148, 10),
-                                  width: 1.5)),
-                          content: Column(
-                            children: [
-                              Column(
-                                children: [
-                                  Container(
-                                      padding: const EdgeInsets.all(10),
-                                      width: MediaQuery.of(context).size.width *
-                                          0.7,
-                                      child: TextField(
-                                        controller:
-                                            subGoalAssignedPersonController,
-                                        maxLines: 1,
-                                        textAlign: TextAlign.left,
-                                        decoration: InputDecoration(
-                                            border: InputBorder.none,
-                                            labelText: "Assigned person",
-                                            enabledBorder: OutlineInputBorder(
-                                              borderSide: const BorderSide(
-                                                  width: 3, color: Colors.blue),
-                                              borderRadius:
-                                                  BorderRadius.circular(15),
-                                            ),
-                                            focusedBorder: OutlineInputBorder(
-                                              borderSide: const BorderSide(
-                                                  width: 3, color: Colors.red),
-                                              borderRadius:
-                                                  BorderRadius.circular(15),
-                                            )),
-                                      )),
-                                  Container(
-                                      padding: const EdgeInsets.all(10),
-                                      width: MediaQuery.of(context).size.width *
-                                          0.7,
-                                      child: TextField(
-                                        controller:
-                                            subGoalDescriptionController,
-                                        maxLines: 2,
-                                        textAlign: TextAlign.left,
-                                        decoration: InputDecoration(
-                                            border: InputBorder.none,
-                                            labelText: "Description",
-                                            enabledBorder: OutlineInputBorder(
-                                              borderSide: const BorderSide(
-                                                  width: 3, color: Colors.blue),
-                                              borderRadius:
-                                                  BorderRadius.circular(15),
-                                            ),
-                                            focusedBorder: OutlineInputBorder(
-                                              borderSide: const BorderSide(
-                                                  width: 3, color: Colors.red),
-                                              borderRadius:
-                                                  BorderRadius.circular(15),
-                                            )),
-                                      ))
-                                ],
-                              ),
-                              TextButton(
-                                  onPressed: () {
-                                    //GoalsTable.addGoal(description, deadline, teamId, subGoal)
-                                  },
-                                  child: const Text("Add"))
-                            ],
-                          )
-                          /**/
-                          );
+                      return StatefulBuilder(builder:
+                          (BuildContext context, StateSetter setSateDropdown) {
+                        return AlertDialog(
+                            insetPadding:
+                                const EdgeInsets.only(left: 20, right: 20),
+                            scrollable: true,
+                            title: Row(
+                              children: [
+                                const Text(
+                                  "Add a Subgoal",
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 17,
+                                      color: Color.fromRGBO(21, 90, 148, 10)),
+                                ),
+                                const Spacer(),
+                                IconButton(
+                                  onPressed: () => Navigator.of(context).pop(),
+                                  icon: const Icon(Icons.close),
+                                  splashRadius: 15,
+                                )
+                              ],
+                            ),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20),
+                                side: const BorderSide(
+                                    color: Color.fromRGBO(21, 90, 148, 10),
+                                    width: 1.5)),
+                            content: Column(
+                              children: [
+                                Column(
+                                  children: [
+                                    Container(
+                                        padding: const EdgeInsets.all(10),
+                                        width:
+                                            MediaQuery.of(context).size.width *
+                                                0.7,
+                                        child: DropdownButton(
+                                          items: dropdownItems,
+                                          onChanged: (String? newValue) {
+                                            setSateDropdown(() {
+                                              selectedValue = newValue!;
+                                            });
+                                          },
+                                          value: selectedValue,
+                                        )),
+                                    Container(
+                                        padding: const EdgeInsets.all(10),
+                                        width:
+                                            MediaQuery.of(context).size.width *
+                                                0.7,
+                                        child: TextField(
+                                          controller:
+                                              subGoalDescriptionController,
+                                          maxLines: 2,
+                                          textAlign: TextAlign.left,
+                                          decoration: InputDecoration(
+                                              border: InputBorder.none,
+                                              labelText: "Description",
+                                              enabledBorder: OutlineInputBorder(
+                                                borderSide: const BorderSide(
+                                                    width: 3,
+                                                    color: Colors.blue),
+                                                borderRadius:
+                                                    BorderRadius.circular(15),
+                                              ),
+                                              focusedBorder: OutlineInputBorder(
+                                                borderSide: const BorderSide(
+                                                    width: 3,
+                                                    color: Colors.red),
+                                                borderRadius:
+                                                    BorderRadius.circular(15),
+                                              )),
+                                        ))
+                                  ],
+                                ),
+                                TextButton(
+                                    onPressed: () async {
+                                      await GoalsTable.addGoal(
+                                          subGoalDescriptionController.text,
+                                          deadline,
+                                          widget.teamData.entries
+                                              .elementAt(0)
+                                              .value,
+                                          true,
+                                          teamGoalId:
+                                              item.entries.elementAt(0).value,
+                                          userId: selectedValue);
+                                      Navigator.pop(context);
+                                      Navigator.pushReplacement(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (BuildContext context) =>
+                                                super.widget),
+                                      );
+                                    },
+                                    child: const Text("Add"))
+                              ],
+                            )
+                            /**/
+                            );
+                      });
                     });
               },
             ),
