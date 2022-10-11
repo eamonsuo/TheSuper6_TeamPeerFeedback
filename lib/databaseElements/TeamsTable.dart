@@ -2,6 +2,7 @@
 
 import 'dart:convert';
 import 'package:deco3801_project/databaseElements/DBConstants.dart';
+import 'package:deco3801_project/databaseElements/UsersTable.dart';
 import 'package:http/http.dart' as http;
 
 class TeamsTable {
@@ -286,6 +287,61 @@ class TeamsTable {
       return true;
     } catch (e) {
       return false;
+    }
+  }
+
+  /// Returns a user id when given a subgoal id
+  ///
+  /// Returns a list of user ids on success, empty list on error
+  static Future<List<String>> getUsersInTeam(String teamId,
+      [List<String> columns = const ['*']]) async {
+    try {
+      var map = new Map<String, dynamic>();
+      map["action"] = DBConstants.GET_ONE_ACTION;
+      map["table"] = DBConstants.USERS_IN_TEAM_TABLE;
+      map["columns"] = columns.join(',');
+      map["clause"] = "team_id = $teamId";
+      List<String> users = [];
+
+      http.Response response =
+          await http.post(Uri.parse(DBConstants.url), body: map);
+      var data = jsonDecode(response.body);
+
+      // Error Checking on response from web server
+      if (data == DBConstants.ERROR_MESSAGE || response.statusCode != 200) {
+        print("error in getUsersInTeam");
+        return [];
+      }
+
+      for (int i = 0; i < data.length; i++) {
+        users.add(data[i]['user_id']);
+      }
+      print(users);
+      return users;
+    } catch (e) {
+      return [];
+    }
+  }
+
+  /// Returns all of the user info for users in a given team
+  ///
+  /// Returns a list of user records on success, empty list on error
+  static Future<List<Map<String, String>>> getUsersInTeamInfo(String teamId,
+      [List<String> columns = const ['*']]) async {
+    try {
+      List<String> userIds = await getUsersInTeam(teamId);
+      List<Map<String, String>> userInfo = [];
+
+      // Get goal info for each team goal
+      for (int i = 0; i < userIds.length; i++) {
+        List<Map<String, String>> user =
+            await UsersTable.getSelectedUser(userIds[i]);
+        userInfo.add(user[0]);
+      }
+      print(userInfo);
+      return userInfo;
+    } catch (e) {
+      return [];
     }
   }
 }
