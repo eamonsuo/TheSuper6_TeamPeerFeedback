@@ -288,4 +288,39 @@ class TeamsTable {
       return false;
     }
   }
+
+  /// Returns a user id when given a subgoal id
+  ///
+  /// The subgoal id must must be asscoiated with a user already
+  ///
+  /// Returns the user id on success, empty string on error
+  static Future<List<String>> getUsersInTeam(String teamId,
+      [List<String> columns = const ['*']]) async {
+    try {
+      var map = new Map<String, dynamic>();
+      map["action"] = DBConstants.GET_ONE_ACTION;
+      map["table"] = DBConstants.USERS_IN_TEAM_TABLE;
+      map["columns"] = columns.join(',');
+      map["clause"] = "team_id = $teamId";
+      List<String> users = [];
+
+      http.Response response =
+          await http.post(Uri.parse(DBConstants.url), body: map);
+      var data = jsonDecode(response.body);
+
+      // Error Checking on response from web server
+      if (data == DBConstants.ERROR_MESSAGE || response.statusCode != 200) {
+        print("error in getUsersInTeam");
+        return [];
+      }
+
+      for (int i = 0; i < data.length; i++) {
+        users.add(data[i]['user_id']);
+      }
+      print(users);
+      return users;
+    } catch (e) {
+      return [];
+    }
+  }
 }

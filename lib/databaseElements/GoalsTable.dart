@@ -524,17 +524,21 @@ class GoalsTable {
   /// Returns an empty list on error
   static Future<List<Map<String, String>>> getSubGoalInfo(
       String teamGoalId) async {
-    List subGoalIds = await GoalsTable.getsubGoals(teamGoalId);
-    List<Map<String, String>> goalInfo = [];
+    try {
+      List subGoalIds = await GoalsTable.getsubGoals(teamGoalId);
+      List<Map<String, String>> goalInfo = [];
 
-    // Get goal info for each team goal
-    for (int i = 0; i < subGoalIds.length; i++) {
-      List<Map<String, String>> goal =
-          await GoalsTable.getSelectedGoal(subGoalIds[i]);
-      goalInfo.add(goal[0]);
+      // Get goal info for each team goal
+      for (int i = 0; i < subGoalIds.length; i++) {
+        List<Map<String, String>> goal =
+            await GoalsTable.getSelectedGoal(subGoalIds[i]);
+        goalInfo.add(goal[0]);
+      }
+      print(goalInfo);
+      return goalInfo;
+    } catch (e) {
+      return [];
     }
-    print(goalInfo);
-    return goalInfo;
   }
 
   /// Returns the team goal id of the passed sub goal id
@@ -542,51 +546,59 @@ class GoalsTable {
   /// Returns an empty string on error
   static Future<String> getTeamGoalFromSubGoal(String subGoalId,
       [List<String> columns = const ['*']]) async {
-    var map = new Map<String, dynamic>();
-    map["action"] = DBConstants.GET_ONE_ACTION;
-    map["table"] = DBConstants.SUB_GOALS_TABLE;
-    map["columns"] = columns.join(',');
-    map["clause"] = "user_goal = $subGoalId";
+    try {
+      var map = new Map<String, dynamic>();
+      map["action"] = DBConstants.GET_ONE_ACTION;
+      map["table"] = DBConstants.SUB_GOALS_TABLE;
+      map["columns"] = columns.join(',');
+      map["clause"] = "user_goal = $subGoalId";
 
-    http.Response response =
-        await http.post(Uri.parse(DBConstants.url), body: map);
-    var data = jsonDecode(response.body);
+      http.Response response =
+          await http.post(Uri.parse(DBConstants.url), body: map);
+      var data = jsonDecode(response.body);
 
-    // Error Checking on response from web server
-    if (data == DBConstants.ERROR_MESSAGE || response.statusCode != 200) {
-      print("error in getTeamGoalFromSubGoal");
+      // Error Checking on response from web server
+      if (data == DBConstants.ERROR_MESSAGE || response.statusCode != 200) {
+        print("error in getTeamGoalFromSubGoal");
+        return "";
+      }
+
+      String teamGoalId = data[0]['team_goal'];
+      return teamGoalId;
+    } catch (e) {
       return "";
     }
-
-    String teamGoalId = data[0]['team_goal'];
-    return teamGoalId;
   }
 
   /// Returns a user id when given a subgoal id
   ///
   /// The subgoal id must must be asscoiated with a user already
   ///
-  /// Returns the user id on success
+  /// Returns the user id on success, empty string on error
   static Future<String> getUserFromSubGoal(String subGoalId,
       [List<String> columns = const ['*']]) async {
-    var map = new Map<String, dynamic>();
-    map["action"] = DBConstants.GET_ONE_ACTION;
-    map["table"] = DBConstants.USER_GOALS_TABLE;
-    map["columns"] = columns.join(',');
-    map["clause"] = "goal_id = $subGoalId";
+    try {
+      var map = new Map<String, dynamic>();
+      map["action"] = DBConstants.GET_ONE_ACTION;
+      map["table"] = DBConstants.USER_GOALS_TABLE;
+      map["columns"] = columns.join(',');
+      map["clause"] = "goal_id = $subGoalId";
 
-    http.Response response =
-        await http.post(Uri.parse(DBConstants.url), body: map);
-    var data = jsonDecode(response.body);
+      http.Response response =
+          await http.post(Uri.parse(DBConstants.url), body: map);
+      var data = jsonDecode(response.body);
 
-    // Error Checking on response from web server
-    if (data == DBConstants.ERROR_MESSAGE || response.statusCode != 200) {
-      print("error in getUserFromSubGoal");
+      // Error Checking on response from web server
+      if (data == DBConstants.ERROR_MESSAGE || response.statusCode != 200) {
+        print("error in getUserFromSubGoal");
+        return "";
+      }
+
+      String userId = data[0]['user_id'];
+      return userId;
+    } catch (e) {
       return "";
     }
-
-    String userId = data[0]['user_id'];
-    return userId;
   }
 
   /// Used to update a team goal's progress when the progress of one of its subgoals' is updated
