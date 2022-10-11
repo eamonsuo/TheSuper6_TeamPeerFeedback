@@ -562,6 +562,33 @@ class GoalsTable {
     return teamGoalId;
   }
 
+  /// Returns a user id when given a subgoal id
+  ///
+  /// The subgoal id must must be asscoiated with a user already
+  ///
+  /// Returns the user id on success
+  static Future<String> getUserFromSubGoal(String subGoalId,
+      [List<String> columns = const ['*']]) async {
+    var map = new Map<String, dynamic>();
+    map["action"] = DBConstants.GET_ONE_ACTION;
+    map["table"] = DBConstants.USER_GOALS_TABLE;
+    map["columns"] = columns.join(',');
+    map["clause"] = "goal_id = $subGoalId";
+
+    http.Response response =
+        await http.post(Uri.parse(DBConstants.url), body: map);
+    var data = jsonDecode(response.body);
+
+    // Error Checking on response from web server
+    if (data == DBConstants.ERROR_MESSAGE || response.statusCode != 200) {
+      print("error in getUserFromSubGoal");
+      return "";
+    }
+
+    String userId = data[0]['user_id'];
+    return userId;
+  }
+
   /// Used to update a team goal's progress when the progress of one of its subgoals' is updated
   /// Used in the updateGoal function
   ///
