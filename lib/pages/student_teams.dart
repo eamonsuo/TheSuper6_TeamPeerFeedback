@@ -27,7 +27,7 @@ class _StudentTeamsPageState extends State<StudentTeamsPage> {
     super.initState();
 
     _teams = TeamsTable.getAllTeams();
-    _userTeams = UsersTable.getTeamsofUser('28121');
+    _userTeams = UsersTable.getTeamsofUser('28119');
   }
 
   /*List<TeamData> teamData = [
@@ -204,11 +204,11 @@ class _TeamDisplayState extends State<TeamDisplay> {
     ["goal3", "finish this", "finish that"]
   ];*/
 
-  final List<String> feedback = <String>[
+  /*final List<String> feedback = <String>[
     'This is so cool',
     'Lots of effort',
     'Very good, top sensation'
-  ];
+  ];*/
 
   //double progress = 0.2;
 
@@ -259,7 +259,7 @@ class _TeamDisplayState extends State<TeamDisplay> {
                     itemCount: _goalData.length,
                     itemBuilder: (BuildContext context, int index) {
                       return _buildList(_goalData.elementAt(index), context,
-                          index, _subgoalData);
+                          index, _subgoalData, _feedbackData);
                     },
                   ),
                 ),
@@ -388,7 +388,7 @@ class _TeamDisplayState extends State<TeamDisplay> {
   }
 
   Widget _buildList(Map<String, String> item, BuildContext context, int index,
-      Map<String, List> subgoals) {
+      Map<String, List> subgoals, List<Map<String, String>> feedback) {
     String deadline = item.entries.elementAt(4).value;
     double progress = double.parse(item.entries.elementAt(2).value);
     List<Map<String, String>> specificSubgoals = [];
@@ -912,6 +912,14 @@ class _TeamDisplayState extends State<TeamDisplay> {
                           });
                     }
                     if (result == 1) {
+                      //View feedback
+                      List<Map<String, String>> specificFeedback = [];
+                      for (Map<String, String> data in feedback) {
+                        if (data.entries.elementAt(2).value ==
+                            e.entries.elementAt(0).value) {
+                          specificFeedback.add(data);
+                        }
+                      }
                       showDialog(
                           context: context,
                           builder: (BuildContext context) {
@@ -947,10 +955,15 @@ class _TeamDisplayState extends State<TeamDisplay> {
                                 height:
                                     MediaQuery.of(context).size.height * 0.7,
                                 child: ListView.separated(
-                                  itemCount: feedback.length,
+                                  itemCount: specificFeedback.length,
                                   itemBuilder: (context, index) {
                                     return ListTile(
-                                      title: Text(feedback[index],
+                                      title: Text(
+                                          specificFeedback
+                                              .elementAt(index)
+                                              .entries
+                                              .elementAt(3)
+                                              .value,
                                           style: const TextStyle(
                                               fontSize: 13,
                                               color: Color.fromRGBO(
