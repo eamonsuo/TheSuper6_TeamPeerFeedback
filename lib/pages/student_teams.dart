@@ -510,7 +510,7 @@ class _TeamDisplayState extends State<TeamDisplay> {
                               ),
                               TextButton(
                                   onPressed: () {
-                                    //Add new sub goal to database
+                                    //GoalsTable.addGoal(description, deadline, teamId, subGoal)
                                   },
                                   child: const Text("Add"))
                             ],
@@ -594,8 +594,7 @@ class _TeamDisplayState extends State<TeamDisplay> {
                                         width:
                                             MediaQuery.of(context).size.width *
                                                 0.7,
-                                        child: Text(
-                                            "Team Goal $index - Deadline: $deadline")),
+                                        child: Text("Team Goal $index")),
                                     Container(
                                         padding: const EdgeInsets.all(10),
                                         width:
@@ -607,6 +606,34 @@ class _TeamDisplayState extends State<TeamDisplay> {
                                           textAlign: TextAlign.left,
                                           decoration: InputDecoration(
                                               border: InputBorder.none,
+                                              labelText: "Description",
+                                              enabledBorder: OutlineInputBorder(
+                                                borderSide: const BorderSide(
+                                                    width: 3,
+                                                    color: Colors.blue),
+                                                borderRadius:
+                                                    BorderRadius.circular(15),
+                                              ),
+                                              focusedBorder: OutlineInputBorder(
+                                                borderSide: const BorderSide(
+                                                    width: 3,
+                                                    color: Colors.red),
+                                                borderRadius:
+                                                    BorderRadius.circular(15),
+                                              )),
+                                        )),
+                                    Container(
+                                        padding: const EdgeInsets.all(10),
+                                        width:
+                                            MediaQuery.of(context).size.width *
+                                                0.7,
+                                        child: TextField(
+                                          controller: goalDeadlineController,
+                                          maxLines: 1,
+                                          textAlign: TextAlign.left,
+                                          decoration: InputDecoration(
+                                              border: InputBorder.none,
+                                              labelText: "Deadline",
                                               enabledBorder: OutlineInputBorder(
                                                 borderSide: const BorderSide(
                                                     width: 3,
@@ -626,7 +653,19 @@ class _TeamDisplayState extends State<TeamDisplay> {
                                 ),
                                 TextButton(
                                     onPressed: () {
-                                      //StudentTeamsPage();
+                                      GoalsTable.updateGoal(
+                                          item.entries.elementAt(0).value,
+                                          description:
+                                              goalDescriptionController.text,
+                                          deadline:
+                                              goalDeadlineController.text);
+                                      Navigator.pop(context);
+                                      Navigator.pushReplacement(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (BuildContext context) =>
+                                                super.widget),
+                                      );
                                     },
                                     child: const Text("Update"))
                               ],
@@ -1176,6 +1215,65 @@ class _TeamDisplayState extends State<TeamDisplay> {
                     }
                     if (result == 4) {
                       //DELETE SUB-GOAL
+                      showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return AlertDialog(
+                                insetPadding:
+                                    const EdgeInsets.only(left: 20, right: 20),
+                                scrollable: true,
+                                title: Row(
+                                  children: [
+                                    const Text(
+                                      "Delete Sub-Goal",
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 17,
+                                          color:
+                                              Color.fromRGBO(21, 90, 148, 10)),
+                                    ),
+                                    const Spacer(),
+                                    IconButton(
+                                      onPressed: () =>
+                                          Navigator.of(context).pop(),
+                                      icon: const Icon(Icons.close),
+                                      splashRadius: 15,
+                                    )
+                                  ],
+                                ),
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(20),
+                                    side: const BorderSide(
+                                        color: Color.fromRGBO(21, 90, 148, 10),
+                                        width: 1.5)),
+                                content: Column(
+                                  children: [
+                                    Container(
+                                        padding: const EdgeInsets.all(10),
+                                        width:
+                                            MediaQuery.of(context).size.width *
+                                                0.7,
+                                        child: const Text(
+                                            "Are you sure you want to delete this subgoal?")),
+                                    TextButton(
+                                        onPressed: () async {
+                                          await GoalsTable.deleteGoal(
+                                              e.entries.elementAt(0).value);
+                                          Navigator.pop(context);
+                                          Navigator.pushReplacement(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder:
+                                                    (BuildContext context) =>
+                                                        super.widget),
+                                          );
+                                        },
+                                        child: const Text("Delete"))
+                                  ],
+                                )
+                                /**/
+                                );
+                          });
                     }
                   },
                 ),
