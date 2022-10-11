@@ -21,20 +21,15 @@ class StudentTeamsPage extends StatefulWidget {
 class _StudentTeamsPageState extends State<StudentTeamsPage> {
   late Future<List<Map<String, String>>> _teams;
   late Future<List<String>> _userTeams;
+  String userID = '28119';
 
   @override
   void initState() {
     super.initState();
 
     _teams = TeamsTable.getAllTeams();
-    _userTeams = UsersTable.getTeamsofUser('28119');
+    _userTeams = UsersTable.getTeamsofUser(userID);
   }
-
-  /*List<TeamData> teamData = [
-    const TeamData("team1"),
-    const TeamData("team2"),
-    const TeamData("team3")
-  ];*/
 
   @override
   Widget build(BuildContext context) {
@@ -169,6 +164,7 @@ class TeamDisplay extends StatefulWidget {
   TeamDisplay({super.key, required this.teamData});
 
   final Map<String, String> teamData;
+  String userId = "28119";
 
   @override
   _TeamDisplayState createState() => _TeamDisplayState();
@@ -715,13 +711,6 @@ class _TeamDisplayState extends State<TeamDisplay> {
                                         "Are you sure you want to delete this goal?")),
                                 TextButton(
                                     onPressed: () async {
-                                      /*await GoalsTable.addGoal(
-                                          goalDescriptionController.text,
-                                          goalDeadlineController.text,
-                                          widget.teamData.entries
-                                              .elementAt(0)
-                                              .value,
-                                          false);*/
                                       await GoalsTable.deleteGoal(
                                           item.entries.elementAt(0).value);
                                       Navigator.pop(context);
@@ -878,6 +867,7 @@ class _TeamDisplayState extends State<TeamDisplay> {
                     ),
                   ],
                   onSelected: (result) {
+                    feedbackController.clear();
                     if (result == 0) {
                       //WRITE TO TUTOR SUB-GOAL
                       showDialog(
@@ -1025,6 +1015,7 @@ class _TeamDisplayState extends State<TeamDisplay> {
                           });
                     }
                     if (result == 2) {
+                      //Give feedback
                       showDialog(
                           context: context,
                           builder: (BuildContext context) {
@@ -1088,7 +1079,21 @@ class _TeamDisplayState extends State<TeamDisplay> {
                                               )),
                                         )),
                                     TextButton(
-                                        onPressed: () {}, child: Text("Submit"))
+                                        onPressed: () {
+                                          FeedbackTable.addFeedback(
+                                              widget.userId,
+                                              e.entries.elementAt(0).value,
+                                              feedbackController.text);
+                                          Navigator.pop(context);
+                                          Navigator.pushReplacement(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder:
+                                                    (BuildContext context) =>
+                                                        super.widget),
+                                          );
+                                        },
+                                        child: Text("Submit"))
                                   ],
                                 )
                                 /**/
