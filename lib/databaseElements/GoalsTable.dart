@@ -601,6 +601,49 @@ class GoalsTable {
     }
   }
 
+  /// Returns all records in the userGoals table.
+  ///
+  /// Needs to be called with await to get synchronous operation (double check https://dart.dev/codelabs/async-await)
+  ///
+  /// Returns a list of records in the format [{col1: value, col2: value, ...}, {col1: value, col2: value, ...}, ...]
+  /// Each element of the list is a Map which representa an individual record
+  ///
+  /// Returns an empty list on error
+  static Future<List<Map<String, String>>> getAllFromUserGoals(
+      [List<String> columns = const ['*']]) async {
+    try {
+      // Create map which stores the values needed for our sql query
+      var map = Map<String, dynamic>();
+      map["action"] = DBConstants.GET_ALL_ACTION;
+      map["table"] = DBConstants.USER_GOALS_TABLE;
+      map["columns"] = columns.join(', ');
+      map["clause"] = '';
+      print(map.toString());
+
+      // HTTP POST message sent to server and JSON is returned
+      http.Response response =
+          await http.post(Uri.parse(DBConstants.url), body: map);
+      List<dynamic> dataList = jsonDecode(response.body);
+
+      // Error Checking on response from web serve
+      if (dataList.isEmpty || response.statusCode != 200) {
+        print("error in getAllFromUserGoals");
+        return [];
+      }
+
+      // Organise & output results in json style
+      List<Map<String, String>> results = [];
+      for (var i = 0; i < dataList.length; i++) {
+        results.add(Map<String, String>.from(dataList[i]));
+      }
+
+      print("results: $results");
+      return results;
+    } catch (e) {
+      return [];
+    }
+  }
+
   /// Used to update a team goal's progress when the progress of one of its subgoals' is updated
   /// Used in the updateGoal function
   ///
