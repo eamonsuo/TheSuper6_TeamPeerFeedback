@@ -10,18 +10,22 @@ import 'package:flutter/material.dart';
 class StudentTaskButtons extends StatefulWidget {
   @override
   State<StudentTaskButtons> createState() => _StudentTaskButtons(); 
+
+  int id;
+  String description;
+  Map<String, String> goalInfo;
+  StudentTaskButtons(this.id, this.description, this.goalInfo);
 }
 
 class _StudentTaskButtons extends State<StudentTaskButtons> {
 
-  late Future<List<Map<String, String>>> _allUsers;
+  // late Future<List<Map<String, String>>> _allUsers;
 
   @override
   void initState() {
     super.initState();
 
-    _allUsers = GoalsTable.getAllGoals();
-    // _allUsers = UsersTable.getAllUsers();
+    // _allUsers = GoalsTable.getSubGoalsInfoFromUser("28115");
 
   }
 
@@ -167,7 +171,7 @@ class _StudentTaskButtons extends State<StudentTaskButtons> {
                         fontSize: 14),
                   ),
                   onTap: () {
-                    tmp(context);
+                    tmp(context, widget.goalInfo);
                   },
                 ),
               ),
@@ -221,29 +225,29 @@ class _StudentTaskButtons extends State<StudentTaskButtons> {
       }
     }
 
-    return FutureBuilder(
-      future: _allUsers,
-      builder: (BuildContext context, AsyncSnapshot snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
-        }
-        if (snapshot.hasData) {
-          List<Map<String, String>> _allUsersData = snapshot.data;
-          print(_allUsersData);
-          return Row(
-            textDirection: TextDirection.rtl, 
-            children: activeButtons
-          );
-        } else {
-          return Container();
-        }
-      },
-    );
-
-    // return Row(
-    //   textDirection: TextDirection.rtl, 
-    //   children: activeButtons
+    // return FutureBuilder(
+    //   future: _allUsers,
+    //   builder: (BuildContext context, AsyncSnapshot snapshot) {
+    //     if (snapshot.connectionState == ConnectionState.waiting) {
+    //       return const Center(child: CircularProgressIndicator());
+    //     }
+    //     if (snapshot.hasData) {
+    //       List<Map<String, String>> _allUsersData = snapshot.data;
+    //       print(_allUsersData);
+    //       return Row(
+    //         textDirection: TextDirection.rtl, 
+    //         children: activeButtons
+    //       );
+    //     } else {
+    //       return Container();
+    //     }
+    //   },
     // );
+
+    return Row(
+      textDirection: TextDirection.rtl, 
+      children: activeButtons
+    );
   }
 }
 
@@ -254,7 +258,7 @@ class Button {
   Button(this.name, this.active, this.widget);
 }
 
-var tmp = (context) => showDialog(
+var tmp = (context, goalInfo) => showDialog(
                         context: context,
                         builder: (BuildContext context) {
                           return AlertDialog(
@@ -299,7 +303,8 @@ var tmp = (context) => showDialog(
                                             textAlign: TextAlign.left,
                                             decoration: InputDecoration(
                                                 border: InputBorder.none,
-                                                labelText: "",
+                                                // labelText: goalInfo["goal_description"],
+                                                labelText: "test",
                                                 enabledBorder: OutlineInputBorder(
                                                   borderSide: const BorderSide(
                                                       width: 3, color: Colors.blue),

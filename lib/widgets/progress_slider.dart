@@ -4,8 +4,7 @@ import 'package:flutter/material.dart';
 class ProgressSlider extends StatefulWidget {
 
   double? currentProgress;
-  bool embeded;
-  ProgressSlider({this.currentProgress, this.embeded = false});
+  ProgressSlider({this.currentProgress});
 
   @override
   State<ProgressSlider> createState() => _ProgressSlider();
@@ -43,17 +42,15 @@ class _ProgressSlider extends State<ProgressSlider> {
       children: [
         Text("Progesss: ${progress.floor()}%", style: TextStyle(color: UIColours.darkBlue),),
         SliderTheme(
-          data: widget.embeded? embededStyle: defaultStyle, 
+          data: defaultStyle, 
           child: Slider(
             min: 0,
             max: 100,
             value: progress, 
             onChanged: (double value) {
-              if (!widget.embeded){
-                setState(() {
-                  progress = value;
-                });
-              }
+              setState(() {
+                progress = value;
+              });
             }
           ),
         )
