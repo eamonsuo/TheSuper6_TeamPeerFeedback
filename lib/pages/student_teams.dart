@@ -178,6 +178,7 @@ class _TeamDisplayState extends State<TeamDisplay> {
   late Future<List<Map<String, String>>> _goals;
   late Future<Map<String, List>> _subgoals;
   late Future<List<Map<String, String>>> _usersInTeam;
+  late Future<List<Map<String, String>>> _userGoals;
 
   @override
   void initState() {
@@ -189,6 +190,7 @@ class _TeamDisplayState extends State<TeamDisplay> {
         widget.teamData.entries.elementAt(0).value);
     _usersInTeam = TeamsTable.getUsersInTeamInfo(
         widget.teamData.entries.elementAt(0).value);
+    _userGoals = GoalsTable.getAllFromUserGoals();
   }
 
   //Used to store feedback input
@@ -203,7 +205,8 @@ class _TeamDisplayState extends State<TeamDisplay> {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-      future: Future.wait([_feedback, _goals, _subgoals, _usersInTeam]),
+      future:
+          Future.wait([_feedback, _goals, _subgoals, _usersInTeam, _userGoals]),
       builder: (BuildContext context, AsyncSnapshot<List<Object>> snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
@@ -217,6 +220,8 @@ class _TeamDisplayState extends State<TeamDisplay> {
               snapshot.data![2] as Map<String, List>;
           List<Map<String, String>> _usersInTeamData =
               snapshot.data![3] as List<Map<String, String>>;
+          List<Map<String, String>> _userGoalsData =
+              snapshot.data![4] as List<Map<String, String>>;
 
           List<Map<String, String>> teamSpecificGoals;
 
@@ -248,8 +253,14 @@ class _TeamDisplayState extends State<TeamDisplay> {
                     physics: const BouncingScrollPhysics(),
                     itemCount: _goalData.length,
                     itemBuilder: (BuildContext context, int index) {
-                      return _buildList(_goalData.elementAt(index), context,
-                          index, _subgoalData, _feedbackData, _usersInTeamData);
+                      return _buildList(
+                          _goalData.elementAt(index),
+                          context,
+                          index,
+                          _subgoalData,
+                          _feedbackData,
+                          _usersInTeamData,
+                          _userGoalsData);
                     },
                   ),
                 ),
@@ -383,7 +394,8 @@ class _TeamDisplayState extends State<TeamDisplay> {
       int index,
       Map<String, List> subgoals,
       List<Map<String, String>> feedback,
-      List<Map<String, String>> userData) {
+      List<Map<String, String>> userData,
+      List<Map<String, String>> userGoalsData) {
     String deadline = item.entries.elementAt(4).value;
     double progress = double.parse(item.entries.elementAt(2).value);
 
@@ -800,7 +812,27 @@ class _TeamDisplayState extends State<TeamDisplay> {
               mainAxisSize: MainAxisSize.max,
               children: [
                 Text(
-                  e.entries.elementAt(0).value,
+                  userData
+                      .firstWhere((element) =>
+                          element.entries.elementAt(0).value ==
+                          userGoalsData
+                              .firstWhere((element) =>
+                                  element.entries.elementAt(1).value ==
+                                  e.entries.elementAt(0).value)
+                              .entries
+                              .elementAt(0)
+                              .value)
+                      .entries
+                      .elementAt(1)
+                      .value,
+                  /*userGoalsData
+                      .firstWhere((element) =>
+                          element.entries.elementAt(1).value ==
+                          e.entries.elementAt(0).value)
+                      .entries
+                      .elementAt(0)
+                      .value,*/
+                  //e.entries.elementAt(0).value,
                   //Link this to user goal table TODO
                   style: const TextStyle(
                       fontWeight: FontWeight.bold,
@@ -1158,8 +1190,8 @@ class _TeamDisplayState extends State<TeamDisplay> {
                       subGoalDescriptionController.text =
                           e.entries.elementAt(1).value;
 
-                      //Setup dropdown box
-                      List<DropdownMenuItem<String>> dropdownItems = [];
+                      //Setup dropdown box - only needed if changing user assigned
+                      /*List<DropdownMenuItem<String>> dropdownItems = [];
                       for (Map<String, String> userDetails in userData) {
                         if (userDetails.entries.elementAt(2).value == '0') {
                           dropdownItems.add(DropdownMenuItem(
@@ -1169,7 +1201,19 @@ class _TeamDisplayState extends State<TeamDisplay> {
                         }
                       }
 
-                      String selectedValue = widget.userId;
+                      String selectedValue = userData
+                          .firstWhere((element) =>
+                              element.entries.elementAt(0).value ==
+                              userGoalsData
+                                  .firstWhere((element) =>
+                                      element.entries.elementAt(1).value ==
+                                      e.entries.elementAt(0).value)
+                                  .entries
+                                  .elementAt(0)
+                                  .value)
+                          .entries
+                          .elementAt(0)
+                          .value;*/
 
                       showDialog(
                           context: context,
@@ -1184,7 +1228,7 @@ class _TeamDisplayState extends State<TeamDisplay> {
                                   title: Row(
                                     children: [
                                       const Text(
-                                        "Add a Subgoal",
+                                        "Edit a Subgoal",
                                         style: TextStyle(
                                             fontWeight: FontWeight.bold,
                                             fontSize: 17,
@@ -1210,7 +1254,8 @@ class _TeamDisplayState extends State<TeamDisplay> {
                                     children: [
                                       Column(
                                         children: [
-                                          Container(
+                                          //Only needed if reassigning
+                                          /*Container(
                                               padding: const EdgeInsets.all(10),
                                               width: MediaQuery.of(context)
                                                       .size
@@ -1224,7 +1269,7 @@ class _TeamDisplayState extends State<TeamDisplay> {
                                                   });
                                                 },
                                                 value: selectedValue,
-                                              )),
+                                              )),*/
                                           Container(
                                               padding: const EdgeInsets.all(10),
                                               width: MediaQuery.of(context)
@@ -1267,6 +1312,11 @@ class _TeamDisplayState extends State<TeamDisplay> {
                                       TextButton(
                                           onPressed: () async {
                                             //Update goal in GoalsTable TODO
+                                            await GoalsTable.updateGoal(
+                                                e.entries.elementAt(0).value,
+                                                description:
+                                                    subGoalDescriptionController
+                                                        .text);
                                             Navigator.pushReplacement(
                                               context,
                                               MaterialPageRoute(
@@ -1275,7 +1325,7 @@ class _TeamDisplayState extends State<TeamDisplay> {
                                                           super.widget),
                                             );
                                           },
-                                          child: const Text("Add"))
+                                          child: const Text("Update"))
                                     ],
                                   )
                                   /**/
