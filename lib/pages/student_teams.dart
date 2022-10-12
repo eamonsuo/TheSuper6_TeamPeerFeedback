@@ -3,6 +3,7 @@ import 'dart:ffi';
 //import 'dart:html';
 
 import 'package:deco3801_project/databaseElements/FeedbackTable.dart';
+import 'package:deco3801_project/databaseElements/TutorMessagesTable.dart';
 import 'package:flutter/material.dart';
 import '../databaseElements/GoalsTable.dart';
 import '../databaseElements/TeamsTable.dart';
@@ -19,10 +20,11 @@ class StudentTeamsPage extends StatefulWidget {
   _StudentTeamsPageState createState() => _StudentTeamsPageState();
 }
 
+String userID = '28119';
+
 class _StudentTeamsPageState extends State<StudentTeamsPage> {
   late Future<List<Map<String, String>>> _teams;
   late Future<List<String>> _userTeams;
-  String userID = '28119';
 
   @override
   void initState() {
@@ -892,6 +894,15 @@ class _TeamDisplayState extends State<TeamDisplay> {
                     feedbackController.clear();
                     if (result == 0) {
                       //WRITE TO TUTOR SUB-GOAL
+
+                      //find the tutor id
+                      String teamTutorID = "";
+                      for (Map<String, String> userDetails in userData) {
+                        if (userDetails.entries.elementAt(2).value == '1') {
+                          teamTutorID = userDetails.entries.elementAt(0).value;
+                        }
+                      }
+
                       showDialog(
                           context: context,
                           builder: (BuildContext context) {
@@ -954,7 +965,26 @@ class _TeamDisplayState extends State<TeamDisplay> {
                                               )),
                                         )),
                                     TextButton(
-                                        onPressed: () {},
+                                        onPressed: () async {
+                                          await TutorMessagesTable.addMessage(
+                                              userID,
+                                              teamTutorID,
+                                              widget.teamData.entries
+                                                  .elementAt(0)
+                                                  .value,
+                                              teamTutorID,
+                                              writeToTutorController.text,
+                                              subGoalId:
+                                                  e.entries.elementAt(0).value);
+                                          Navigator.pop(context);
+                                          Navigator.pushReplacement(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder:
+                                                    (BuildContext context) =>
+                                                        super.widget),
+                                          );
+                                        },
                                         child: const Text("Send"))
                                   ],
                                 )
@@ -1125,119 +1155,132 @@ class _TeamDisplayState extends State<TeamDisplay> {
                     if (result == 3) {
                       //EDIT SUB-GOAL
                       //Will need to update assigned to controller and description
+                      subGoalDescriptionController.text =
+                          e.entries.elementAt(1).value;
+
+                      //Setup dropdown box
+                      List<DropdownMenuItem<String>> dropdownItems = [];
+                      for (Map<String, String> userDetails in userData) {
+                        if (userDetails.entries.elementAt(2).value == '0') {
+                          dropdownItems.add(DropdownMenuItem(
+                              child:
+                                  Text(userDetails.entries.elementAt(1).value),
+                              value: userDetails.entries.elementAt(0).value));
+                        }
+                      }
+
+                      String selectedValue = widget.userId;
+
                       showDialog(
                           context: context,
                           builder: (BuildContext context) {
-                            return AlertDialog(
-                                insetPadding:
-                                    EdgeInsets.only(left: 20, right: 20),
-                                scrollable: true,
-                                title: Row(
-                                  children: [
-                                    const Text(
-                                      "Edit Sub-Goal",
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 17,
+                            return StatefulBuilder(builder:
+                                (BuildContext context,
+                                    StateSetter setSateDropdown) {
+                              return AlertDialog(
+                                  insetPadding: const EdgeInsets.only(
+                                      left: 20, right: 20),
+                                  scrollable: true,
+                                  title: Row(
+                                    children: [
+                                      const Text(
+                                        "Add a Subgoal",
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 17,
+                                            color: Color.fromRGBO(
+                                                21, 90, 148, 10)),
+                                      ),
+                                      const Spacer(),
+                                      IconButton(
+                                        onPressed: () =>
+                                            Navigator.of(context).pop(),
+                                        icon: const Icon(Icons.close),
+                                        splashRadius: 15,
+                                      )
+                                    ],
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(20),
+                                      side: const BorderSide(
                                           color:
-                                              Color.fromRGBO(21, 90, 148, 10)),
-                                    ),
-                                    const Spacer(),
-                                    IconButton(
-                                      onPressed: () =>
-                                          Navigator.of(context).pop(),
-                                      icon: const Icon(Icons.close),
-                                      splashRadius: 15,
-                                    )
-                                  ],
-                                ),
-                                shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(20),
-                                    side: const BorderSide(
-                                        color: Color.fromRGBO(21, 90, 148, 10),
-                                        width: 1.5)),
-                                content: Column(
-                                  children: [
-                                    Column(
-                                      children: [
-                                        Container(
-                                            padding: const EdgeInsets.all(10),
-                                            width: MediaQuery.of(context)
-                                                    .size
-                                                    .width *
-                                                0.7,
-                                            child: TextField(
-                                              controller:
-                                                  subGoalAssignedPersonController,
-                                              maxLines: 1,
-                                              textAlign: TextAlign.left,
-                                              decoration: InputDecoration(
-                                                  border: InputBorder.none,
-                                                  enabledBorder:
-                                                      OutlineInputBorder(
-                                                    borderSide:
-                                                        const BorderSide(
-                                                            width: 3,
-                                                            color: Colors.blue),
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            15),
-                                                  ),
-                                                  focusedBorder:
-                                                      OutlineInputBorder(
-                                                    borderSide:
-                                                        const BorderSide(
-                                                            width: 3,
-                                                            color: Colors.red),
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            15),
-                                                  )),
-                                            )),
-                                        Container(
-                                            padding: const EdgeInsets.all(10),
-                                            width: MediaQuery.of(context)
-                                                    .size
-                                                    .width *
-                                                0.7,
-                                            child: TextField(
-                                              controller:
-                                                  subGoalDescriptionController,
-                                              maxLines: 1,
-                                              textAlign: TextAlign.left,
-                                              decoration: InputDecoration(
-                                                  border: InputBorder.none,
-                                                  hintText:
-                                                      "Description to be connected to database", //Goal title
-                                                  enabledBorder:
-                                                      OutlineInputBorder(
-                                                    borderSide:
-                                                        const BorderSide(
-                                                            width: 3,
-                                                            color: Colors.blue),
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            15),
-                                                  ),
-                                                  focusedBorder:
-                                                      OutlineInputBorder(
-                                                    borderSide:
-                                                        const BorderSide(
-                                                            width: 3,
-                                                            color: Colors.red),
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            15),
-                                                  )),
-                                            )),
-                                      ],
-                                    ),
-                                    TextButton(
-                                        onPressed: () {}, child: Text("Update"))
-                                  ],
-                                )
-                                /**/
-                                );
+                                              Color.fromRGBO(21, 90, 148, 10),
+                                          width: 1.5)),
+                                  content: Column(
+                                    children: [
+                                      Column(
+                                        children: [
+                                          Container(
+                                              padding: const EdgeInsets.all(10),
+                                              width: MediaQuery.of(context)
+                                                      .size
+                                                      .width *
+                                                  0.7,
+                                              child: DropdownButton(
+                                                items: dropdownItems,
+                                                onChanged: (String? newValue) {
+                                                  setSateDropdown(() {
+                                                    selectedValue = newValue!;
+                                                  });
+                                                },
+                                                value: selectedValue,
+                                              )),
+                                          Container(
+                                              padding: const EdgeInsets.all(10),
+                                              width: MediaQuery.of(context)
+                                                      .size
+                                                      .width *
+                                                  0.7,
+                                              child: TextField(
+                                                controller:
+                                                    subGoalDescriptionController,
+                                                maxLines: 2,
+                                                textAlign: TextAlign.left,
+                                                decoration: InputDecoration(
+                                                    border: InputBorder.none,
+                                                    labelText: "Description",
+                                                    enabledBorder:
+                                                        OutlineInputBorder(
+                                                      borderSide:
+                                                          const BorderSide(
+                                                              width: 3,
+                                                              color:
+                                                                  Colors.blue),
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              15),
+                                                    ),
+                                                    focusedBorder:
+                                                        OutlineInputBorder(
+                                                      borderSide:
+                                                          const BorderSide(
+                                                              width: 3,
+                                                              color:
+                                                                  Colors.red),
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              15),
+                                                    )),
+                                              ))
+                                        ],
+                                      ),
+                                      TextButton(
+                                          onPressed: () async {
+                                            //Update goal in GoalsTable TODO
+                                            Navigator.pushReplacement(
+                                              context,
+                                              MaterialPageRoute(
+                                                  builder:
+                                                      (BuildContext context) =>
+                                                          super.widget),
+                                            );
+                                          },
+                                          child: const Text("Add"))
+                                    ],
+                                  )
+                                  /**/
+                                  );
+                            });
                           });
                     }
                     if (result == 4) {
