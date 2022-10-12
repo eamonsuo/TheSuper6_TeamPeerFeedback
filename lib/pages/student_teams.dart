@@ -25,6 +25,10 @@ String userID = '28119';
 class _StudentTeamsPageState extends State<StudentTeamsPage> {
   late Future<List<Map<String, String>>> _teams;
   late Future<List<String>> _userTeams;
+  late Future<List<Map<String, String>>>
+      _usersInTeam; //Need to get list of users for all teams
+
+  TextEditingController teamNameController = TextEditingController();
 
   @override
   void initState() {
@@ -48,11 +52,11 @@ class _StudentTeamsPageState extends State<StudentTeamsPage> {
         if (snapshot.hasData) {
           List<Map<String, String>> _teamData =
               snapshot.data![0] as List<Map<String, String>>;
-          List<String> _userTeams = snapshot.data![1] as List<String>;
+          List<String> _userTeamsData = snapshot.data![1] as List<String>;
 
           List<Map<String, String>> _specificTeams = [];
           for (int i = 0; i < _teamData.length; i++) {
-            if (_userTeams
+            if (_userTeamsData
                 .contains(_teamData.elementAt(i).entries.elementAt(0).value)) {
               _specificTeams.add(_teamData.elementAt(i));
             }
@@ -81,6 +85,7 @@ class _StudentTeamsPageState extends State<StudentTeamsPage> {
                     icon: const Icon(Icons.more_vert),
                     itemBuilder: (BuildContext context) => <PopupMenuEntry>[
                       const PopupMenuItem(
+                        value: 0,
                         child: ListTile(
                           title: Text(
                             'Write to tutors',
@@ -92,6 +97,7 @@ class _StudentTeamsPageState extends State<StudentTeamsPage> {
                         ),
                       ),
                       const PopupMenuItem(
+                        value: 1,
                         child: ListTile(
                           title: Text(
                             'See members',
@@ -103,6 +109,7 @@ class _StudentTeamsPageState extends State<StudentTeamsPage> {
                         ),
                       ),
                       const PopupMenuItem(
+                        value: 2,
                         child: ListTile(
                           title: Text(
                             'Add members',
@@ -114,6 +121,7 @@ class _StudentTeamsPageState extends State<StudentTeamsPage> {
                         ),
                       ),
                       const PopupMenuItem(
+                        value: 3,
                         child: ListTile(
                           title: Text(
                             'Leave team',
@@ -125,6 +133,112 @@ class _StudentTeamsPageState extends State<StudentTeamsPage> {
                         ),
                       ),
                     ],
+                    onSelected: (value) {
+                      if (value == 0) {
+                        //Write to tutors for team
+                        /*String teamTutorID = "";
+                      for (Map<String, String> userDetails in userData) {
+                        if (userDetails.entries.elementAt(2).value == '1') {
+                          teamTutorID = userDetails.entries.elementAt(0).value;
+                        }
+                      }
+
+                      showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return AlertDialog(
+                                insetPadding:
+                                    EdgeInsets.only(left: 20, right: 20),
+                                scrollable: true,
+                                title: Row(
+                                  children: [
+                                    const Text(
+                                      "Write to Tutor",
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 17,
+                                          color:
+                                              Color.fromRGBO(21, 90, 148, 10)),
+                                    ),
+                                    const Spacer(),
+                                    IconButton(
+                                      onPressed: () =>
+                                          Navigator.of(context).pop(),
+                                      icon: const Icon(Icons.close),
+                                      splashRadius: 15,
+                                    )
+                                  ],
+                                ),
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(20),
+                                    side: const BorderSide(
+                                        color: Color.fromRGBO(21, 90, 148, 10),
+                                        width: 1.5)),
+                                content: Column(
+                                  children: [
+                                    Container(
+                                        width:
+                                            MediaQuery.of(context).size.width *
+                                                0.7,
+                                        height:
+                                            MediaQuery.of(context).size.height *
+                                                0.7,
+                                        child: TextField(
+                                          controller: writeToTutorController,
+                                          maxLines: null,
+                                          textAlign: TextAlign.left,
+                                          decoration: InputDecoration(
+                                              border: InputBorder.none,
+                                              enabledBorder: OutlineInputBorder(
+                                                borderSide: const BorderSide(
+                                                    width: 3,
+                                                    color: Colors.blue),
+                                                borderRadius:
+                                                    BorderRadius.circular(15),
+                                              ),
+                                              focusedBorder: OutlineInputBorder(
+                                                borderSide: const BorderSide(
+                                                    width: 3,
+                                                    color: Colors.red),
+                                                borderRadius:
+                                                    BorderRadius.circular(15),
+                                              )),
+                                        )),
+                                    TextButton(
+                                        onPressed: () async {
+                                          await TutorMessagesTable.addMessage(
+                                              userID,
+                                              teamTutorID,
+                                              widget.teamData.entries
+                                                  .elementAt(0)
+                                                  .value,
+                                              teamTutorID,
+                                              writeToTutorController.text,
+                                              subGoalId:
+                                                  e.entries.elementAt(0).value);
+                                          Navigator.pop(context);
+                                          Navigator.pushReplacement(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder:
+                                                    (BuildContext context) =>
+                                                        super.widget),
+                                          );
+                                        },
+                                        child: const Text("Send"))
+                                  ],
+                                )
+                                /**/
+                                );
+                          });*/
+                      } else if (value == 1) {
+                        //See members
+                      } else if (value == 2) {
+                        //Add members
+                      } else if (value == 3) {
+                        //Leave team
+                      }
+                    },
                   ),
                   onTap: () {
                     Navigator.push(
@@ -141,6 +255,7 @@ class _StudentTeamsPageState extends State<StudentTeamsPage> {
                           color: Color.fromRGBO(21, 90, 148, 50))),
                   tileColor: Colors.white,
                 );
+                //Add bottom one here
               },
               separatorBuilder: (BuildContext context, int index) =>
                   const Divider(
@@ -149,7 +264,87 @@ class _StudentTeamsPageState extends State<StudentTeamsPage> {
             ),
             floatingActionButton: FloatingActionButton(
               onPressed: () {
-                // Add your onPressed code here!
+                // Add Team TODO
+
+                teamNameController.clear();
+
+                showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                          insetPadding:
+                              const EdgeInsets.only(left: 20, right: 20),
+                          scrollable: true,
+                          title: Row(
+                            children: [
+                              const Text(
+                                "Add a Team",
+                                style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 17,
+                                    color: Color.fromRGBO(21, 90, 148, 10)),
+                              ),
+                              const Spacer(),
+                              IconButton(
+                                onPressed: () => Navigator.of(context).pop(),
+                                icon: const Icon(Icons.close),
+                                splashRadius: 15,
+                              )
+                            ],
+                          ),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20),
+                              side: const BorderSide(
+                                  color: Color.fromRGBO(21, 90, 148, 10),
+                                  width: 1.5)),
+                          content: Column(
+                            children: [
+                              Column(
+                                children: [
+                                  Container(
+                                      padding: const EdgeInsets.all(10),
+                                      width: MediaQuery.of(context).size.width *
+                                          0.7,
+                                      child: TextField(
+                                        controller: teamNameController,
+                                        maxLines: 1,
+                                        textAlign: TextAlign.left,
+                                        decoration: InputDecoration(
+                                            border: InputBorder.none,
+                                            labelText: "Team Name",
+                                            enabledBorder: OutlineInputBorder(
+                                              borderSide: const BorderSide(
+                                                  width: 3, color: Colors.blue),
+                                              borderRadius:
+                                                  BorderRadius.circular(15),
+                                            ),
+                                            focusedBorder: OutlineInputBorder(
+                                              borderSide: const BorderSide(
+                                                  width: 3, color: Colors.red),
+                                              borderRadius:
+                                                  BorderRadius.circular(15),
+                                            )),
+                                      )),
+                                ],
+                              ),
+                              TextButton(
+                                  onPressed: () async {
+                                    await TeamsTable.addTeam(
+                                        teamNameController.text, userID);
+                                    Navigator.pop(context);
+                                    Navigator.pushReplacement(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (BuildContext context) =>
+                                                widget));
+                                    setState(() {});
+                                  },
+                                  child: const Text("Add"))
+                            ],
+                          )
+                          /**/
+                          );
+                    });
               },
               child: const Icon(Icons.add),
             ),
