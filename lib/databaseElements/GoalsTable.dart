@@ -385,6 +385,7 @@ class GoalsTable {
   }
 
   /// Gets all subGoals assigned to a user
+  /// and the team name associated with the goal
   ///
   /// [userId] is the id of the user
   ///
@@ -413,7 +414,8 @@ class GoalsTable {
         String subGoalId = data[i]['goal_id'];
         List<Map<String, String>> currentGoal =
             await getSelectedGoal(subGoalId);
-        subGoals.add(currentGoal[0]);
+        String teamName = await getTeamNameFromSubGoal(subGoalId);
+        subGoals.add({...currentGoal[0], "team_name": teamName});
       }
 
       // Error Checking on response from web server
