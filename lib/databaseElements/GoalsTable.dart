@@ -3,6 +3,7 @@
 import 'dart:convert';
 import 'dart:math';
 import 'package:deco3801_project/databaseElements/DBConstants.dart';
+import 'package:deco3801_project/databaseElements/TeamsTable.dart';
 import 'package:http/http.dart' as http;
 
 class GoalsTable {
@@ -13,9 +14,10 @@ class GoalsTable {
   /// Can be called with a list of columns to return specific columns
   ///   e.g. columns = ['goal_id', 'goal_progress']
   ///
-  /// Returns a list of records in the format [{col1: value, col2: value, ...}, {col1: value, col2: value, ...}, ...]
-  /// Each element of the list is a Map which representa an individual record
-  ///   {goal_id: value, goal_desc: value, goal_progress: value, goal_deadline: value}
+  /// Returns a list of records in the format [{col1: value, col2: value, ...}, ...]
+  ///
+  /// Each element of the list is a Map which represents an individual record
+  ///   {goal_id: value, goal_desc: value, goal_progress: value, goal_starttime: value, goal_deadline: value}
   ///
   /// Returns an empty list on error
   static Future<List<Map<String, String>>> getAllGoals(
@@ -60,9 +62,10 @@ class GoalsTable {
   /// Can be called with a list of columns to return specific columns
   ///   e.g. columns = ['goal_id', 'goal_progress']
   ///
-  /// Returns a list of records in the format [{col1: value, col2: value, ...}, {col1: value, col2: value, ...}, ...]
-  /// Each element of the list is a Map which representa an individual record
-  ///   {goal_id: value, goal_desc: value, goal_progress: value, goal_deadline: value}
+  /// Returns a list of records in the format [{col1: value, col2: value, ...}, ...]
+  ///
+  /// Each element of the list is a Map which represents an individual record
+  ///   {goal_id: value, goal_desc: value, goal_progress: value, goal_starttime: value, goal_deadline: value}
   ///
   /// Returns an empty list on error
   static Future<List<Map<String, String>>> getSelectedGoal(String goalId,
@@ -73,7 +76,6 @@ class GoalsTable {
       map["table"] = DBConstants.GOALS_TABLE;
       map["columns"] = columns.join(',');
       map["clause"] = "${DBConstants.GOALS_COL_GOAL_ID} = $goalId";
-      //print(map.toString());
 
       http.Response response =
           await http.post(Uri.parse(DBConstants.url), body: map);
@@ -95,6 +97,385 @@ class GoalsTable {
       return results;
     } catch (e) {
       return [];
+    }
+  }
+
+  /// Gets all goal ids associated with a team
+  ///
+  /// [teamId] is the ID of the team
+  ///
+  /// Needs to be called with await to get synchronous operation (double check https://dart.dev/codelabs/async-await)
+  ///
+  /// Returns a Map of teamGoals to subGoals
+  ///   {teamGoalId1: (subGoalId1, subGoalId2), teamGoalId2: (subGoalId3, subGoalId4), ...}
+  ///
+  /// Returns an empty Map on error
+  static Future<Map<String, List>> getTeamGoals(String teamId,
+      [List<String> columns = const ['*']]) async {
+    try {
+      var map = new Map<String, dynamic>();
+      map["action"] = DBConstants.GET_ALL_ACTION;
+      map["table"] = DBConstants.TEAM_GOALS_TABLE;
+      map["columns"] = columns.join(',');
+      map["clause"] = "${DBConstants.TG_COL_TEAM_ID} = $teamId";
+      Map<String, List> teamGoals = {};
+      List<Map<String, String>> subGoalInfo = [];
+
+      http.Response response =
+          await http.post(Uri.parse(DBConstants.url), body: map);
+      var data = jsonDecode(response.body);
+
+      for (var i = 0; i < data.length; i++) {
+        var team = data[i]['team_id'];
+        var teamGoalId = data[i]['goal_id'];
+        if (team == teamId) {
+          var subGoals = await getsubGoals(teamGoalId);
+          teamGoals[teamGoalId] = subGoals;
+        }
+      }
+
+      // Error Checking on response from web server
+      if (data == DBConstants.ERROR_MESSAGE || response.statusCode != 200) {
+        print("error in getTeamGoals");
+        return {};
+      }
+      print(teamGoals);
+      return teamGoals;
+    } catch (e) {
+      return {};
+    }
+  }
+
+  /// Returns all team goals belonging to a team.
+  /// Returns all the information related to the team goals.
+  ///
+  /// [teamId] the ID of the team
+  ///
+  /// Returns a list of records in the format [{col1: value, col2: value, ...}, ...]
+  ///
+  /// Each element of the list is a Map which represents an individual record
+  ///   {goal_id: value, goal_desc: value, goal_progress: value, goal_starttime: value, goal_deadline: value}
+  ///
+  /// Returns an empty list on error
+  static Future<List<Map<String, String>>> getTeamGoalInfo(
+      String teamId) async {
+    try {
+      Map<String, List> teamGoals = await GoalsTable.getTeamGoals(teamId);
+      List<Map<String, String>> goalInfo = [];
+      List<String> teamGoalIds = teamGoals.keys.toList();
+
+      // Get goal info for each team goal
+      for (int i = 0; i < teamGoalIds.length; i++) {
+        List<Map<String, String>> goal =
+            await GoalsTable.getSelectedGoal(teamGoalIds[i]);
+        goalInfo.add(goal[0]);
+      }
+      print(goalInfo);
+      return goalInfo;
+    } catch (e) {
+      return [];
+    }
+  }
+
+  /// Gets all goals associated with a team
+  ///
+  /// [teamId] is the ID of the team
+  ///
+  /// Needs to be called with await to get synchronous operation (double check https://dart.dev/codelabs/async-await)
+  ///
+  /// Returns a dictionary mapping teamGoals to subGoals
+  ///   {teamGoalId1: (subGoal1Info, subGoal2Info), teamGoalId2: (subGoal3Info, subGoal4Info) }
+  static Future<Map<String, List>> getAllTeamSubGoals(String teamId,
+      [List<String> columns = const ['*']]) async {
+    try {
+      Map<String, List> teamGoals = await getTeamGoals(teamId);
+      List<String> teamGoalIds = teamGoals.keys.toList();
+
+      Map<String, List> theAnswer = {};
+
+      for (var i = 0; i < teamGoalIds.length; i++) {
+        String teamGoalId = teamGoalIds[i];
+        var subGoalIds = teamGoals[teamGoalId]!;
+        List<Map<String, String>> allSubGoals =
+            []; //List of all sub goal info for given teamGoalId
+
+        for (var j = 0; j < subGoalIds.length; j++) {
+          List<Map<String, String>> subGoalInfo =
+              await getSelectedGoal(subGoalIds[j]);
+          Map<String, String> subGoalInfod = subGoalInfo[0];
+          allSubGoals.add(subGoalInfod);
+        }
+        theAnswer[teamGoalId] = allSubGoals;
+      }
+
+      print(theAnswer);
+      return theAnswer;
+    } catch (e) {
+      return {};
+    }
+  }
+
+  /// Gets all subGoals associated with a teamGoal
+  ///
+  /// [goalId] is the goalId of the teamGoal
+  ///
+  /// Needs to be called with await to get synchronous operation (double check https://dart.dev/codelabs/async-await)
+  ///
+  /// returns a list of all subGoals
+  static Future<List> getsubGoals(String goalId,
+      [List<String> columns = const ['*']]) async {
+    try {
+      var map = new Map<String, dynamic>();
+      map["action"] = DBConstants.GET_ALL_ACTION;
+      map["table"] = DBConstants.SUB_GOALS_TABLE;
+      map["columns"] = columns.join(',');
+      map["clause"] = '';
+      var subGoals = [];
+
+      http.Response response =
+          await http.post(Uri.parse(DBConstants.url), body: map);
+      var data = jsonDecode(response.body);
+
+      for (var i = 0; i < data.length; i++) {
+        var teamGoal = data[i]['team_goal'];
+        if (teamGoal == goalId) {
+          subGoals.add(data[i]['user_goal']);
+        }
+      }
+
+      // Error Checking on response from web server
+      if (data == DBConstants.ERROR_MESSAGE || response.statusCode != 200) {
+        print("error in getSubGoals");
+        return [];
+      }
+
+      print(subGoals);
+      return subGoals;
+    } catch (e) {
+      return [];
+    }
+  }
+
+  /// Returns records based on the passed [teamGoalId].
+  /// Returns all the information related to the subGoals of a teamGoal
+  ///
+  /// Returns a list of records in the format [{col1: value, col2: value, ...}, {col1: value, col2: value, ...}, ...]
+  ///
+  /// Returns an empty list on error
+  static Future<List<Map<String, String>>> getSubGoalInfo(
+      String teamGoalId) async {
+    try {
+      List subGoalIds = await GoalsTable.getsubGoals(teamGoalId);
+      List<Map<String, String>> goalInfo = [];
+
+      // Get goal info for each team goal
+      for (int i = 0; i < subGoalIds.length; i++) {
+        List<Map<String, String>> goal =
+            await GoalsTable.getSelectedGoal(subGoalIds[i]);
+        goalInfo.add(goal[0]);
+      }
+      print(goalInfo);
+      return goalInfo;
+    } catch (e) {
+      return [];
+    }
+  }
+
+  /// Returns the team goal id of the passed sub goal id
+  ///
+  /// Returns an empty string on error
+  static Future<String> getTeamGoalFromSubGoal(String subGoalId,
+      [List<String> columns = const ['*']]) async {
+    try {
+      var map = new Map<String, dynamic>();
+      map["action"] = DBConstants.GET_ONE_ACTION;
+      map["table"] = DBConstants.SUB_GOALS_TABLE;
+      map["columns"] = columns.join(',');
+      map["clause"] = "user_goal = $subGoalId";
+
+      http.Response response =
+          await http.post(Uri.parse(DBConstants.url), body: map);
+      var data = jsonDecode(response.body);
+
+      // Error Checking on response from web server
+      if (data == DBConstants.ERROR_MESSAGE || response.statusCode != 200) {
+        print("error in getTeamGoalFromSubGoal");
+        return "";
+      }
+
+      String teamGoalId = data[0]['team_goal'];
+      return teamGoalId;
+    } catch (e) {
+      return "";
+    }
+  }
+
+  /// Returns a user id when given a subgoal id
+  ///
+  /// The subgoal id must must be asscoiated with a user already
+  ///
+  /// Returns the user id on success, empty string on error
+  static Future<String> getUserFromSubGoal(String subGoalId,
+      [List<String> columns = const ['*']]) async {
+    try {
+      var map = new Map<String, dynamic>();
+      map["action"] = DBConstants.GET_ONE_ACTION;
+      map["table"] = DBConstants.USER_GOALS_TABLE;
+      map["columns"] = columns.join(',');
+      map["clause"] = "goal_id = $subGoalId";
+
+      http.Response response =
+          await http.post(Uri.parse(DBConstants.url), body: map);
+      var data = jsonDecode(response.body);
+
+      // Error Checking on response from web server
+      if (data == DBConstants.ERROR_MESSAGE || response.statusCode != 200) {
+        print("error in getUserFromSubGoal");
+        return "";
+      }
+
+      String userId = data[0]['user_id'];
+      return userId;
+    } catch (e) {
+      return "";
+    }
+  }
+
+  /// Returns all records in the userGoals table.
+  ///
+  /// Needs to be called with await to get synchronous operation (double check https://dart.dev/codelabs/async-await)
+  ///
+  /// Returns a list of records in the format [{col1: value, col2: value, ...}, {col1: value, col2: value, ...}, ...]
+  /// Each element of the list is a Map which representa an individual record
+  ///
+  /// Returns an empty list on error
+  static Future<List<Map<String, String>>> getAllFromUserGoals(
+      [List<String> columns = const ['*']]) async {
+    try {
+      // Create map which stores the values needed for our sql query
+      var map = Map<String, dynamic>();
+      map["action"] = DBConstants.GET_ALL_ACTION;
+      map["table"] = DBConstants.USER_GOALS_TABLE;
+      map["columns"] = columns.join(', ');
+      map["clause"] = '';
+      print(map.toString());
+
+      // HTTP POST message sent to server and JSON is returned
+      http.Response response =
+          await http.post(Uri.parse(DBConstants.url), body: map);
+      List<dynamic> dataList = jsonDecode(response.body);
+
+      // Error Checking on response from web serve
+      if (dataList.isEmpty || response.statusCode != 200) {
+        print("error in getAllFromUserGoals");
+        return [];
+      }
+
+      // Organise & output results in json style
+      List<Map<String, String>> results = [];
+      for (var i = 0; i < dataList.length; i++) {
+        results.add(Map<String, String>.from(dataList[i]));
+      }
+
+      print("results: $results");
+      return results;
+    } catch (e) {
+      return [];
+    }
+  }
+
+  /// Gets all subGoals assigned to a user
+  ///
+  /// [userId] is the id of the user
+  ///
+  /// Needs to be called with await to get synchronous operation (double check https://dart.dev/codelabs/async-await)
+  ///
+  /// Returns a list of records in the format [{col1: value, col2: value, ...}, {col1: value, col2: value, ...}, ...]
+  /// Each element of the list is a Map which representa an individual record
+  ///
+  /// Returns an empty list on error
+  static Future<List<Map<String, String>>> getSubGoalsInfoFromUser(
+      String userId,
+      [List<String> columns = const ['*']]) async {
+    try {
+      var map = new Map<String, dynamic>();
+      map["action"] = DBConstants.GET_ONE_ACTION;
+      map["table"] = DBConstants.USER_GOALS_TABLE;
+      map["columns"] = columns.join(',');
+      map["clause"] = 'user_id = $userId';
+      List<Map<String, String>> subGoals = [];
+
+      http.Response response =
+          await http.post(Uri.parse(DBConstants.url), body: map);
+      var data = jsonDecode(response.body);
+
+      for (var i = 0; i < data.length; i++) {
+        String subGoalId = data[i]['goal_id'];
+        List<Map<String, String>> currentGoal =
+            await getSelectedGoal(subGoalId);
+        subGoals.add(currentGoal[0]);
+      }
+
+      // Error Checking on response from web server
+      if (data == DBConstants.ERROR_MESSAGE || response.statusCode != 200) {
+        print("error in getSubGoalsInfoFromUser");
+        return [];
+      }
+
+      print(subGoals);
+      return subGoals;
+    } catch (e) {
+      return [];
+    }
+  }
+
+  static Future<String> getTeamNameFromSubGoal(String subGoalId) async {
+    try {
+      String teamname = "";
+
+      String teamGoalId = await getTeamGoalFromSubGoal(subGoalId);
+
+      String teamId = await getTeamFromTeamGoal(teamGoalId);
+
+      List<Map<String, String>> teamInfo =
+          await TeamsTable.getSelectedTeam(teamId);
+
+      if (teamInfo.isNotEmpty) {
+        teamname = teamInfo[0]['team_name']!;
+      }
+
+      print(teamname);
+      return teamname;
+    } catch (e) {
+      return "";
+    }
+  }
+
+  static Future<String> getTeamFromTeamGoal(String teamGoalId,
+      [List<String> columns = const ['*']]) async {
+    try {
+      var map = new Map<String, dynamic>();
+      map["action"] = DBConstants.GET_ONE_ACTION;
+      map["table"] = DBConstants.TEAM_GOALS_TABLE;
+      map["columns"] = columns.join(',');
+      map["clause"] = 'goal_id = $teamGoalId';
+
+      http.Response response =
+          await http.post(Uri.parse(DBConstants.url), body: map);
+      var data = jsonDecode(response.body);
+
+      // Error Checking on response from web server
+      if (data == DBConstants.ERROR_MESSAGE || response.statusCode != 200) {
+        print("error in getTeamFromTeamGoal");
+        return "";
+      }
+
+      String teamId = data[0]['team_id'];
+
+      print(teamId);
+      return teamId;
+    } catch (e) {
+      return "";
     }
   }
 
@@ -370,326 +751,12 @@ class GoalsTable {
     }
   }
 
-  /// Gets all goals associated with a team
-  ///
-  /// [teamId] is the ID of the team
-  ///
-  /// Needs to be called with await to get synchronous operation (double check https://dart.dev/codelabs/async-await)
-  ///
-  /// Returns a dictionary mapping teamGoals to subGoals
-  ///   {teamGoalId1: (subGoalId1, subGoalId2), teamGoalId2: (subGoalId3, subGoalId4) }
-  /// TODO: Returns success when invalid ids are used
-  static Future<Map<String, List>> getTeamGoals(String teamId,
-      [List<String> columns = const ['*']]) async {
-    try {
-      var map = new Map<String, dynamic>();
-      map["action"] = DBConstants.GET_ALL_ACTION;
-      map["table"] = DBConstants.TEAM_GOALS_TABLE;
-      map["columns"] = columns.join(',');
-      map["clause"] = "${DBConstants.TG_COL_TEAM_ID} = $teamId";
-      Map<String, List> teamGoals = {};
-      List<Map<String, String>> subGoalInfo = [];
-
-      http.Response response =
-          await http.post(Uri.parse(DBConstants.url), body: map);
-      var data = jsonDecode(response.body);
-
-      for (var i = 0; i < data.length; i++) {
-        var team = data[i]['team_id'];
-        var teamGoalId = data[i]['goal_id'];
-        if (team == teamId) {
-          var subGoals = await getsubGoals(teamGoalId);
-          teamGoals[teamGoalId] = subGoals;
-        }
-      }
-
-      // Error Checking on response from web server
-      if (data == DBConstants.ERROR_MESSAGE || response.statusCode != 200) {
-        print("error in getTeamGoals");
-        return {};
-      }
-      print(teamGoals);
-      return teamGoals;
-    } catch (e) {
-      return {};
-    }
-  }
-
-  /// Gets all goals associated with a team
-  ///
-  /// [teamId] is the ID of the team
-  ///
-  /// Needs to be called with await to get synchronous operation (double check https://dart.dev/codelabs/async-await)
-  ///
-  /// Returns a dictionary mapping teamGoals to subGoals
-  ///   {teamGoalId1: (subGoal1Info, subGoal2Info), teamGoalId2: (subGoal3Info, subGoal4Info) }
-  static Future<Map<String, List>> getAllTeamSubGoals(String teamId,
-      [List<String> columns = const ['*']]) async {
-    try {
-      Map<String, List> teamGoals = await getTeamGoals(teamId);
-      List<String> teamGoalIds = teamGoals.keys.toList();
-
-      Map<String, List> theAnswer = {};
-
-      for (var i = 0; i < teamGoalIds.length; i++) {
-        String teamGoalId = teamGoalIds[i];
-        var subGoalIds = teamGoals[teamGoalId]!;
-        List<Map<String, String>> allSubGoals =
-            []; //List of all sub goal info for given teamGoalId
-
-        for (var j = 0; j < subGoalIds.length; j++) {
-          List<Map<String, String>> subGoalInfo =
-              await getSelectedGoal(subGoalIds[j]);
-          Map<String, String> subGoalInfod = subGoalInfo[0];
-          allSubGoals.add(subGoalInfod);
-        }
-        theAnswer[teamGoalId] = allSubGoals;
-      }
-
-      print(theAnswer);
-      return theAnswer;
-    } catch (e) {
-      return {};
-    }
-  }
-
-  /// Returns records based on the passed [teamId].
-  /// Returns all the information related to the team goals
-  ///
-  /// Returns a list of records in the format [{col1: value, col2: value, ...}, {col1: value, col2: value, ...}, ...]
-  ///
-  /// Returns an empty list on error
-  static Future<List<Map<String, String>>> getTeamGoalInfo(
-      String teamId) async {
-    Map<String, List> teamGoals = await GoalsTable.getTeamGoals(teamId);
-    List<Map<String, String>> goalInfo = [];
-    List<String> teamGoalIds = teamGoals.keys.toList();
-
-    // Get goal info for each team goal
-    for (int i = 0; i < teamGoalIds.length; i++) {
-      List<Map<String, String>> goal =
-          await GoalsTable.getSelectedGoal(teamGoalIds[i]);
-      goalInfo.add(goal[0]);
-    }
-    print(goalInfo);
-    return goalInfo;
-  }
-
-  /// Gets all subGoals associated with a teamGoal
-  ///
-  /// [goalId] is the goalId of the teamGoal
-  ///
-  /// Needs to be called with await to get synchronous operation (double check https://dart.dev/codelabs/async-await)
-  ///
-  /// returns a list of all subGoals
-  static Future<List> getsubGoals(String goalId,
-      [List<String> columns = const ['*']]) async {
-    try {
-      var map = new Map<String, dynamic>();
-      map["action"] = DBConstants.GET_ALL_ACTION;
-      map["table"] = DBConstants.SUB_GOALS_TABLE;
-      map["columns"] = columns.join(',');
-      map["clause"] = '';
-      var subGoals = [];
-
-      http.Response response =
-          await http.post(Uri.parse(DBConstants.url), body: map);
-      var data = jsonDecode(response.body);
-
-      for (var i = 0; i < data.length; i++) {
-        var teamGoal = data[i]['team_goal'];
-        if (teamGoal == goalId) {
-          subGoals.add(data[i]['user_goal']);
-        }
-      }
-
-      // Error Checking on response from web server
-      if (data == DBConstants.ERROR_MESSAGE || response.statusCode != 200) {
-        print("error in getSubGoals");
-        return [];
-      }
-
-      print(subGoals);
-      return subGoals;
-    } catch (e) {
-      return [];
-    }
-  }
-
-  /// Returns records based on the passed [teamGoalId].
-  /// Returns all the information related to the subGoals of a teamGoal
-  ///
-  /// Returns a list of records in the format [{col1: value, col2: value, ...}, {col1: value, col2: value, ...}, ...]
-  ///
-  /// Returns an empty list on error
-  static Future<List<Map<String, String>>> getSubGoalInfo(
-      String teamGoalId) async {
-    try {
-      List subGoalIds = await GoalsTable.getsubGoals(teamGoalId);
-      List<Map<String, String>> goalInfo = [];
-
-      // Get goal info for each team goal
-      for (int i = 0; i < subGoalIds.length; i++) {
-        List<Map<String, String>> goal =
-            await GoalsTable.getSelectedGoal(subGoalIds[i]);
-        goalInfo.add(goal[0]);
-      }
-      print(goalInfo);
-      return goalInfo;
-    } catch (e) {
-      return [];
-    }
-  }
-
-  /// Returns the team goal id of the passed sub goal id
-  ///
-  /// Returns an empty string on error
-  static Future<String> getTeamGoalFromSubGoal(String subGoalId,
-      [List<String> columns = const ['*']]) async {
-    try {
-      var map = new Map<String, dynamic>();
-      map["action"] = DBConstants.GET_ONE_ACTION;
-      map["table"] = DBConstants.SUB_GOALS_TABLE;
-      map["columns"] = columns.join(',');
-      map["clause"] = "user_goal = $subGoalId";
-
-      http.Response response =
-          await http.post(Uri.parse(DBConstants.url), body: map);
-      var data = jsonDecode(response.body);
-
-      // Error Checking on response from web server
-      if (data == DBConstants.ERROR_MESSAGE || response.statusCode != 200) {
-        print("error in getTeamGoalFromSubGoal");
-        return "";
-      }
-
-      String teamGoalId = data[0]['team_goal'];
-      return teamGoalId;
-    } catch (e) {
-      return "";
-    }
-  }
-
-  /// Returns a user id when given a subgoal id
-  ///
-  /// The subgoal id must must be asscoiated with a user already
-  ///
-  /// Returns the user id on success, empty string on error
-  static Future<String> getUserFromSubGoal(String subGoalId,
-      [List<String> columns = const ['*']]) async {
-    try {
-      var map = new Map<String, dynamic>();
-      map["action"] = DBConstants.GET_ONE_ACTION;
-      map["table"] = DBConstants.USER_GOALS_TABLE;
-      map["columns"] = columns.join(',');
-      map["clause"] = "goal_id = $subGoalId";
-
-      http.Response response =
-          await http.post(Uri.parse(DBConstants.url), body: map);
-      var data = jsonDecode(response.body);
-
-      // Error Checking on response from web server
-      if (data == DBConstants.ERROR_MESSAGE || response.statusCode != 200) {
-        print("error in getUserFromSubGoal");
-        return "";
-      }
-
-      String userId = data[0]['user_id'];
-      return userId;
-    } catch (e) {
-      return "";
-    }
-  }
-
-  /// Returns all records in the userGoals table.
-  ///
-  /// Needs to be called with await to get synchronous operation (double check https://dart.dev/codelabs/async-await)
-  ///
-  /// Returns a list of records in the format [{col1: value, col2: value, ...}, {col1: value, col2: value, ...}, ...]
-  /// Each element of the list is a Map which representa an individual record
-  ///
-  /// Returns an empty list on error
-  static Future<List<Map<String, String>>> getAllFromUserGoals(
-      [List<String> columns = const ['*']]) async {
-    try {
-      // Create map which stores the values needed for our sql query
-      var map = Map<String, dynamic>();
-      map["action"] = DBConstants.GET_ALL_ACTION;
-      map["table"] = DBConstants.USER_GOALS_TABLE;
-      map["columns"] = columns.join(', ');
-      map["clause"] = '';
-      print(map.toString());
-
-      // HTTP POST message sent to server and JSON is returned
-      http.Response response =
-          await http.post(Uri.parse(DBConstants.url), body: map);
-      List<dynamic> dataList = jsonDecode(response.body);
-
-      // Error Checking on response from web serve
-      if (dataList.isEmpty || response.statusCode != 200) {
-        print("error in getAllFromUserGoals");
-        return [];
-      }
-
-      // Organise & output results in json style
-      List<Map<String, String>> results = [];
-      for (var i = 0; i < dataList.length; i++) {
-        results.add(Map<String, String>.from(dataList[i]));
-      }
-
-      print("results: $results");
-      return results;
-    } catch (e) {
-      return [];
-    }
-  }
-
-  /// Gets all subGoals associated with a teamGoal
-  ///
-  /// [goalId] is the goalId of the teamGoal
-  ///
-  /// Needs to be called with await to get synchronous operation (double check https://dart.dev/codelabs/async-await)
-  ///
-  /// returns a list of all subGoals
-  static Future<List<Map<String, String>>> getSubGoalsInfoFromUser(
-      String userId,
-      [List<String> columns = const ['*']]) async {
-    try {
-      var map = new Map<String, dynamic>();
-      map["action"] = DBConstants.GET_ONE_ACTION;
-      map["table"] = DBConstants.USER_GOALS_TABLE;
-      map["columns"] = columns.join(',');
-      map["clause"] = 'user_id = $userId';
-      List<Map<String, String>> subGoals = [];
-
-      http.Response response =
-          await http.post(Uri.parse(DBConstants.url), body: map);
-      var data = jsonDecode(response.body);
-
-      for (var i = 0; i < data.length; i++) {
-        String subGoalId = data[i]['goal_id'];
-        List<Map<String, String>> currentGoal =
-            await getSelectedGoal(subGoalId);
-        subGoals.add(currentGoal[0]);
-      }
-
-      // Error Checking on response from web server
-      if (data == DBConstants.ERROR_MESSAGE || response.statusCode != 200) {
-        print("error in getSubGoalsInfoFromUser");
-        return [];
-      }
-
-      print(subGoals);
-      return subGoals;
-    } catch (e) {
-      return [];
-    }
-  }
-
-  /// Used to update a team goal's progress when the progress of one of its subgoals' is updated
+  /// Used to update a team goal's progress when the progress of one of its subgoals' is updated.
   /// Used in the updateGoal function
   ///
-  /// returns true on success, false on error
+  /// Private, Internal Function
+  ///
+  /// Returns true on success, false on error
   static Future<bool> _updateTeamGoalProgress(String subGoalId) async {
     // Get teamGoal id
     String teamGoalId = await getTeamGoalFromSubGoal(subGoalId);
