@@ -12,122 +12,13 @@ class StudentTaskButtons extends StatefulWidget {
 
 class _StudentTaskButtons extends State<StudentTaskButtons> {
 
-  Map<String, Widget> buttons = HashMap();
-  List<Widget> activeButtons = [];
-
   @override
   void initState() {
     super.initState();
-    // initialise the map of all buttons. 
-    buttons.addAll({
-      // "kebab": IconButton(
-      //   icon: Icon(Icons.more_vert),
-      //   iconSize: 20,
-      //   splashRadius: 15,
-      //   color: UIColours.darkBlue,
-      //   onPressed: () {
-      //     debugPrint("Kebad pressed");
-      //     activateButton("file");
-      //   },
-      // ),
-      "kebab": PopupMenuButton(
-          splashRadius: 20,
-          tooltip: '',
-          icon: const Icon(Icons.more_vert),
-          itemBuilder: (BuildContext context) => <PopupMenuEntry>[
-            PopupMenuItem(
-              child: ListTile(
-                title: const Text(
-                  'Write to tutors',
-                  style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: Color.fromRGBO(38, 153, 251, 60),
-                      fontSize: 14),
-                ),
-                onTap: () => {
-                  debugPrint("Tutor notified")
-
-                },
-              ),
-            ),
-            const PopupMenuItem(
-              child: ListTile(
-                title: Text(
-                  'View feedback',
-                  style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: Color.fromRGBO(38, 153, 251, 60),
-                      fontSize: 14),
-                ),
-              ),
-            ),
-            const PopupMenuItem(
-              child: ListTile(
-                title: Text(
-                  'Edit',
-                  style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: Color.fromRGBO(38, 153, 251, 60),
-                      fontSize: 14),
-                ),
-              ),
-            ),
-            const PopupMenuItem(
-              child: ListTile(
-                title: Text(
-                  'Delete',
-                  style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: Color.fromRGBO(38, 153, 251, 60),
-                      fontSize: 14),
-                ),
-              ),
-            ),
-          ],
-        ),
-      "file": IconButton(
-        icon: Icon(Icons.folder),
-        iconSize: 20,
-        splashRadius: 15,
-        color: UIColours.darkBlue,
-        onPressed: () {
-          debugPrint("folder pressed");
-          activateButton("attach");
-        },
-      ),
-      "attach": IconButton(
-        icon: Icon(Icons.attach_file),
-        iconSize: 20,
-        splashRadius: 15,
-        color: UIColours.darkBlue,
-        onPressed: () {
-          debugPrint("attach pressed");
-          removeButton("file");
-        },
-      ),
-    });
-    activateButton("kebab"); // the kebab menu is active by default on all StudentTasks
-  }
-
-  void activateButton(String buttonName) {
-    if (buttons.containsKey(buttonName)) {
-      setState(() {
-        activeButtons.add(buttons[buttonName]!);
-      });
-    }
-  }
-  void removeButton(String buttonName) {
-    setState(() {
-      activeButtons.remove(buttons[buttonName]);
-    });
   }
 
   @override
   Widget build(BuildContext context) {
-
-    // Define all possible buttons
-    // filter buy active buttons
-    // pass the list of active buttons to the thing
 
     List<Button> buttons = [
       Button("kebab", true, 
@@ -146,8 +37,104 @@ class _StudentTaskButtons extends State<StudentTaskButtons> {
                         fontSize: 14),
                   ),
                   onTap: () => {
-                    debugPrint("Tutor notified")
+                    // debugPrint("Tutor notified")
 
+                    showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                              insetPadding:
+                                  const EdgeInsets.only(left: 20, right: 20),
+                              scrollable: true,
+                              title: Row(
+                                children: [
+                                  const Text(
+                                    "Write to tutor",
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 17,
+                                        color: Color.fromRGBO(21, 90, 148, 10)),
+                                  ),
+                                  const Spacer(),
+                                  IconButton(
+                                    onPressed: () => Navigator.of(context).pop(),
+                                    icon: const Icon(Icons.close),
+                                    splashRadius: 15,
+                                  )
+                                ],
+                              ),
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20),
+                                  side: const BorderSide(
+                                      color: Color.fromRGBO(21, 90, 148, 10),
+                                      width: 1.5)),
+                              content: Column(
+                                children: [
+                                  Column(
+                                    children: [
+                                      Container(
+                                          padding: const EdgeInsets.all(10),
+                                          width: MediaQuery.of(context).size.width *
+                                              0.7,
+                                          child: TextField(
+                                            // controller:
+                                            //     subGoalAssignedPersonController,
+                                            maxLines: 1,
+                                            textAlign: TextAlign.left,
+                                            decoration: InputDecoration(
+                                                border: InputBorder.none,
+                                                labelText: "Subject:",
+                                                enabledBorder: OutlineInputBorder(
+                                                  borderSide: const BorderSide(
+                                                      width: 3, color: Colors.blue),
+                                                  borderRadius:
+                                                      BorderRadius.circular(15),
+                                                ),
+                                                focusedBorder: OutlineInputBorder(
+                                                  borderSide: const BorderSide(
+                                                      width: 3, color: Colors.red),
+                                                  borderRadius:
+                                                      BorderRadius.circular(15),
+                                                )),
+                                          )),
+                                      Container(
+                                          padding: const EdgeInsets.all(10),
+                                          width: MediaQuery.of(context).size.width *
+                                              0.7,
+                                          child: TextField(
+                                            // controller:
+                                            //     subGoalDescriptionController,
+                                            maxLines: 20,
+                                            textAlign: TextAlign.left,
+                                            decoration: InputDecoration(
+                                                border: InputBorder.none,
+                                                labelText: "",
+                                                enabledBorder: OutlineInputBorder(
+                                                  borderSide: const BorderSide(
+                                                      width: 3, color: Colors.blue),
+                                                  borderRadius:
+                                                      BorderRadius.circular(15),
+                                                ),
+                                                focusedBorder: OutlineInputBorder(
+                                                  borderSide: const BorderSide(
+                                                      width: 3, color: Colors.red),
+                                                  borderRadius:
+                                                      BorderRadius.circular(15),
+                                                )),
+                                          ))
+                                    ],
+                                  ),
+                                  TextButton(
+                                      onPressed: () {
+                                        // Write to tutor
+                                      },
+                                      child: const Text("Submit"))
+                                ],
+                              )
+                              /**/
+                              );
+                  })
+                  // ==== end of pop up ====
                   },
                 ),
               ),
@@ -162,15 +149,18 @@ class _StudentTaskButtons extends State<StudentTaskButtons> {
                   ),
                 ),
               ),
-              const PopupMenuItem(
+              PopupMenuItem(
                 child: ListTile(
-                  title: Text(
+                  title: const Text(
                     'Edit',
                     style: TextStyle(
                         fontWeight: FontWeight.bold,
                         color: Color.fromRGBO(38, 153, 251, 60),
                         fontSize: 14),
                   ),
+                  onTap: () {
+                    tmp(context);
+                  },
                 ),
               ),
               const PopupMenuItem(
@@ -187,7 +177,7 @@ class _StudentTaskButtons extends State<StudentTaskButtons> {
             ],
           ),
         ),
-       Button("file", true,  
+      Button("file", true, 
         IconButton(
           icon: Icon(Icons.folder),
           iconSize: 20,
@@ -195,14 +185,14 @@ class _StudentTaskButtons extends State<StudentTaskButtons> {
           color: UIColours.darkBlue,
           onPressed: () {
             debugPrint("folder pressed");
+            // editThing("attach");
             // activateButton("attach");
             // setState(() {
             //   var tmp = buttons.where((element) => element.name == "attach");
             // });
           },
-        )
-      ),
-      Button("attach", false, 
+        )),
+      Button("attach", true, 
         IconButton(
           icon: Icon(Icons.attach_file),
           iconSize: 20,
@@ -236,3 +226,74 @@ class Button {
   Widget widget;
   Button(this.name, this.active, this.widget);
 }
+
+var tmp = (context) => showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                              insetPadding:
+                                  const EdgeInsets.only(left: 20, right: 20),
+                              scrollable: true,
+                              title: Row(
+                                children: [
+                                  const Text(
+                                    "Update Individual Task",
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 17,
+                                        color: Color.fromRGBO(21, 90, 148, 10)),
+                                  ),
+                                  const Spacer(),
+                                  IconButton(
+                                    onPressed: () => Navigator.of(context).pop(),
+                                    icon: const Icon(Icons.close),
+                                    splashRadius: 15,
+                                  )
+                                ],
+                              ),
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20),
+                                  side: const BorderSide(
+                                      color: Color.fromRGBO(21, 90, 148, 10),
+                                      width: 1.5)),
+                              content: Column(
+                                children: [
+                                  Column(
+                                    children: [
+                                      Text("Contents"),
+                                      Container(
+                                          padding: const EdgeInsets.all(10),
+                                          width: MediaQuery.of(context).size.width *
+                                              0.7,
+                                          child: TextField(
+                                            // controller:
+                                            //     subGoalAssignedPersonController,
+                                            maxLines: 4,
+                                            textAlign: TextAlign.left,
+                                            decoration: InputDecoration(
+                                                border: InputBorder.none,
+                                                labelText: "",
+                                                enabledBorder: OutlineInputBorder(
+                                                  borderSide: const BorderSide(
+                                                      width: 3, color: Colors.blue),
+                                                  borderRadius:
+                                                      BorderRadius.circular(15),
+                                                ),
+                                                focusedBorder: OutlineInputBorder(
+                                                  borderSide: const BorderSide(
+                                                      width: 3, color: Colors.red),
+                                                  borderRadius:
+                                                      BorderRadius.circular(15),
+                                                )),
+                                          )),
+                                    ],
+                                  ),
+                                  TextButton(
+                                      onPressed: () {
+                                        // Write to tutor
+                                      },
+                                      child: const Text("Update"))
+                                ],
+                              )
+                              );
+                  });
