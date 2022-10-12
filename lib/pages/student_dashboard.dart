@@ -37,7 +37,7 @@ class _StudentDashboardPage extends State<StudentDashboardPage> {
           // print(_goals[0]);
           List<StudentTask> tasks = [];
           for (var goal in _goals) {
-            tasks.add(StudentTask(int.parse(goal["goal_id"]), "the super 6", goal["goal_desc"], double.parse(goal["goal_progress"]), goal));
+            tasks.add(StudentTask(int.parse(goal["goal_id"]), goal["team_name"], goal["goal_desc"], double.parse(goal["goal_progress"]), goal));
           }
 
           return Scaffold(

@@ -43,8 +43,7 @@ class StudentTask extends StatelessWidget {
               ],
             ),
             Text(taskDescription, style: TextStyle(color: UIColours.lightBlue)),
-            // embeded? ProgesssBar(0.69): ProgressSlider()
-            ProgressSlider(currentProgress: progress)
+            ProgressSlider(goalInfo, currentProgress: progress)
           ],
         ),
       )
