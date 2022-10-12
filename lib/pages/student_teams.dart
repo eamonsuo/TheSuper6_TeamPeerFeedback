@@ -1219,7 +1219,7 @@ class _TeamDisplayState extends State<TeamDisplay> {
                           context: context,
                           builder: (BuildContext context) {
                             return StatefulBuilder(builder:
-                                (BuildContext context,
+                                (BuildContext context2,
                                     StateSetter setSateDropdown) {
                               return AlertDialog(
                                   insetPadding: const EdgeInsets.only(
@@ -1317,6 +1317,7 @@ class _TeamDisplayState extends State<TeamDisplay> {
                                                 description:
                                                     subGoalDescriptionController
                                                         .text);
+                                            Navigator.pop(context);
                                             Navigator.pushReplacement(
                                               context,
                                               MaterialPageRoute(
