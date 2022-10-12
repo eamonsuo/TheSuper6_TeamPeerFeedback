@@ -1,6 +1,8 @@
 
 import 'dart:collection';
 
+import 'package:deco3801_project/databaseElements/GoalsTable.dart';
+import 'package:deco3801_project/databaseElements/UsersTable.dart';
 import 'package:deco3801_project/util/ui_colours.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -12,9 +14,15 @@ class StudentTaskButtons extends StatefulWidget {
 
 class _StudentTaskButtons extends State<StudentTaskButtons> {
 
+  late Future<List<Map<String, String>>> _allUsers;
+
   @override
   void initState() {
     super.initState();
+
+    _allUsers = GoalsTable.getAllGoals();
+    // _allUsers = UsersTable.getAllUsers();
+
   }
 
   @override
@@ -213,10 +221,29 @@ class _StudentTaskButtons extends State<StudentTaskButtons> {
       }
     }
 
-    return Row(
-      textDirection: TextDirection.rtl, 
-      children: activeButtons
+    return FutureBuilder(
+      future: _allUsers,
+      builder: (BuildContext context, AsyncSnapshot snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        if (snapshot.hasData) {
+          List<Map<String, String>> _allUsersData = snapshot.data;
+          print(_allUsersData);
+          return Row(
+            textDirection: TextDirection.rtl, 
+            children: activeButtons
+          );
+        } else {
+          return Container();
+        }
+      },
     );
+
+    // return Row(
+    //   textDirection: TextDirection.rtl, 
+    //   children: activeButtons
+    // );
   }
 }
 
