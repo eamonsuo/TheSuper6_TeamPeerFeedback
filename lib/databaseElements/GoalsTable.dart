@@ -644,6 +644,48 @@ class GoalsTable {
     }
   }
 
+  /// Gets all subGoals associated with a teamGoal
+  ///
+  /// [goalId] is the goalId of the teamGoal
+  ///
+  /// Needs to be called with await to get synchronous operation (double check https://dart.dev/codelabs/async-await)
+  ///
+  /// returns a list of all subGoals
+  static Future<List<Map<String, String>>> getSubGoalsInfoFromUser(
+      String userId,
+      [List<String> columns = const ['*']]) async {
+    try {
+      var map = new Map<String, dynamic>();
+      map["action"] = DBConstants.GET_ONE_ACTION;
+      map["table"] = DBConstants.USER_GOALS_TABLE;
+      map["columns"] = columns.join(',');
+      map["clause"] = 'user_id = $userId';
+      List<Map<String, String>> subGoals = [];
+
+      http.Response response =
+          await http.post(Uri.parse(DBConstants.url), body: map);
+      var data = jsonDecode(response.body);
+
+      for (var i = 0; i < data.length; i++) {
+        String subGoalId = data[i]['goal_id'];
+        List<Map<String, String>> currentGoal =
+            await getSelectedGoal(subGoalId);
+        subGoals.add(currentGoal[0]);
+      }
+
+      // Error Checking on response from web server
+      if (data == DBConstants.ERROR_MESSAGE || response.statusCode != 200) {
+        print("error in getSubGoalsInfoFromUser");
+        return [];
+      }
+
+      print(subGoals);
+      return subGoals;
+    } catch (e) {
+      return [];
+    }
+  }
+
   /// Used to update a team goal's progress when the progress of one of its subgoals' is updated
   /// Used in the updateGoal function
   ///
