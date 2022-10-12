@@ -177,21 +177,27 @@ class GoalsTable {
     }
   }
 
-  /// Gets all goals associated with a team
+  /// Gets all of the goals associated with a team. Returns the IDs of the team
+  /// goals and information of the sub goals.
   ///
   /// [teamId] is the ID of the team
   ///
   /// Needs to be called with await to get synchronous operation (double check https://dart.dev/codelabs/async-await)
   ///
-  /// Returns a dictionary mapping teamGoals to subGoals
-  ///   {teamGoalId1: (subGoal1Info, subGoal2Info), teamGoalId2: (subGoal3Info, subGoal4Info) }
+  /// Returns a Map of teamGoals to subGoals information
+  ///   {teamGoalId1: [subGoal1Info, subGoal2Info], teamGoalId2: [subGoal1Info, subGoal2Info]}
+  ///
+  /// where subGoalInfo is a Map of a record in the goals table
+  ///   {goal_id: value, goal_desc: value, goal_progress: value, goal_starttime: value, goal_deadline: value}
+  ///
+  /// Returns an empty Map on error
   static Future<Map<String, List>> getAllTeamSubGoals(String teamId,
       [List<String> columns = const ['*']]) async {
     try {
       Map<String, List> teamGoals = await getTeamGoals(teamId);
       List<String> teamGoalIds = teamGoals.keys.toList();
 
-      Map<String, List> theAnswer = {};
+      Map<String, List> result = {};
 
       for (var i = 0; i < teamGoalIds.length; i++) {
         String teamGoalId = teamGoalIds[i];
@@ -205,11 +211,11 @@ class GoalsTable {
           Map<String, String> subGoalInfod = subGoalInfo[0];
           allSubGoals.add(subGoalInfod);
         }
-        theAnswer[teamGoalId] = allSubGoals;
+        result[teamGoalId] = allSubGoals;
       }
 
-      print(theAnswer);
-      return theAnswer;
+      print(result);
+      return result;
     } catch (e) {
       return {};
     }
@@ -217,12 +223,12 @@ class GoalsTable {
 
   /// Gets all subGoals associated with a teamGoal
   ///
-  /// [goalId] is the goalId of the teamGoal
+  /// [teamGoalId] is the goalId of the teamGoal
   ///
   /// Needs to be called with await to get synchronous operation (double check https://dart.dev/codelabs/async-await)
   ///
-  /// returns a list of all subGoals
-  static Future<List> getsubGoals(String goalId,
+  /// Returns a list of all subGoal IDs, empty list on error
+  static Future<List> getsubGoals(String teamGoalId,
       [List<String> columns = const ['*']]) async {
     try {
       var map = new Map<String, dynamic>();
@@ -238,7 +244,7 @@ class GoalsTable {
 
       for (var i = 0; i < data.length; i++) {
         var teamGoal = data[i]['team_goal'];
-        if (teamGoal == goalId) {
+        if (teamGoal == teamGoalId) {
           subGoals.add(data[i]['user_goal']);
         }
       }
@@ -259,7 +265,10 @@ class GoalsTable {
   /// Returns records based on the passed [teamGoalId].
   /// Returns all the information related to the subGoals of a teamGoal
   ///
-  /// Returns a list of records in the format [{col1: value, col2: value, ...}, {col1: value, col2: value, ...}, ...]
+  /// Returns a list of records in the format [{col1: value, col2: value, ...}, ...]
+  ///
+  /// Each element of the list is a Map which represents an individual record
+  ///   {goal_id: value, goal_desc: value, goal_progress: value, goal_starttime: value, goal_deadline: value}
   ///
   /// Returns an empty list on error
   static Future<List<Map<String, String>>> getSubGoalInfo(
@@ -281,9 +290,11 @@ class GoalsTable {
     }
   }
 
-  /// Returns the team goal id of the passed sub goal id
+  /// Gets the team goal ID which the sub goal belongs to
   ///
-  /// Returns an empty string on error
+  /// [subGoalId] is the ID of the sub goal
+  ///
+  /// Returns the team goal ID of the passed sub goal ID, empty string on error
   static Future<String> getTeamGoalFromSubGoal(String subGoalId,
       [List<String> columns = const ['*']]) async {
     try {
@@ -310,11 +321,13 @@ class GoalsTable {
     }
   }
 
-  /// Returns a user id when given a subgoal id
+  /// Gets the ID of the user which the sub goal belongs to
   ///
-  /// The subgoal id must must be asscoiated with a user already
+  /// [subGoalId] ID of the sub goal
   ///
-  /// Returns the user id on success, empty string on error
+  /// The sub goal ID must must be asscoiated with a user already
+  ///
+  /// Returns the user ID on success, empty string on error
   static Future<String> getUserFromSubGoal(String subGoalId,
       [List<String> columns = const ['*']]) async {
     try {
@@ -341,12 +354,14 @@ class GoalsTable {
     }
   }
 
-  /// Returns all records in the userGoals table.
+  /// Gets all records in the userGoals table.
   ///
   /// Needs to be called with await to get synchronous operation (double check https://dart.dev/codelabs/async-await)
   ///
-  /// Returns a list of records in the format [{col1: value, col2: value, ...}, {col1: value, col2: value, ...}, ...]
-  /// Each element of the list is a Map which representa an individual record
+  /// Returns a list of records in the format [{col1: value, col2: value, ...}, ...]
+  ///
+  /// Each element of the list is a Map which represents an individual record
+  ///   {user_id: value, goal_id: value}
   ///
   /// Returns an empty list on error
   static Future<List<Map<String, String>>> getAllFromUserGoals(
@@ -391,7 +406,7 @@ class GoalsTable {
   ///
   /// Needs to be called with await to get synchronous operation (double check https://dart.dev/codelabs/async-await)
   ///
-  /// Returns a list of records in the format [{col1: value, col2: value, ...}, {col1: value, col2: value, ...}, ...]
+  /// Returns a list of records in the format [{col1: value, col2: value, ...}, ...]
   /// Each element of the list is a Map which representa an individual record
   ///
   /// Returns an empty list on error
@@ -431,6 +446,11 @@ class GoalsTable {
     }
   }
 
+  /// Gets the team name of a team based on a passed sub goal ID
+  ///
+  /// [subGoalId] ID of the sub goal
+  ///
+  /// Returns the team name on success, empty string on error
   static Future<String> getTeamNameFromSubGoal(String subGoalId) async {
     try {
       String teamname = "";
@@ -453,6 +473,11 @@ class GoalsTable {
     }
   }
 
+  /// Gets the team ID of a team based on a passed team goal ID
+  ///
+  /// [teamGoalId] ID of the team goal
+  ///
+  /// Returns the team ID on success, empty string on error
   static Future<String> getTeamFromTeamGoal(String teamGoalId,
       [List<String> columns = const ['*']]) async {
     try {
@@ -484,17 +509,18 @@ class GoalsTable {
   /// Adds a record into the goals table
   /// Adds a record in teamGoals (for a team goal) or the userGoals & subGoals table (for a sub goal)
   ///
-  /// [description] is the description of the goal TODO: CHECK, Do we need a goal title??
-  /// [deadline] date for goal to be due by in format 'DD-MM-YY'
-  /// [teamId] ID of team assigned to goal
-  /// [subGoal] Boolean value based on whether this goal is a sub goal or not (if true, MUST pass [teamGoalId] and [userId])
-  /// [teamGoalId] The goalId of the teamGoal for this subGoal
-  /// [userId] ID of user assigned to goal
+  /// [description] is the description of the goal.
+  /// [deadline] date for goal to be due by in format 'DD-MM-YY'.
+  /// [teamId] ID of team assigned to goal.
+  /// [subGoal] Boolean value based on whether this goal is a sub goal or not (if true, MUST pass [teamGoalId] and [userId]).
+  /// [teamGoalId] The goalId of the teamGoal for this subGoal.
+  /// [userId] ID of user assigned to goal.
   ///
   /// Needs to be called with await to get synchronous operation (double check https://dart.dev/codelabs/async-await)
+  ///
   /// All fields need to be provided, a goal_id is automatically generated
   ///
-  /// Returns true when user added successfully, false on error      TODO: maybe return goal_id?
+  /// Returns true when user added successfully, false on error
   static Future<bool> addGoal(
       String description, String deadline, String teamId, bool subGoal,
       {String teamGoalId = '', String userId = ''}) async {
@@ -552,15 +578,14 @@ class GoalsTable {
   /// To update columns, pass them as positional parameters
   ///   e.g. updateGoal('1', progress: '25')
   ///
-  /// [description] is the description of the goal
-  /// [progress] is the percentage completion of the goal (e.g. 20% = '20')
-  /// [deadline] date for goal to be due by in format 'DD-MM-YY'
-  /// [updateTeamGoalProgress] IGONORE THIS PARAMETER - internal use only
+  /// [description] is the description of the goal.
+  /// [progress] is the percentage completion of the goal (e.g. 20% = '20').
+  /// [deadline] date for goal to be due by in format 'DD-MM-YY'.
+  /// [updateTeamGoalProgress] IGONORE THIS PARAMETER - internal use only.
   ///
   /// Needs to be called with await to get synchronous operation (double check https://dart.dev/codelabs/async-await)
   ///
   /// Returns true when record updated successfully, false on error
-  /// TODO: FIX: returns true when invalid id provided
   static Future<bool> updateGoal(String goalId,
       {String description = '',
       String progress = '',
@@ -615,7 +640,6 @@ class GoalsTable {
   }
 
   /// Links the given goalId and teamId in the teamsGoals Table
-  ///
   ///
   /// [teamId] is the team ID to be linked to the goal
   /// [goalId] is the goal ID to be linked to the team
@@ -728,7 +752,6 @@ class GoalsTable {
   /// Needs to be called with await to get synchronous operation (double check https://dart.dev/codelabs/async-await)
   ///
   /// Returns true when record updated successfully, false on error
-  /// TODO: Returns success when invalid ids are used
   static Future<bool> deleteGoal(String goalId) async {
     try {
       var map = new Map<String, dynamic>();

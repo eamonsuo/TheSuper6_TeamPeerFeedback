@@ -12,9 +12,10 @@ class UsersTable {
   /// Can be called with a list of columns to return specific columns
   ///   e.g. columns = ['username', 'tutor_status']
   ///
-  /// Returns a list of records in the format [{col1: value, col2: value, ...}, {col1: value, col2: value, ...}, ...]
+  /// Returns a list of records in the format [{col1: value, col2: value, ...}, ...]
+  ///
   /// Each element of the list is a Map which representa an individual record
-  ///   {user_id: value, username: value,tutor_status: value}
+  ///   {user_id: value, username: value, tutor_status: value}
   ///
   /// Returns an empty list on error
   static Future<List<Map<String, String>>> getAllUsers(
@@ -31,8 +32,6 @@ class UsersTable {
       http.Response response =
           await http.post(Uri.parse(DBConstants.url), body: map);
       List<dynamic> dataList = jsonDecode(response.body);
-      //print(dataList);
-      //print("Call to HTTP");
 
       // Error Checking on response from web serve
       if (dataList.isEmpty || response.statusCode != 200) {
@@ -60,7 +59,8 @@ class UsersTable {
   /// Can be called with a list of columns to return specific columns
   ///   e.g. columns = ['username', 'tutor_status']
   ///
-  /// Returns a list of records in the format [{col1: value, col2: value, ...}, {col1: value, col2: value, ...}, ...]
+  /// Returns a list of records in the format [{col1: value, col2: value, ...}, ...]
+  ///
   /// Each element of the list is a Map which representa an individual record
   ///   {user_id: value, username: value, tutor_status: value}
   ///
@@ -97,15 +97,16 @@ class UsersTable {
     }
   }
 
-  /// Adds a record into the users table. TODO: Add into UsersInTeams Table??
+  /// Adds a record into the users table.
   ///
-  /// [username] is the name of the user
-  /// [tutorStatus] true is a user is a tutor, else false
+  /// [username] is the name of the user.
+  /// [tutorStatus] true is a user is a tutor, else false.
   ///
   /// Needs to be called with await to get synchronous operation (double check https://dart.dev/codelabs/async-await)
+  ///
   /// All fields need to be provided, a user_id is automatically generated
   ///
-  /// Returns true when user added successfully, false on error      TODO: maybe return goal_id?
+  /// Returns true when user added successfully, false on error
   static Future<bool> addUser(String username, bool tutorStatus) async {
     try {
       var map = new Map<String, dynamic>();
@@ -140,13 +141,12 @@ class UsersTable {
   /// To update columns, pass them as positional parameters
   ///   e.g. updateTeam('1', username: 'TooCoolForSchool')
   ///
-  /// [username] is the name of the user
-  /// [tutorStatus] true is a user is a tutor, else false TODO: REMOVE??
+  /// [username] is the name of the user.
+  /// [tutorStatus] use '0' if not a tutor, '1' if they are.
   ///
   /// Needs to be called with await to get synchronous operation (double check https://dart.dev/codelabs/async-await)
   ///
   /// Returns true when record updated successfully, false on error
-  /// TODO: FIX: returns true when invalid id provided
   static Future<bool> updateUser(String userId,
       {String username = '', String tutorStatus = ''}) async {
     try {
@@ -160,8 +160,7 @@ class UsersTable {
         map["columns"] += "username = '$username',";
       }
       if (tutorStatus != '') {
-        map["columns"] +=
-            "tutor_status = '$tutorStatus',"; // Might need objects to change tutor status with bool input
+        map["columns"] += "tutor_status = '$tutorStatus',";
       }
       if (map["columns"] == '') {
         print("no cols chosen for update");
@@ -189,7 +188,7 @@ class UsersTable {
     }
   }
 
-  /// Deletes an existing user from the Users table.
+  /// Deletes an existing user from the users table.
   /// Propogates through database and deletes records related to [userId].
   ///
   /// [userId] is the ID of the user
@@ -221,6 +220,11 @@ class UsersTable {
     }
   }
 
+  /// Get the teams that a user belongs to
+  ///
+  /// [userId] ID of the user
+  ///
+  /// Returns a list of team IDs on success, empty list on error
   static Future<List<String>> getTeamsofUser(String userId,
       [List<String> columns = const ['*']]) async {
     try {
