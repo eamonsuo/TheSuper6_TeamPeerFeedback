@@ -477,6 +477,7 @@ class _StudentTeamsPageState extends State<StudentTeamsPage> {
                                             print("Added");
                                             Navigator.pop(context);
                                             setState(() {});
+                                            //Todo fix page refresh
                                           },
                                           child: const Text("Add"))
                                     ],
@@ -486,6 +487,66 @@ class _StudentTeamsPageState extends State<StudentTeamsPage> {
                             });
                       } else if (value == 3) {
                         //Leave team
+                        showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                  insetPadding: const EdgeInsets.only(
+                                      left: 20, right: 20),
+                                  scrollable: true,
+                                  title: Row(
+                                    children: [
+                                      const Text(
+                                        "Leave Team",
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 17,
+                                            color: Color.fromRGBO(
+                                                21, 90, 148, 10)),
+                                      ),
+                                      const Spacer(),
+                                      IconButton(
+                                        onPressed: () =>
+                                            Navigator.of(context).pop(),
+                                        icon: const Icon(Icons.close),
+                                        splashRadius: 15,
+                                      )
+                                    ],
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(20),
+                                      side: const BorderSide(
+                                          color:
+                                              Color.fromRGBO(21, 90, 148, 10),
+                                          width: 1.5)),
+                                  content: Column(
+                                    children: [
+                                      Container(
+                                          padding: const EdgeInsets.all(10),
+                                          width: MediaQuery.of(context)
+                                                  .size
+                                                  .width *
+                                              0.7,
+                                          child: const Text(
+                                              "Are you sure you want to leave this team?")),
+                                      TextButton(
+                                          onPressed: () async {
+                                            await TeamsTable.deleteUserFromTeam(
+                                                userID,
+                                                _specificTeams
+                                                    .elementAt(index)
+                                                    .entries
+                                                    .elementAt(0)
+                                                    .value);
+                                            Navigator.pop(context);
+                                            //Todo fix page refresh
+                                          },
+                                          child: const Text("Leave"))
+                                    ],
+                                  )
+                                  /**/
+                                  );
+                            });
                       }
                     },
                   ),
@@ -513,7 +574,7 @@ class _StudentTeamsPageState extends State<StudentTeamsPage> {
             ),
             floatingActionButton: FloatingActionButton(
               onPressed: () {
-                // Add Team TODO
+                // Add Team
 
                 teamNameController.clear();
 
@@ -581,12 +642,8 @@ class _StudentTeamsPageState extends State<StudentTeamsPage> {
                                     await TeamsTable.addTeam(
                                         teamNameController.text, userID);
                                     Navigator.pop(context);
-                                    Navigator.pushReplacement(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (BuildContext context) =>
-                                                widget));
                                     setState(() {});
+                                    //todo fix page refresh
                                   },
                                   child: const Text("Add"))
                             ],
