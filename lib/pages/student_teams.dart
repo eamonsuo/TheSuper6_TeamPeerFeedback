@@ -25,10 +25,12 @@ String userID = '28119';
 class _StudentTeamsPageState extends State<StudentTeamsPage> {
   late Future<List<Map<String, String>>> _teams;
   late Future<List<String>> _userTeams;
-  late Future<List<Map<String, String>>>
-      _usersInTeam; //Need to get list of users for all teams
+  late Future<List<Map<String, String>>> _usersInTeam;
+  late Future<List<Map<String, String>>> _allUsers;
 
   TextEditingController teamNameController = TextEditingController();
+  TextEditingController writeToTutorController = TextEditingController();
+  TextEditingController addMembersNameController = TextEditingController();
 
   @override
   void initState() {
@@ -36,13 +38,15 @@ class _StudentTeamsPageState extends State<StudentTeamsPage> {
 
     _teams = TeamsTable.getAllTeams();
     _userTeams = UsersTable.getTeamsofUser(userID);
+    _usersInTeam = TeamsTable.getAllFromUsersInTeams();
+    _allUsers = UsersTable.getAllUsers();
   }
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
       //future: _teams,
-      future: Future.wait([_teams, _userTeams]),
+      future: Future.wait([_teams, _userTeams, _usersInTeam, _allUsers]),
       builder:
           (BuildContext context, AsyncSnapshot<List<List<Object>>> snapshot) {
         //builder: (BuildContext context, AsyncSnapshot snapshot) {
@@ -53,6 +57,10 @@ class _StudentTeamsPageState extends State<StudentTeamsPage> {
           List<Map<String, String>> _teamData =
               snapshot.data![0] as List<Map<String, String>>;
           List<String> _userTeamsData = snapshot.data![1] as List<String>;
+          List<Map<String, String>> _usersInTeamData =
+              snapshot.data![2] as List<Map<String, String>>;
+          List<Map<String, String>> _allUsersData =
+              snapshot.data![3] as List<Map<String, String>>;
 
           List<Map<String, String>> _specificTeams = [];
           for (int i = 0; i < _teamData.length; i++) {
@@ -61,6 +69,7 @@ class _StudentTeamsPageState extends State<StudentTeamsPage> {
               _specificTeams.add(_teamData.elementAt(i));
             }
           }
+
           return Scaffold(
             appBar: AppBar(
               title: const Text('Teams'),
@@ -70,6 +79,46 @@ class _StudentTeamsPageState extends State<StudentTeamsPage> {
               padding: const EdgeInsets.all(8),
               itemCount: _specificTeams.length,
               itemBuilder: (BuildContext context, int index) {
+                String tutorID = "";
+                for (int i = 0; i < _usersInTeamData.length; i++) {
+                  if (_usersInTeamData
+                          .elementAt(i)
+                          .entries
+                          .elementAt(0)
+                          .value ==
+                      _specificTeams
+                          .elementAt(index)
+                          .entries
+                          .elementAt(0)
+                          .value) {
+                    String currUserID = _usersInTeamData
+                        .elementAt(i)
+                        .entries
+                        .elementAt(1)
+                        .value;
+                    for (int j = 0; j < _allUsersData.length; j++) {
+                      if (_allUsersData
+                              .elementAt(j)
+                              .entries
+                              .elementAt(0)
+                              .value ==
+                          currUserID) {
+                        if (_allUsersData
+                                .elementAt(j)
+                                .entries
+                                .elementAt(2)
+                                .value ==
+                            '1') {
+                          tutorID = _allUsersData
+                              .elementAt(j)
+                              .entries
+                              .elementAt(0)
+                              .value;
+                        }
+                      }
+                    }
+                  }
+                }
                 return ListTile(
                   contentPadding: const EdgeInsets.symmetric(horizontal: 30.0),
                   title: Text(
@@ -136,24 +185,139 @@ class _StudentTeamsPageState extends State<StudentTeamsPage> {
                     onSelected: (value) {
                       if (value == 0) {
                         //Write to tutors for team
-                        /*String teamTutorID = "";
-                      for (Map<String, String> userDetails in userData) {
-                        if (userDetails.entries.elementAt(2).value == '1') {
-                          teamTutorID = userDetails.entries.elementAt(0).value;
-                        }
-                      }
+                        writeToTutorController.clear();
+                        showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                  insetPadding:
+                                      EdgeInsets.only(left: 20, right: 20),
+                                  scrollable: true,
+                                  title: Row(
+                                    children: [
+                                      const Text(
+                                        "Write to Tutor",
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 17,
+                                            color: Color.fromRGBO(
+                                                21, 90, 148, 10)),
+                                      ),
+                                      const Spacer(),
+                                      IconButton(
+                                        onPressed: () =>
+                                            Navigator.of(context).pop(),
+                                        icon: const Icon(Icons.close),
+                                        splashRadius: 15,
+                                      )
+                                    ],
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(20),
+                                      side: const BorderSide(
+                                          color:
+                                              Color.fromRGBO(21, 90, 148, 10),
+                                          width: 1.5)),
+                                  content: Column(
+                                    children: [
+                                      Container(
+                                          width: MediaQuery.of(context)
+                                                  .size
+                                                  .width *
+                                              0.7,
+                                          height: MediaQuery.of(context)
+                                                  .size
+                                                  .height *
+                                              0.7,
+                                          child: TextField(
+                                            controller: writeToTutorController,
+                                            maxLines: null,
+                                            textAlign: TextAlign.left,
+                                            decoration: InputDecoration(
+                                                border: InputBorder.none,
+                                                enabledBorder:
+                                                    OutlineInputBorder(
+                                                  borderSide: const BorderSide(
+                                                      width: 3,
+                                                      color: Colors.blue),
+                                                  borderRadius:
+                                                      BorderRadius.circular(15),
+                                                ),
+                                                focusedBorder:
+                                                    OutlineInputBorder(
+                                                  borderSide: const BorderSide(
+                                                      width: 3,
+                                                      color: Colors.red),
+                                                  borderRadius:
+                                                      BorderRadius.circular(15),
+                                                )),
+                                          )),
+                                      TextButton(
+                                          onPressed: () async {
+                                            await TutorMessagesTable.addMessage(
+                                                userID,
+                                                tutorID,
+                                                _specificTeams
+                                                    .elementAt(index)
+                                                    .entries
+                                                    .elementAt(0)
+                                                    .value,
+                                                tutorID,
+                                                writeToTutorController.text);
+                                            Navigator.pop(context);
+                                          },
+                                          child: const Text("Send"))
+                                    ],
+                                  )
+                                  /**/
+                                  );
+                            });
+                      } else if (value == 1) {
+                        //See members
+                        List<String> members = [];
 
-                      showDialog(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return AlertDialog(
+                        for (int i = 0; i < _usersInTeamData.length; i++) {
+                          if (_usersInTeamData
+                                  .elementAt(i)
+                                  .entries
+                                  .elementAt(0)
+                                  .value ==
+                              _specificTeams
+                                  .elementAt(index)
+                                  .entries
+                                  .elementAt(0)
+                                  .value) {
+                            for (int j = 0; j < _allUsersData.length; j++) {
+                              if (_allUsersData
+                                      .elementAt(j)
+                                      .entries
+                                      .elementAt(0)
+                                      .value ==
+                                  _usersInTeamData
+                                      .elementAt(i)
+                                      .entries
+                                      .elementAt(1)
+                                      .value) {
+                                members.add(_allUsersData
+                                    .elementAt(j)
+                                    .entries
+                                    .elementAt(1)
+                                    .value);
+                              }
+                            }
+                          }
+                        }
+                        showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
                                 insetPadding:
                                     EdgeInsets.only(left: 20, right: 20),
                                 scrollable: true,
                                 title: Row(
                                   children: [
                                     const Text(
-                                      "Write to Tutor",
+                                      "Members",
                                       style: TextStyle(
                                           fontWeight: FontWeight.bold,
                                           fontSize: 17,
@@ -174,67 +338,152 @@ class _StudentTeamsPageState extends State<StudentTeamsPage> {
                                     side: const BorderSide(
                                         color: Color.fromRGBO(21, 90, 148, 10),
                                         width: 1.5)),
-                                content: Column(
-                                  children: [
-                                    Container(
-                                        width:
-                                            MediaQuery.of(context).size.width *
-                                                0.7,
-                                        height:
-                                            MediaQuery.of(context).size.height *
-                                                0.7,
-                                        child: TextField(
-                                          controller: writeToTutorController,
-                                          maxLines: null,
-                                          textAlign: TextAlign.left,
-                                          decoration: InputDecoration(
-                                              border: InputBorder.none,
-                                              enabledBorder: OutlineInputBorder(
-                                                borderSide: const BorderSide(
-                                                    width: 3,
-                                                    color: Colors.blue),
-                                                borderRadius:
-                                                    BorderRadius.circular(15),
-                                              ),
-                                              focusedBorder: OutlineInputBorder(
-                                                borderSide: const BorderSide(
-                                                    width: 3,
-                                                    color: Colors.red),
-                                                borderRadius:
-                                                    BorderRadius.circular(15),
-                                              )),
-                                        )),
-                                    TextButton(
-                                        onPressed: () async {
-                                          await TutorMessagesTable.addMessage(
-                                              userID,
-                                              teamTutorID,
-                                              widget.teamData.entries
-                                                  .elementAt(0)
-                                                  .value,
-                                              teamTutorID,
-                                              writeToTutorController.text,
-                                              subGoalId:
-                                                  e.entries.elementAt(0).value);
-                                          Navigator.pop(context);
-                                          Navigator.pushReplacement(
-                                            context,
-                                            MaterialPageRoute(
-                                                builder:
-                                                    (BuildContext context) =>
-                                                        super.widget),
-                                          );
-                                        },
-                                        child: const Text("Send"))
-                                  ],
-                                )
-                                /**/
-                                );
-                          });*/
-                      } else if (value == 1) {
-                        //See members
+                                content: Container(
+                                  width:
+                                      MediaQuery.of(context).size.width * 0.7,
+                                  height:
+                                      MediaQuery.of(context).size.height * 0.7,
+                                  child: ListView.separated(
+                                    itemCount: members.length,
+                                    itemBuilder: (context, index2) {
+                                      return ListTile(
+                                        title: Text(members[index2],
+                                            style: const TextStyle(
+                                                fontSize: 13,
+                                                color: Color.fromRGBO(
+                                                    38, 153, 251, 10))),
+                                        shape: RoundedRectangleBorder(
+                                          side: const BorderSide(
+                                              color: Color.fromRGBO(
+                                                  21, 90, 148, 10),
+                                              width: 0.5),
+                                          borderRadius:
+                                              BorderRadius.circular(5),
+                                        ),
+                                      );
+                                    },
+                                    separatorBuilder:
+                                        (BuildContext context, int index) =>
+                                            const Divider(),
+                                  ),
+                                ),
+                              );
+                            });
                       } else if (value == 2) {
-                        //Add members
+                        teamNameController.clear();
+
+                        showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                  insetPadding: const EdgeInsets.only(
+                                      left: 20, right: 20),
+                                  scrollable: true,
+                                  title: Row(
+                                    children: [
+                                      const Text(
+                                        "Add a Member",
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 17,
+                                            color: Color.fromRGBO(
+                                                21, 90, 148, 10)),
+                                      ),
+                                      const Spacer(),
+                                      IconButton(
+                                        onPressed: () =>
+                                            Navigator.of(context).pop(),
+                                        icon: const Icon(Icons.close),
+                                        splashRadius: 15,
+                                      )
+                                    ],
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(20),
+                                      side: const BorderSide(
+                                          color:
+                                              Color.fromRGBO(21, 90, 148, 10),
+                                          width: 1.5)),
+                                  content: Column(
+                                    children: [
+                                      Column(
+                                        children: [
+                                          Container(
+                                              padding: const EdgeInsets.all(10),
+                                              width: MediaQuery.of(context)
+                                                      .size
+                                                      .width *
+                                                  0.7,
+                                              child: TextField(
+                                                controller:
+                                                    addMembersNameController,
+                                                maxLines: 1,
+                                                textAlign: TextAlign.left,
+                                                decoration: InputDecoration(
+                                                    border: InputBorder.none,
+                                                    labelText: "Username",
+                                                    enabledBorder:
+                                                        OutlineInputBorder(
+                                                      borderSide:
+                                                          const BorderSide(
+                                                              width: 3,
+                                                              color:
+                                                                  Colors.blue),
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              15),
+                                                    ),
+                                                    focusedBorder:
+                                                        OutlineInputBorder(
+                                                      borderSide:
+                                                          const BorderSide(
+                                                              width: 3,
+                                                              color:
+                                                                  Colors.red),
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              15),
+                                                    )),
+                                              )),
+                                        ],
+                                      ),
+                                      TextButton(
+                                          onPressed: () async {
+                                            String userToAdd = "";
+                                            for (int i = 0;
+                                                i < _allUsersData.length;
+                                                i++) {
+                                              if (_allUsersData
+                                                      .elementAt(i)
+                                                      .entries
+                                                      .elementAt(1)
+                                                      .value ==
+                                                  addMembersNameController
+                                                      .text) {
+                                                userToAdd = _allUsersData
+                                                    .elementAt(i)
+                                                    .entries
+                                                    .elementAt(0)
+                                                    .value;
+                                              }
+                                            }
+                                            await TeamsTable.addUserToTeam(
+                                                userToAdd,
+                                                teamId: _specificTeams
+                                                    .elementAt(index)
+                                                    .entries
+                                                    .elementAt(0)
+                                                    .value);
+                                            print("Added");
+                                            Navigator.pop(context);
+                                            setState(() {});
+                                          },
+                                          child: const Text("Add"))
+                                    ],
+                                  )
+                                  /**/
+                                  );
+                            });
                       } else if (value == 3) {
                         //Leave team
                       }
@@ -362,7 +611,7 @@ class TeamDisplay extends StatefulWidget {
   TeamDisplay({super.key, required this.teamData});
 
   final Map<String, String> teamData;
-  String userId = "28119";
+  //String userId = "28119";
 
   @override
   _TeamDisplayState createState() => _TeamDisplayState();
@@ -637,7 +886,7 @@ class _TeamDisplayState extends State<TeamDisplay> {
                   }
                 }
 
-                String selectedValue = widget.userId;
+                String selectedValue = userID;
 
                 showDialog(
                     context: context,
@@ -1360,7 +1609,7 @@ class _TeamDisplayState extends State<TeamDisplay> {
                                     TextButton(
                                         onPressed: () {
                                           FeedbackTable.addFeedback(
-                                              widget.userId,
+                                              userID,
                                               e.entries.elementAt(0).value,
                                               feedbackController.text);
                                           Navigator.pop(context);
