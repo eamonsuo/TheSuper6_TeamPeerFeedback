@@ -171,7 +171,9 @@ class _StudentTaskButtons extends State<StudentTaskButtons> {
                         fontSize: 14),
                   ),
                   onTap: () {
-                    tmp(context, widget.goalInfo);
+
+                    TextEditingController editController = TextEditingController(text: widget.goalInfo["goal_desc"]);
+                    tmp(context, widget.goalInfo, editController);
                   },
                 ),
               ),
@@ -258,7 +260,7 @@ class Button {
   Button(this.name, this.active, this.widget);
 }
 
-var tmp = (context, goalInfo) => showDialog(
+var tmp = (context, goalInfo, _controller) => showDialog(
                         context: context,
                         builder: (BuildContext context) {
                           return AlertDialog(
@@ -291,20 +293,19 @@ var tmp = (context, goalInfo) => showDialog(
                                 children: [
                                   Column(
                                     children: [
-                                      Text("Contents"),
+                                      const Text("Contents"),
                                       Container(
                                           padding: const EdgeInsets.all(10),
                                           width: MediaQuery.of(context).size.width *
                                               0.7,
                                           child: TextField(
-                                            // controller:
-                                            //     subGoalAssignedPersonController,
+                                            controller:
+                                                _controller,
                                             maxLines: 4,
                                             textAlign: TextAlign.left,
                                             decoration: InputDecoration(
                                                 border: InputBorder.none,
                                                 // labelText: goalInfo["goal_description"],
-                                                labelText: "test",
                                                 enabledBorder: OutlineInputBorder(
                                                   borderSide: const BorderSide(
                                                       width: 3, color: Colors.blue),
@@ -323,6 +324,19 @@ var tmp = (context, goalInfo) => showDialog(
                                   TextButton(
                                       onPressed: () {
                                         // Write to tutor
+                                        String newDescription = _controller.value.text;
+                                        String goalID = goalInfo["goal_id"];
+                                        String deadline = goalInfo["goal_deadline"];
+                                        String progress = goalInfo["goal_progress"];
+
+                                        GoalsTable.updateGoal(goalID,
+                                          description: newDescription,
+                                          progress: progress,
+                                          deadline: deadline
+                                        );
+
+                                        // this exits the showDialog widget
+                                        Navigator.of(context).pop(); 
                                       },
                                       child: const Text("Update"))
                                 ],
