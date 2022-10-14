@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:deco3801_project/databaseElements/TeamsTable.dart';
 import 'package:deco3801_project/databaseElements/health_score.dart';
 import 'package:flutter/material.dart';
@@ -47,7 +49,7 @@ class TutorTeamCard extends StatelessWidget {
                           ],
                         ),
                         Text('Health Score $healthScore%'),
-                        TeamProgressSlider()
+                        TeamProgressSlider(healthScore.toDouble())
                       ]))));
         } else {
           return Container();
@@ -58,19 +60,19 @@ class TutorTeamCard extends StatelessWidget {
 }
 
 class TeamProgressSlider extends StatelessWidget {
+  double progress;
+  TeamProgressSlider(this.progress);
+
   @override
   Widget build(BuildContext context) {
-    final embededStyle = SliderTheme.of(context).copyWith(
-        trackHeight: 18,
-        thumbColor: Colors.transparent,
-        overlayColor: Colors.transparent,
-        thumbShape: RoundSliderThumbShape(enabledThumbRadius: 0.0));
-    return SliderTheme(
-        data: embededStyle,
-        child: Slider(
-          value: 0.69,
-          onChanged: (value) => {},
-        ));
+    return Padding(
+        padding: EdgeInsets.all(4),
+        child: ClipRRect(
+            borderRadius: BorderRadius.all(Radius.circular(10)),
+            child: LinearProgressIndicator(
+              minHeight: 12,
+              value: progress / 100,
+            )));
   }
 }
 
