@@ -264,11 +264,11 @@ class _StudentTaskButtons extends State<StudentTaskButtons> {
                                   ],
                                 ));
                           })
-                      .then((value) => Navigator.pushReplacement(
+                      .then((value) => value! ? Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(
                               builder: (BuildContext context) =>
-                                  StudentHome())));
+                                  StudentHome())) : {} );
                 },
               ),
             ),
@@ -335,11 +335,11 @@ class _StudentTaskButtons extends State<StudentTaskButtons> {
                                 /**/
                                 );
                           })
-                      .then((value) => Navigator.pushReplacement(
+                      .then((value) => value! ? Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(
                               builder: (BuildContext context) =>
-                                  StudentHome())));
+                                  StudentHome())) : {} );
                 },
               ),
             ),
