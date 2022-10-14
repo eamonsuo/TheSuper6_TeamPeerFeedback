@@ -41,6 +41,8 @@ class TutorTeamCard extends StatelessWidget {
                         Row(
                           children: [
                             Text("Team: $name"),
+                            const Spacer(),
+                            HealthScoreInfoButton(),
                           ],
                         ),
                         Text('Health Score $healthScore%'),
@@ -55,22 +57,79 @@ class TutorTeamCard extends StatelessWidget {
 }
 
 class TeamProgressSlider extends StatelessWidget {
-
   @override
   Widget build(BuildContext context) {
-
     final embededStyle = SliderTheme.of(context).copyWith(
-      trackHeight: 18,
-      thumbColor: Colors.transparent,
-      overlayColor: Colors.transparent,
-      thumbShape: RoundSliderThumbShape(enabledThumbRadius: 0.0)
-    );
+        trackHeight: 18,
+        thumbColor: Colors.transparent,
+        overlayColor: Colors.transparent,
+        thumbShape: RoundSliderThumbShape(enabledThumbRadius: 0.0));
     return SliderTheme(
-      data: embededStyle,
-      child: Slider(
-        value: 0.69,
-        onChanged: (value) => {},
-      )
+        data: embededStyle,
+        child: Slider(
+          value: 0.69,
+          onChanged: (value) => {},
+        ));
+  }
+}
+
+class HealthScoreInfoButton extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return IconButton(
+      icon: Icon(Icons.question_mark_rounded),
+      onPressed: () {
+        showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return StatefulBuilder(
+                  builder: (BuildContext context, StateSetter setSateDropdown) {
+                return AlertDialog(
+                    insetPadding: const EdgeInsets.only(left: 20, right: 20),
+                    scrollable: true,
+                    title: Row(
+                      children: [
+                        const Text(
+                          "Heath Score",
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 17,
+                              color: Color.fromRGBO(21, 90, 148, 10)),
+                        ),
+                        const Spacer(),
+                        IconButton(
+                          onPressed: () => Navigator.of(context).pop(),
+                          icon: const Icon(Icons.close),
+                          splashRadius: 15,
+                        )
+                      ],
+                    ),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                        side: const BorderSide(
+                            color: Color.fromRGBO(21, 90, 148, 10),
+                            width: 1.5)),
+                    content: Container(
+                      padding: const EdgeInsets.all(10),
+                      width: MediaQuery.of(context).size.width * 0.7,
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: UIColours.blue,
+                          style: BorderStyle.solid,
+                          width: 3.0,
+                        ),
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+
+                      child: Padding(
+                        padding: EdgeInsets.all(4),
+                        child: Text("A team's health score is determined by the amount of progress they have made on their team goals relative to their set deadlines",
+                            style: TextStyle(color: UIColours.blue)),
+                      ),
+                    ));
+              });
+            });
+      },
     );
   }
 }
