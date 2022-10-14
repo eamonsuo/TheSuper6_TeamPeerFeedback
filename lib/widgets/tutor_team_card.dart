@@ -299,7 +299,7 @@ class HealthScoreInfoButton extends StatelessWidget {
                     title: Row(
                       children: [
                         const Text(
-                          "Heath Score",
+                          "Health Score",
                           style: TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 17,
