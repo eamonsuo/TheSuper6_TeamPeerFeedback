@@ -12,7 +12,7 @@ class StudentDashboardPage extends StatefulWidget {
 class _StudentDashboardPage extends State<StudentDashboardPage> {
 
 
-  late var _goals;
+  late Future<List<Map<String, String>>> _goals;
 
   @override
   void initState() {
@@ -30,11 +30,11 @@ class _StudentDashboardPage extends State<StudentDashboardPage> {
           return const Center(child: CircularProgressIndicator());
         }
         if (snapshot.hasData) {
-          _goals = snapshot.data;
+          List<Map<String, String>> goals = snapshot.data;
 
           List<StudentTask> tasks = [];
-          for (var goal in _goals) {
-            tasks.add(StudentTask(int.parse(goal["goal_id"]), goal["team_name"], goal["goal_desc"], double.parse(goal["goal_progress"]), goal));
+          for (var goal in goals) {
+            tasks.add(StudentTask(int.parse(goal["goal_id"]!), goal["team_name"]!, goal["goal_desc"]!, double.parse(goal["goal_progress"]!), goal));
           }
 
           return Scaffold(
