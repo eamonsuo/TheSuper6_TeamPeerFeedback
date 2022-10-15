@@ -1,6 +1,7 @@
 import 'package:deco3801_project/databaseElements/FeedbackTable.dart';
 import 'package:deco3801_project/databaseElements/GoalsTable.dart';
 import 'package:deco3801_project/databaseElements/TeamsTable.dart';
+import 'package:deco3801_project/databaseElements/TutorMessagesTable.dart';
 import 'package:flutter/material.dart';
 
 class TeamDisplay extends StatefulWidget {
@@ -10,7 +11,7 @@ class TeamDisplay extends StatefulWidget {
   // final Map<String, String> teamData;
   final String teamID;
   final String teamName;
-  //String userId = "28119";
+  String userID = "28119";
 
   @override
   _TeamDisplayState createState() => _TeamDisplayState();
@@ -34,18 +35,19 @@ class _TeamDisplayState extends State<TeamDisplay> {
   }
 
   //Used to store feedback input
-  // TextEditingController feedbackController = TextEditingController();
-  // TextEditingController goalDeadlineController = TextEditingController();
-  // TextEditingController goalDescriptionController = TextEditingController();
-  // TextEditingController subGoalAssignedPersonController =
-  //     TextEditingController();
-  // TextEditingController subGoalDescriptionController = TextEditingController();
-  // TextEditingController writeToTutorController = TextEditingController();
+  TextEditingController feedbackController = TextEditingController();
+  TextEditingController goalDeadlineController = TextEditingController();
+  TextEditingController goalDescriptionController = TextEditingController();
+  TextEditingController subGoalAssignedPersonController =
+      TextEditingController();
+  TextEditingController subGoalDescriptionController = TextEditingController();
+  TextEditingController writeToTutorController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-      future: Future.wait([_feedback, _goals, _subgoals, _usersInTeam, _userGoals]),
+      future:
+          Future.wait([_feedback, _goals, _subgoals, _usersInTeam, _userGoals]),
       builder: (BuildContext context, AsyncSnapshot<List<Object>> snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
@@ -149,7 +151,7 @@ class _TeamDisplayState extends State<TeamDisplay> {
                                       width: MediaQuery.of(context).size.width *
                                           0.7,
                                       child: TextField(
-                                        // controller: goalDeadlineController,
+                                        controller: goalDeadlineController,
                                         maxLines: 1,
                                         textAlign: TextAlign.left,
                                         decoration: InputDecoration(
@@ -173,7 +175,7 @@ class _TeamDisplayState extends State<TeamDisplay> {
                                       width: MediaQuery.of(context).size.width *
                                           0.7,
                                       child: TextField(
-                                        // controller: goalDescriptionController,
+                                        controller: goalDescriptionController,
                                         maxLines: 2,
                                         textAlign: TextAlign.left,
                                         decoration: InputDecoration(
@@ -196,20 +198,18 @@ class _TeamDisplayState extends State<TeamDisplay> {
                               ),
                               TextButton(
                                   onPressed: () async {
-                                    // await GoalsTable.addGoal(
-                                    //     goalDescriptionController.text,
-                                    //     goalDeadlineController.text,
-                                    //     widget.teamData.entries
-                                    //         .elementAt(0)
-                                    //         .value,
-                                    //     false);
-                                    // Navigator.pop(context);
-                                    // Navigator.pushReplacement(
-                                    //   context,
-                                    //   MaterialPageRoute(
-                                    //       builder: (BuildContext context) =>
-                                    //           super.widget),
-                                    // );
+                                    await GoalsTable.addGoal(
+                                        goalDescriptionController.text,
+                                        goalDeadlineController.text,
+                                        widget.teamID,
+                                        false);
+                                    Navigator.pop(context);
+                                    Navigator.pushReplacement(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (BuildContext context) =>
+                                              super.widget),
+                                    );
                                   },
                                   child: const Text("Add"))
                             ],
@@ -273,16 +273,17 @@ class _TeamDisplayState extends State<TeamDisplay> {
                 // subGoalDescriptionController.clear();
 
                 //Setup dropdown box
+                // how should this work for the tutors?
                 List<DropdownMenuItem<String>> dropdownItems = [];
-                for (Map<String, String> userDetails in userData) {
-                  if (userDetails.entries.elementAt(2).value == '0') {
+                for (var user in userData) {
+                  if (user["tutor_status"] == '0') {
                     dropdownItems.add(DropdownMenuItem(
-                        child: Text(userDetails.entries.elementAt(1).value),
-                        value: userDetails.entries.elementAt(0).value));
+                        value: user["user_id"]!,
+                        child: Text(user["username"]!)));
                   }
                 }
 
-                // String selectedValue = userID;
+                String selectedValue = widget.userID;
 
                 showDialog(
                     context: context,
@@ -320,27 +321,27 @@ class _TeamDisplayState extends State<TeamDisplay> {
                                 Column(
                                   children: [
                                     Container(
-                                      padding: const EdgeInsets.all(10),
-                                      width: MediaQuery.of(context).size.width *
-                                          0.7,
-                                      // child: DropdownButton(
-                                      //   items: dropdownItems,
-                                      //   onChanged: (String? newValue) {
-                                      //     setSateDropdown(() {
-                                      //       selectedValue = newValue!;
-                                      //     });
-                                      //   },
-                                      //   value: selectedValue,
-                                      // )
-                                    ),
+                                        padding: const EdgeInsets.all(10),
+                                        width:
+                                            MediaQuery.of(context).size.width *
+                                                0.7,
+                                        child: DropdownButton(
+                                          items: dropdownItems,
+                                          onChanged: (String? newValue) {
+                                            setSateDropdown(() {
+                                              selectedValue = newValue!;
+                                            });
+                                          },
+                                          value: selectedValue,
+                                        )),
                                     Container(
                                         padding: const EdgeInsets.all(10),
                                         width:
                                             MediaQuery.of(context).size.width *
                                                 0.7,
                                         child: TextField(
-                                          // controller:
-                                          //     subGoalDescriptionController,
+                                          controller:
+                                              subGoalDescriptionController,
                                           maxLines: 2,
                                           textAlign: TextAlign.left,
                                           decoration: InputDecoration(
@@ -365,23 +366,21 @@ class _TeamDisplayState extends State<TeamDisplay> {
                                 ),
                                 TextButton(
                                     onPressed: () async {
-                                      // await GoalsTable.addGoal(
-                                      //     subGoalDescriptionController.text,
-                                      //     deadline,
-                                      //     widget.teamData.entries
-                                      //         .elementAt(0)
-                                      //         .value,
-                                      //     true,
-                                      //     teamGoalId:
-                                      //         item.entries.elementAt(0).value,
-                                      //     userId: selectedValue);
-                                      // Navigator.pop(context);
-                                      // Navigator.pushReplacement(
-                                      //   context,
-                                      //   MaterialPageRoute(
-                                      //       builder: (BuildContext context) =>
-                                      //           super.widget),
-                                      // );
+                                      await GoalsTable.addGoal(
+                                          subGoalDescriptionController.text,
+                                          deadline,
+                                          widget.teamID,
+                                          true,
+                                          teamGoalId:
+                                              teamGoal.entries.elementAt(0).value,
+                                          userId: selectedValue);
+                                      Navigator.pop(context);
+                                      Navigator.pushReplacement(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (BuildContext context) =>
+                                                super.widget),
+                                      );
                                     },
                                     child: const Text("Add"))
                               ],
@@ -425,9 +424,10 @@ class _TeamDisplayState extends State<TeamDisplay> {
               onSelected: (value) {
                 if (value == 0) {
                   //EDIT GOAL
-                  // goalDescriptionController.text =
-                  //     item.entries.elementAt(1).value;
-                  // goalDeadlineController.text = item.entries.elementAt(4).value;
+                  goalDescriptionController.text =
+                      teamGoal["goal_desc"]!;
+                  goalDeadlineController.text = teamGoal["goal_deadline"]!;
+
                   showDialog(
                       context: context,
                       builder: (BuildContext context) {
@@ -473,7 +473,7 @@ class _TeamDisplayState extends State<TeamDisplay> {
                                             MediaQuery.of(context).size.width *
                                                 0.7,
                                         child: TextField(
-                                          // controller: goalDescriptionController,
+                                          controller: goalDescriptionController,
                                           maxLines: 1,
                                           textAlign: TextAlign.left,
                                           decoration: InputDecoration(
@@ -500,7 +500,7 @@ class _TeamDisplayState extends State<TeamDisplay> {
                                             MediaQuery.of(context).size.width *
                                                 0.7,
                                         child: TextField(
-                                          // controller: goalDeadlineController,
+                                          controller: goalDeadlineController,
                                           maxLines: 1,
                                           textAlign: TextAlign.left,
                                           decoration: InputDecoration(
@@ -525,19 +525,19 @@ class _TeamDisplayState extends State<TeamDisplay> {
                                 ),
                                 TextButton(
                                     onPressed: () {
-                                      // GoalsTable.updateGoal(
-                                      //     item.entries.elementAt(0).value,
-                                      //     description:
-                                      //         goalDescriptionController.text,
-                                      //     deadline:
-                                      //         goalDeadlineController.text);
-                                      // Navigator.pop(context);
-                                      // Navigator.pushReplacement(
-                                      //   context,
-                                      //   MaterialPageRoute(
-                                      //       builder: (BuildContext context) =>
-                                      //           super.widget),
-                                      // );
+                                      GoalsTable.updateGoal(
+                                          teamGoal["goal_id"]!,
+                                          description:
+                                              goalDescriptionController.text,
+                                          deadline:
+                                              goalDeadlineController.text);
+                                      Navigator.pop(context);
+                                      Navigator.pushReplacement(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (BuildContext context) =>
+                                                super.widget),
+                                      );
                                     },
                                     child: const Text("Update"))
                               ],
@@ -587,15 +587,15 @@ class _TeamDisplayState extends State<TeamDisplay> {
                                         "Are you sure you want to delete this goal?")),
                                 TextButton(
                                     onPressed: () async {
-                                      // await GoalsTable.deleteGoal(
-                                      //     item.entries.elementAt(0).value);
-                                      // Navigator.pop(context);
-                                      // Navigator.pushReplacement(
-                                      //   context,
-                                      //   MaterialPageRoute(
-                                      //       builder: (BuildContext context) =>
-                                      //           super.widget),
-                                      // );
+                                      await GoalsTable.deleteGoal(
+                                          teamGoal["goal_id"]!);
+                                      Navigator.pop(context);
+                                      Navigator.pushReplacement(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (BuildContext context) =>
+                                                super.widget),
+                                      );
                                     },
                                     child: const Text("Delete"))
                               ],
@@ -816,7 +816,7 @@ class _TeamDisplayState extends State<TeamDisplay> {
                                             MediaQuery.of(context).size.height *
                                                 0.7,
                                         child: TextField(
-                                          // controller: writeToTutorController,
+                                          controller: writeToTutorController,
                                           maxLines: null,
                                           textAlign: TextAlign.left,
                                           decoration: InputDecoration(
@@ -838,24 +838,22 @@ class _TeamDisplayState extends State<TeamDisplay> {
                                         )),
                                     TextButton(
                                         onPressed: () async {
-                                          // await TutorMessagesTable.addMessage(
-                                          //     userID,
-                                          //     teamTutorID,
-                                          //     widget.teamData.entries
-                                          //         .elementAt(0)
-                                          //         .value,
-                                          //     teamTutorID,
-                                          //     writeToTutorController.text,
-                                          //     subGoalId:
-                                          //         e.entries.elementAt(0).value);
-                                          // Navigator.pop(context);
-                                          // Navigator.pushReplacement(
-                                          //   context,
-                                          //   MaterialPageRoute(
-                                          //       builder:
-                                          //           (BuildContext context) =>
-                                          //               super.widget),
-                                          // );
+                                          await TutorMessagesTable.addMessage(
+                                              widget.userID,
+                                              teamTutorID,
+                                              widget.teamID,
+                                              teamTutorID,
+                                              writeToTutorController.text,
+                                              subGoalId:
+                                                  e.entries.elementAt(0).value);
+                                          Navigator.pop(context);
+                                          Navigator.pushReplacement(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder:
+                                                    (BuildContext context) =>
+                                                        super.widget),
+                                          );
                                         },
                                         child: const Text("Send"))
                                   ],
@@ -945,7 +943,7 @@ class _TeamDisplayState extends State<TeamDisplay> {
                           builder: (BuildContext context) {
                             return AlertDialog(
                                 insetPadding:
-                                    EdgeInsets.only(left: 20, right: 20),
+                                    const EdgeInsets.only(left: 20, right: 20),
                                 scrollable: true,
                                 title: Row(
                                   children: [
@@ -981,7 +979,7 @@ class _TeamDisplayState extends State<TeamDisplay> {
                                             MediaQuery.of(context).size.height *
                                                 0.7,
                                         child: TextField(
-                                          // controller: feedbackController,
+                                          controller: feedbackController,
                                           maxLines: null,
                                           textAlign: TextAlign.left,
                                           decoration: InputDecoration(
@@ -1004,20 +1002,20 @@ class _TeamDisplayState extends State<TeamDisplay> {
                                         )),
                                     TextButton(
                                         onPressed: () {
-                                          // FeedbackTable.addFeedback(
-                                          //     userID,
-                                          //     e.entries.elementAt(0).value,
-                                          //     feedbackController.text);
-                                          // Navigator.pop(context);
-                                          // Navigator.pushReplacement(
-                                          //   context,
-                                          //   MaterialPageRoute(
-                                          //       builder:
-                                          //           (BuildContext context) =>
-                                          //               super.widget),
-                                          // );
+                                          FeedbackTable.addFeedback(
+                                              widget.userID,
+                                              e.entries.elementAt(0).value,
+                                              feedbackController.text);
+                                          Navigator.pop(context);
+                                          Navigator.pushReplacement(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder:
+                                                    (BuildContext context) =>
+                                                        super.widget),
+                                          );
                                         },
-                                        child: Text("Submit"))
+                                        child: const Text("Submit"))
                                   ],
                                 )
                                 /**/
@@ -1027,8 +1025,8 @@ class _TeamDisplayState extends State<TeamDisplay> {
                     if (result == 3) {
                       //EDIT SUB-GOAL
                       //Will need to update assigned to controller and description
-                      // subGoalDescriptionController.text =
-                      //     e.entries.elementAt(1).value;
+                      subGoalDescriptionController.text =
+                          e.entries.elementAt(1).value;
 
                       //Setup dropdown box - only needed if changing user assigned
                       /*List<DropdownMenuItem<String>> dropdownItems = [];
@@ -1117,8 +1115,8 @@ class _TeamDisplayState extends State<TeamDisplay> {
                                                       .width *
                                                   0.7,
                                               child: TextField(
-                                                // controller:
-                                                //     subGoalDescriptionController,
+                                                controller:
+                                                    subGoalDescriptionController,
                                                 maxLines: 2,
                                                 textAlign: TextAlign.left,
                                                 decoration: InputDecoration(
@@ -1152,19 +1150,19 @@ class _TeamDisplayState extends State<TeamDisplay> {
                                       TextButton(
                                           onPressed: () async {
                                             //Update goal in GoalsTable TODO
-                                            // await GoalsTable.updateGoal(
-                                            //     e.entries.elementAt(0).value,
-                                            //     description:
-                                            //         subGoalDescriptionController
-                                            //             .text);
-                                            // Navigator.pop(context);
-                                            // Navigator.pushReplacement(
-                                            //   context,
-                                            //   MaterialPageRoute(
-                                            //       builder:
-                                            //           (BuildContext context) =>
-                                            //               super.widget),
-                                            // );
+                                            await GoalsTable.updateGoal(
+                                                e.entries.elementAt(0).value,
+                                                description:
+                                                    subGoalDescriptionController
+                                                        .text);
+                                            Navigator.pop(context);
+                                            Navigator.pushReplacement(
+                                              context,
+                                              MaterialPageRoute(
+                                                  builder:
+                                                      (BuildContext context) =>
+                                                          super.widget),
+                                            );
                                           },
                                           child: const Text("Update"))
                                     ],
@@ -1218,16 +1216,16 @@ class _TeamDisplayState extends State<TeamDisplay> {
                                             "Are you sure you want to delete this subgoal?")),
                                     TextButton(
                                         onPressed: () async {
-                                          // await GoalsTable.deleteGoal(
-                                          //     e.entries.elementAt(0).value);
-                                          // Navigator.pop(context);
-                                          // Navigator.pushReplacement(
-                                          //   context,
-                                          //   MaterialPageRoute(
-                                          //       builder:
-                                          //           (BuildContext context) =>
-                                          //               super.widget),
-                                          // );
+                                          await GoalsTable.deleteGoal(
+                                              e.entries.elementAt(0).value);
+                                          Navigator.pop(context);
+                                          Navigator.pushReplacement(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder:
+                                                    (BuildContext context) =>
+                                                        super.widget),
+                                          );
                                         },
                                         child: const Text("Delete"))
                                   ],
