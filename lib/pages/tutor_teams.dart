@@ -1,4 +1,5 @@
 import 'package:deco3801_project/databaseElements/TeamsTable.dart';
+import 'package:deco3801_project/widgets/team_display.dart';
 import 'package:flutter/material.dart';
 
 class TutorTeamsPage extends StatefulWidget {
@@ -448,13 +449,13 @@ class TeamListCard extends StatelessWidget {
         ],
       ),
       onTap: () {
-        // Navigator.push(
-        //   context,
-        //   MaterialPageRoute(
-        //     builder: (context) =>
-        //         TeamDisplay(teamData: _specificTeams.elementAt(index)),
-        //   ),
-        // );
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) =>
+                TeamDisplay(teamID: teamID, teamName: teamName),
+          ),
+        );
       },
       shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(30),
