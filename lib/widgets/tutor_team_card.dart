@@ -1,17 +1,11 @@
-import 'dart:ffi';
-
 import 'package:deco3801_project/databaseElements/TeamsTable.dart';
+import 'package:deco3801_project/databaseElements/TutorMessagesTable.dart';
 import 'package:deco3801_project/databaseElements/health_score.dart';
 import 'package:flutter/material.dart';
 
 import '../util/ui_colours.dart';
 
 class TutorTeamCard extends StatelessWidget {
-  // What info is needed
-  // team name
-  // health score
-  // members, and associated member info
-
   Map<String, String> teamInfo;
   late String id;
   late String name;
@@ -42,13 +36,18 @@ class TutorTeamCard extends StatelessWidget {
                           children: [
                         Row(
                           children: [
-                            Text("Team: $name"),
+                            Text("Team: $name", style: TextStyle(
+                              color: UIColours.darkBlue
+                            ),),
                             const Spacer(),
                             MembersButton(id, name),
                             HealthScoreInfoButton(),
                           ],
                         ),
-                        Text('Health Score $healthScore%'),
+                        Text('Health Score $healthScore%', style: TextStyle(
+                          color: UIColours.blue,
+                          fontSize: 15,
+                        ),),
                         TeamProgressSlider(healthScore.toDouble())
                       ]))));
         } else {
@@ -84,7 +83,17 @@ class MembersButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return TextButton(
-      child: const Text("Members"),
+      child: ClipRRect(
+        borderRadius: BorderRadius.all(Radius.circular(3)),
+        child: Container(
+          color: UIColours.darkBlue,
+          padding: EdgeInsets.all(5),
+          child: Text(
+            "Members",
+            style: TextStyle(color: UIColours.white, fontWeight: FontWeight.bold),
+          ),
+        ),
+      ),
       onPressed: () async {
         List<Map<String, String>> memebers =
             await TeamsTable.getUsersInTeamInfo(id);
@@ -93,8 +102,8 @@ class MembersButton extends StatelessWidget {
             .toList();
 
         List<Widget> memberList = [];
-        for (var item in students) {
-          memberList.add(MemberListItem(item));
+        for (var student in students) {
+          memberList.add(MemberListItem(student, id));
         }
 
         showDialog(
@@ -153,11 +162,12 @@ class MembersButton extends StatelessWidget {
 
 class MemberListItem extends StatelessWidget {
   Map<String, String> memberInfo;
+  String teamId;
   late String username;
-  late String id;
-  MemberListItem(this.memberInfo) {
+  late String userId;
+  MemberListItem(this.memberInfo, this.teamId) {
     username = memberInfo["username"]!;
-    id = memberInfo["user_id"]!;
+    userId = memberInfo["user_id"]!;
   }
 
   @override
@@ -167,11 +177,14 @@ class MemberListItem extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text(username),
+          Text(username, style: TextStyle(
+            color: UIColours.blue
+          )),
           IconButton(
             splashRadius: 5,
-            icon: Icon(Icons.mode_edit),
+            icon: Icon(Icons.mode_edit, color: UIColours.darkBlue,),
             onPressed: () {
+              TextEditingController controller = TextEditingController();
               showDialog<bool>(
                   context: context,
                   builder: (BuildContext context) {
@@ -254,6 +267,7 @@ class MemberListItem extends StatelessWidget {
                                     child: TextField(
                                       maxLines: 14,
                                       textAlign: TextAlign.left,
+                                      controller: controller,
                                       decoration: InputDecoration(
                                           border: InputBorder.none,
                                           enabledBorder: OutlineInputBorder(
@@ -272,7 +286,17 @@ class MemberListItem extends StatelessWidget {
                               ],
                             ),
                             TextButton(
-                                onPressed: () {}, child: const Text("Submit"))
+                                onPressed: () {
+                                  TutorMessagesTable.addMessage(
+                                          "28121",
+                                          userId,
+                                          teamId,
+                                          "28121",
+                                          controller.value.text)
+                                      .then((value) =>
+                                          {Navigator.of(context).pop()});
+                                },
+                                child: const Text("Submit"))
                           ],
                         ));
                   });
