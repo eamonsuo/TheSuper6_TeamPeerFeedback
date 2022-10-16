@@ -1,5 +1,3 @@
-import 'dart:ffi';
-
 import 'package:deco3801_project/util/ui_colours.dart';
 import 'package:deco3801_project/widgets/progress_slider.dart';
 import 'package:deco3801_project/widgets/student_task_buttons.dart';
@@ -13,13 +11,20 @@ class StudentTask extends StatelessWidget {
 
   String taskTitle;
   String taskDescription;
-  bool embeded;
+  double progress;
+  int id;
 
-  StudentTask(this.taskTitle, this.taskDescription, {this.embeded = false});
+  Map<String, String> goalInfo;
+
+  StudentTask(this.id, this.taskTitle, this.taskDescription, this.progress, this.goalInfo);
 
 
   @override
   Widget build(BuildContext context) {
+
+    // String taskTitle = "the super 6";
+    // String taskDesc = goalInfo["goal_desc"];
+
     return Card(
       color: UIColours.white,
       margin: EdgeInsets.all(10),
@@ -34,12 +39,11 @@ class StudentTask extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(taskTitle, style: TextStyle(color: UIColours.darkBlue)),
-                StudentTaskButtons()
+                StudentTaskButtons(id, taskDescription, goalInfo)
               ],
             ),
             Text(taskDescription, style: TextStyle(color: UIColours.lightBlue)),
-            // embeded? ProgesssBar(0.69): ProgressSlider()
-            ProgressSlider(embeded: embeded,)
+            ProgressSlider(goalInfo, currentProgress: progress)
           ],
         ),
       )

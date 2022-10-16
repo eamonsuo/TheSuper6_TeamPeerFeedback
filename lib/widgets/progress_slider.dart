@@ -1,11 +1,12 @@
+import 'package:deco3801_project/databaseElements/GoalsTable.dart';
 import 'package:deco3801_project/util/ui_colours.dart';
 import 'package:flutter/material.dart';
 
 class ProgressSlider extends StatefulWidget {
 
   double? currentProgress;
-  bool embeded;
-  ProgressSlider({this.currentProgress, this.embeded = false});
+  Map<String, String> taskInfo;
+  ProgressSlider(this.taskInfo, {this.currentProgress});
 
   @override
   State<ProgressSlider> createState() => _ProgressSlider();
@@ -43,18 +44,27 @@ class _ProgressSlider extends State<ProgressSlider> {
       children: [
         Text("Progesss: ${progress.floor()}%", style: TextStyle(color: UIColours.darkBlue),),
         SliderTheme(
-          data: widget.embeded? embededStyle: defaultStyle, 
+          data: defaultStyle, 
           child: Slider(
             min: 0,
             max: 100,
             value: progress, 
             onChanged: (double value) {
-              if (!widget.embeded){
-                setState(() {
-                  progress = value;
-                });
-              }
-            }
+              setState(() {
+                progress = value;
+              });
+            },
+            onChangeEnd: (double value) {
+              // export changes the the db
+              String goalID = widget.taskInfo["goal_id"]!;
+              String description = widget.taskInfo["goal_desc"]!;
+              String deadline = widget.taskInfo["goal_deadline"]!;
+
+              GoalsTable.updateGoal(goalID, 
+                description: description,
+                progress: progress.floor().toString(),
+                deadline: deadline);
+            },
           ),
         )
       ],

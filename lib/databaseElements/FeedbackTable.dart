@@ -12,7 +12,8 @@ class FeedbackTable {
   /// Can be called with a list of columns to return specific columns
   ///   e.g. columns = ['feedback_id', 'feedback_contents']
   ///
-  /// Returns a list of records in the format [{col1: value, col2: value, ...}, {col1: value, col2: value, ...}, ...]
+  /// Returns a list of records in the format [{col1: value, col2: value, ...}, ...]
+  ///
   /// Each element of the list is a Map which representa an individual record
   ///   {feedback_id: value, feedback_user_id: value, feedback_goal_id: value, feedback_contents: value}
   ///
@@ -31,8 +32,6 @@ class FeedbackTable {
       http.Response response =
           await http.post(Uri.parse(DBConstants.url), body: map);
       List<dynamic> dataList = jsonDecode(response.body);
-      //print(dataList);
-      //print("Call to HTTP");
 
       // Error Checking on response from web serve
       if (dataList.isEmpty || response.statusCode != 200) {
@@ -60,7 +59,8 @@ class FeedbackTable {
   /// Can be called with a list of columns to return specific columns
   ///   e.g. columns = ['feedback_id', 'feedback_contents']
   ///
-  /// Returns a list of records in the format [{col1: value, col2: value, ...}, {col1: value, col2: value, ...}, ...]
+  /// Returns a list of records in the format [{col1: value, col2: value, ...}, ...]
+  ///
   /// Each element of the list is a Map which representa an individual record
   ///   {feedback_id: value, feedback_user_id: value, feedback_goal_id: value, feedback_contents: value}
   ///
@@ -98,15 +98,16 @@ class FeedbackTable {
     }
   }
 
-  /// Returns records based on the passed [goalId]
-  /// Returns all feedback stored on a given goal
+  /// Returns records based on the passed [goalId].
+  /// Returns all feedback given on a specified goal.
   ///
   /// Needs to be called with await to get synchronous operation (double check https://dart.dev/codelabs/async-await)
   ///
   /// Can be called with a list of columns to return specific columns
   ///   e.g. columns = ['feedback_id', 'feedback_contents']
   ///
-  /// Returns a list of records in the format [{col1: value, col2: value, ...}, {col1: value, col2: value, ...}, ...]
+  /// Returns a list of records in the format [{col1: value, col2: value, ...}, ...]
+  ///
   /// Each element of the list is a Map which representa an individual record
   ///   {feedback_id: value, feedback_user_id: value, feedback_goal_id: value, feedback_contents: value}
   ///
@@ -148,14 +149,15 @@ class FeedbackTable {
 
   /// Adds a record into the feedback table.
   ///
-  /// [userId] is the user who created the feedback
-  /// [goalId] is the goal the feedback belongs to
-  /// [feedbackString] can only be 200 characters long
-  ///
-  /// Needs to be called with await to get synchronous operation (double check https://dart.dev/codelabs/async-await)
   /// All fields need to be provided, a feedback_id is automatically generated
   ///
-  /// Returns true when user added successfully, false on error      TODO: maybe return user_id?
+  /// [userId] is the user who created the feedback.
+  /// [goalId] is the goal the feedback belongs to.
+  /// [feedbackString] can only be 200 characters long.
+  ///
+  /// Needs to be called with await to get synchronous operation (double check https://dart.dev/codelabs/async-await)
+  ///
+  /// Returns true when user added successfully, false on error
   static Future<bool> addFeedback(
       String userId, String goalId, String feedbackString) async {
     try {
@@ -190,14 +192,13 @@ class FeedbackTable {
   /// To update columns, pass them as positional parameters
   ///   e.g. updateFeedback('1', feedbackString: 'Change feedback to this')
   ///
-  /// [userId] is the user who created the feedback TODO: REMOVE??
-  /// [goalId] is the goal the feedback belongs to TODO: REMOVE??
-  /// [feedbackString] can only be 200 characters long
+  /// [userId] is the user who created the feedback.
+  /// [goalId] is the goal the feedback belongs to.
+  /// [feedbackString] can only be 200 characters long.
   ///
   /// Needs to be called with await to get synchronous operation (double check https://dart.dev/codelabs/async-await)
   ///
   /// Returns true when record updated successfully, false on error
-  /// TODO: FIX: returns true when invalid id provided
   static Future<bool> updateFeedback(String feedbackId,
       {String userId = '',
       String goalId = '',
@@ -217,7 +218,7 @@ class FeedbackTable {
       }
       if (feedbackString != '') {
         map["columns"] += "feedback_contents = "
-            '"$feedbackString",'; // Can't be over 200 characters, also some fancy footwork to allow apostrophese
+            '"$feedbackString",'; // Can't be over 200 characters, allows single apostrophese
       }
       if (map["columns"] == '') {
         print("no cols chosen for update");
@@ -245,14 +246,13 @@ class FeedbackTable {
     }
   }
 
-  /// Deletes an existing piece of feedback from the feedback table.
+  /// Deletes an existing record from the feedback table.
   ///
   /// [feedbackId] is the ID of the feedback
   ///
   /// Needs to be called with await to get synchronous operation (double check https://dart.dev/codelabs/async-await)
   ///
   /// Returns true when record updated successfully, false on error
-  /// TODO: Returns success when invalid ids are used
   static Future<bool> deleteFeedback(String feedbackId) async {
     try {
       var map = new Map<String, dynamic>();
