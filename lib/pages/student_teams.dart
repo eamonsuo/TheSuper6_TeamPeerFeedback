@@ -1929,7 +1929,7 @@ class _TeamDisplayState extends State<TeamDisplay> {
                 ClipRRect(
                   borderRadius: const BorderRadius.all(Radius.circular(10)),
                   child: LinearProgressIndicator(
-                    value: progress,
+                    value: double.parse(e.entries.elementAt(2).value) / 100,
                     minHeight: 8,
                   ),
                 ),
