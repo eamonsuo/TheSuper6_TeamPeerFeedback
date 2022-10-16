@@ -52,95 +52,7 @@ class _TutorTeamsPage extends State<TutorTeamsPage> {
   }
 }
 
-PopupMenuItem WriteToTutorButton(BuildContext context) {
-  return PopupMenuItem(
-    child: ListTile(
-      title: const Text(
-        'Write to tutors',
-        style: TextStyle(
-            fontWeight: FontWeight.bold,
-            color: Color.fromRGBO(38, 153, 251, 60),
-            fontSize: 14),
-      ),
-      onTap: () {
-        //Write to tutors for team
-        // writeToTutorController.clear();
-        showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return AlertDialog(
-                  insetPadding: EdgeInsets.only(left: 20, right: 20),
-                  scrollable: true,
-                  title: Row(
-                    children: [
-                      const Text(
-                        "Write to Tutor",
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 17,
-                            color: Color.fromRGBO(21, 90, 148, 10)),
-                      ),
-                      const Spacer(),
-                      IconButton(
-                        onPressed: () => Navigator.of(context).pop(),
-                        icon: const Icon(Icons.close),
-                        splashRadius: 15,
-                      )
-                    ],
-                  ),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
-                      side: const BorderSide(
-                          color: Color.fromRGBO(21, 90, 148, 10), width: 1.5)),
-                  content: Column(
-                    children: [
-                      Container(
-                          width: MediaQuery.of(context).size.width * 0.7,
-                          height: MediaQuery.of(context).size.height * 0.7,
-                          child: TextField(
-                            // controller: writeToTutorController,
-                            maxLines: null,
-                            textAlign: TextAlign.left,
-                            decoration: InputDecoration(
-                                border: InputBorder.none,
-                                enabledBorder: OutlineInputBorder(
-                                  borderSide: const BorderSide(
-                                      width: 3, color: Colors.blue),
-                                  borderRadius: BorderRadius.circular(15),
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderSide: const BorderSide(
-                                      width: 3, color: Colors.red),
-                                  borderRadius: BorderRadius.circular(15),
-                                )),
-                          )),
-                      TextButton(
-                          onPressed: () {},
-                          // onPressed: () async {
-                          //   await TutorMessagesTable.addMessage(
-                          //       userID,
-                          //       tutorID,
-                          //       _specificTeams
-                          //           .elementAt(index)
-                          //           .entries
-                          //           .elementAt(0)
-                          //           .value,
-                          //       tutorID,
-                          //       writeToTutorController.text);
-                          //   Navigator.pop(context);
-                          // },
-                          child: const Text("Send"))
-                    ],
-                  )
-                  /**/
-                  );
-            });
-      },
-    ),
-  );
-}
-
-PopupMenuItem SeeMembersButton(context) {
+PopupMenuItem SeeMembersButton(context, teamId) {
   return PopupMenuItem(
     child: ListTile(
       title: const Text(
@@ -150,26 +62,23 @@ PopupMenuItem SeeMembersButton(context) {
             color: Color.fromRGBO(38, 153, 251, 60),
             fontSize: 14),
       ),
-      onTap: () {
+      onTap: () async {
         //See members
-        // List<String> members = [];
+        List<String> members = [];
 
-        // for (int i = 0; i < _usersInTeamData.length; i++) {
-        //   if (_usersInTeamData.elementAt(i).entries.elementAt(0).value ==
-        //       _specificTeams.elementAt(index).entries.elementAt(0).value) {
-        //     for (int j = 0; j < _allUsersData.length; j++) {
-        //       if (_allUsersData.elementAt(j).entries.elementAt(0).value ==
-        //           _usersInTeamData
-        //               .elementAt(i)
-        //               .entries
-        //               .elementAt(1)
-        //               .value) {
-        //         members.add(
-        //             _allUsersData.elementAt(j).entries.elementAt(1).value);
-        //       }
-        //     }
-        //   }
-        // }
+        var _usersInTeamData = await TeamsTable.getAllFromUsersInTeams();
+
+        var _allUsersData = await UsersTable.getAllUsers();
+
+        var usersInThisTeam = _usersInTeamData.where((element) => element["team_id"] == teamId).toList();
+
+        for (var member in usersInThisTeam) {
+          for (var user in _allUsersData) {
+            if (user["user_id"]! == member["user_id"]!) {
+              members.add(user["username"]!);
+            }
+          }
+        }
         showDialog(
             context: context,
             builder: (BuildContext context) {
@@ -200,25 +109,25 @@ PopupMenuItem SeeMembersButton(context) {
                 content: Container(
                   width: MediaQuery.of(context).size.width * 0.7,
                   height: MediaQuery.of(context).size.height * 0.7,
-                  // child: ListView.separated(
-                  //   itemCount: members.length,
-                  //   itemBuilder: (context, index2) {
-                  //     return ListTile(
-                  //       title: Text(members[index2],
-                  //           style: const TextStyle(
-                  //               fontSize: 13,
-                  //               color: Color.fromRGBO(38, 153, 251, 10))),
-                  //       shape: RoundedRectangleBorder(
-                  //         side: const BorderSide(
-                  //             color: Color.fromRGBO(21, 90, 148, 10),
-                  //             width: 0.5),
-                  //         borderRadius: BorderRadius.circular(5),
-                  //       ),
-                  //     );
-                  //   },
-                  //   separatorBuilder: (BuildContext context, int index) =>
-                  //       const Divider(),
-                  // ),
+                  child: ListView.separated(
+                    itemCount: members.length,
+                    itemBuilder: (context, index) {
+                      return ListTile(
+                        title: Text(members[index],
+                            style: const TextStyle(
+                                fontSize: 13,
+                                color: Color.fromRGBO(38, 153, 251, 10))),
+                        shape: RoundedRectangleBorder(
+                          side: const BorderSide(
+                              color: Color.fromRGBO(21, 90, 148, 10),
+                              width: 0.5),
+                          borderRadius: BorderRadius.circular(5),
+                        ),
+                      );
+                    },
+                    separatorBuilder: (BuildContext context, int index) =>
+                        const Divider(),
+                  ),
                 ),
               );
             });
@@ -227,7 +136,7 @@ PopupMenuItem SeeMembersButton(context) {
   );
 }
 
-PopupMenuItem AddMembersButton(context) {
+PopupMenuItem AddMembersButton(context, teamId) {
   return PopupMenuItem(
     child: ListTile(
       title: const Text(
@@ -239,6 +148,7 @@ PopupMenuItem AddMembersButton(context) {
       ),
       onTap: () {
         // teamNameController.clear();
+        var addMembersNameController = TextEditingController();
 
         showDialog(
             context: context,
@@ -275,7 +185,7 @@ PopupMenuItem AddMembersButton(context) {
                               padding: const EdgeInsets.all(10),
                               width: MediaQuery.of(context).size.width * 0.7,
                               child: TextField(
-                                // controller: addMembersNameController,
+                                controller: addMembersNameController,
                                 maxLines: 1,
                                 textAlign: TextAlign.left,
                                 decoration: InputDecoration(
@@ -295,34 +205,29 @@ PopupMenuItem AddMembersButton(context) {
                         ],
                       ),
                       TextButton(
-                          onPressed: () {},
-                          // onPressed: () async {
-                          //   String userToAdd = "";
-                          //   for (int i = 0; i < _allUsersData.length; i++) {
-                          //     if (_allUsersData
-                          //             .elementAt(i)
-                          //             .entries
-                          //             .elementAt(1)
-                          //             .value ==
-                          //         addMembersNameController.text) {
-                          //       userToAdd = _allUsersData
-                          //           .elementAt(i)
-                          //           .entries
-                          //           .elementAt(0)
-                          //           .value;
-                          //     }
-                          //   }
-                          //   await TeamsTable.addUserToTeam(userToAdd,
-                          //       teamId: _specificTeams
-                          //           .elementAt(index)
-                          //           .entries
-                          //           .elementAt(0)
-                          //           .value);
-                          //   print("Added");
-                          //   Navigator.pop(context);
-                          //   setState(() {});
-                          //   //Todo fix page refresh
-                          // },
+                          onPressed: () async {
+
+                            var _allUsersData = await UsersTable.getAllUsers();
+                            
+                            String userToAdd = "";
+                            for (int i = 0; i < _allUsersData.length; i++) {
+                              if (_allUsersData
+                                      .elementAt(i)
+                                      .entries
+                                      .elementAt(1)
+                                      .value ==
+                                  addMembersNameController.text) {
+                                userToAdd = _allUsersData
+                                    .elementAt(i)
+                                    .entries
+                                    .elementAt(0)
+                                    .value;
+                              }
+                            }
+                            await TeamsTable.addUserToTeam(userToAdd,
+                                teamId: teamId);
+                            Navigator.pop(context);
+                          },
                           child: const Text("Add"))
                     ],
                   )
@@ -334,18 +239,18 @@ PopupMenuItem AddMembersButton(context) {
   );
 }
 
-PopupMenuItem LeaveTeamButton(context) {
+PopupMenuItem DeleteTeamButton(context, teamId) {
   return PopupMenuItem(
     child: ListTile(
       title: const Text(
-        'Leave team',
+        'Delete team',
         style: TextStyle(
             fontWeight: FontWeight.bold,
             color: Color.fromRGBO(38, 153, 251, 60),
             fontSize: 14),
       ),
       onTap: () {
-        //Leave team
+        // Delete team
         showDialog(
             context: context,
             builder: (BuildContext context) {
@@ -355,7 +260,7 @@ PopupMenuItem LeaveTeamButton(context) {
                   title: Row(
                     children: [
                       const Text(
-                        "Leave Team",
+                        "Delete Team",
                         style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 17,
@@ -379,21 +284,15 @@ PopupMenuItem LeaveTeamButton(context) {
                           padding: const EdgeInsets.all(10),
                           width: MediaQuery.of(context).size.width * 0.7,
                           child: const Text(
-                              "Are you sure you want to leave this team?")),
+                              "Are you sure you want to delete this team?")),
                       TextButton(
-                          onPressed: () {},
-                          // onPressed: () async {
-                          //   await TeamsTable.deleteUserFromTeam(
-                          //       userID,
-                          //       _specificTeams
-                          //           .elementAt(index)
-                          //           .entries
-                          //           .elementAt(0)
-                          //           .value);
-                          //   Navigator.pop(context);
-                          //   //Todo fix page refresh
-                          // },
-                          child: const Text("Leave"))
+                          onPressed: () async {
+                            await TeamsTable.deleteTeam(teamId);
+                            
+                            Navigator.pop(context);
+                            //Todo fix page refresh
+                          },
+                          child: const Text("Delete"))
                     ],
                   )
                   /**/
@@ -425,9 +324,9 @@ class TeamListCard extends StatelessWidget {
         tooltip: '',
         icon: const Icon(Icons.more_vert),
         itemBuilder: (BuildContext context) => <PopupMenuEntry>[
-          SeeMembersButton(context),
-          AddMembersButton(context),
-          LeaveTeamButton(context),
+          SeeMembersButton(context, teamID),
+          AddMembersButton(context, teamID),
+          DeleteTeamButton(context, teamID),
         ],
       ),
       onTap: () {
