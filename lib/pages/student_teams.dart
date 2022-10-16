@@ -914,12 +914,23 @@ class _TeamDisplayState extends State<TeamDisplay> {
         title: Row(
           mainAxisSize: MainAxisSize.max,
           children: [
-            Text(
-              "Team Goal $index - Deadline: $deadline",
-              style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 15,
-                  color: Color.fromRGBO(21, 90, 148, 10)),
+            Column(
+              children: [
+                Text(
+                  "Team Goal $index",
+                  style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 15,
+                      color: Color.fromRGBO(21, 90, 148, 10)),
+                ),
+                Text(
+                  "Deadline: $deadline",
+                  style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 15,
+                      color: Color.fromRGBO(21, 90, 148, 10)),
+                ),
+              ],
             ),
             const Spacer(),
             IconButton(

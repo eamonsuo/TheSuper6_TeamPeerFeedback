@@ -135,9 +135,6 @@ class _SignInPage extends State<SignInPage> {
         ),
       ),
       backgroundColor: Color.fromARGB(255, 241, 255, 241),
-      floatingActionButton: FloatingActionButton(onPressed: () {
-        TeamsTable.addUserToTeam("28115");
-      }),
     );
   }
 }

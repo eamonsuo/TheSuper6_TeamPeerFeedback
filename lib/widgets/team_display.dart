@@ -110,8 +110,8 @@ class _TeamDisplayState extends State<TeamDisplay> {
             )),
             floatingActionButton: FloatingActionButton(
               onPressed: () {
-                // goalDescriptionController.clear();
-                // goalDeadlineController.clear();
+                goalDescriptionController.clear();
+                goalDeadlineController.clear();
                 //ADD Goal
                 showDialog(
                     context: context,
@@ -253,12 +253,23 @@ class _TeamDisplayState extends State<TeamDisplay> {
         title: Row(
           mainAxisSize: MainAxisSize.max,
           children: [
-            Text(
-              "Team Goal $index - Deadline: $deadline",
-              style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 15,
-                  color: Color.fromRGBO(21, 90, 148, 10)),
+            Column(
+              children: [
+                Text(
+                  "Team Goal $index",
+                  style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 15,
+                      color: Color.fromRGBO(21, 90, 148, 10)),
+                ),
+                Text(
+                  "Deadline: $deadline",
+                  style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 15,
+                      color: Color.fromRGBO(21, 90, 148, 10)),
+                ),
+              ],
             ),
             const Spacer(),
             IconButton(
@@ -269,8 +280,8 @@ class _TeamDisplayState extends State<TeamDisplay> {
               ),
               onPressed: () {
                 //Add a new subgoal
-                // subGoalAssignedPersonController.clear();
-                // subGoalDescriptionController.clear();
+                subGoalAssignedPersonController.clear();
+                subGoalDescriptionController.clear();
 
                 //Setup dropdown box
                 // how should this work for the tutors?
@@ -371,8 +382,9 @@ class _TeamDisplayState extends State<TeamDisplay> {
                                           deadline,
                                           widget.teamID,
                                           true,
-                                          teamGoalId:
-                                              teamGoal.entries.elementAt(0).value,
+                                          teamGoalId: teamGoal.entries
+                                              .elementAt(0)
+                                              .value,
                                           userId: selectedValue);
                                       Navigator.pop(context);
                                       Navigator.pushReplacement(
@@ -424,8 +436,7 @@ class _TeamDisplayState extends State<TeamDisplay> {
               onSelected: (value) {
                 if (value == 0) {
                   //EDIT GOAL
-                  goalDescriptionController.text =
-                      teamGoal["goal_desc"]!;
+                  goalDescriptionController.text = teamGoal["goal_desc"]!;
                   goalDeadlineController.text = teamGoal["goal_deadline"]!;
 
                   showDialog(
