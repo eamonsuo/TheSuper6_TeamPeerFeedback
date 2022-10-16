@@ -1,4 +1,5 @@
 import 'package:deco3801_project/databaseElements/TeamsTable.dart';
+import 'package:deco3801_project/databaseElements/UsersTable.dart';
 import 'package:deco3801_project/widgets/team_display.dart';
 import 'package:flutter/material.dart';
 
@@ -29,17 +30,19 @@ class _TutorTeamsPage extends State<TutorTeamsPage> {
 
           return Scaffold(
             appBar: AppBar(title: const Text('Tutor Teams')),
-            body: ListView.builder(
+            body: ListView.separated(
               itemCount: teams.length,
               itemBuilder: (BuildContext context, int index) {
                 String teamName = teams.elementAt(index)["team_name"]!;
                 String teamID = teams.elementAt(index)["team_id"]!;
 
                 return TeamListCard(teamID, teamName);
-                // return Text(teams.elementAt(index)["team_name"]!);
               },
+              separatorBuilder: (BuildContext context, int index) =>
+                  const Divider(
+                color: Colors.transparent,
+              ),
             ),
-            // body: Center(child: Text('Tutor Teams Page')),
           );
         } else {
           return Container();
@@ -48,26 +51,6 @@ class _TutorTeamsPage extends State<TutorTeamsPage> {
     );
   }
 }
-
-// class WriteToTutorButton extends StatelessWidget {
-//   @override
-//   Widget build(BuildContext context) {
-//     return PopupMenuItem(
-//       child: const ListTile(
-//         title: Text(
-//           'Write to tutors',
-//           style: TextStyle(
-//               fontWeight: FontWeight.bold,
-//               color: Color.fromRGBO(38, 153, 251, 60),
-//               fontSize: 14),
-//         ),
-//       ),
-//       onTap: () {
-
-//       },
-//     );
-//   }
-// }
 
 PopupMenuItem WriteToTutorButton(BuildContext context) {
   return PopupMenuItem(
@@ -442,7 +425,6 @@ class TeamListCard extends StatelessWidget {
         tooltip: '',
         icon: const Icon(Icons.more_vert),
         itemBuilder: (BuildContext context) => <PopupMenuEntry>[
-          WriteToTutorButton(context),
           SeeMembersButton(context),
           AddMembersButton(context),
           LeaveTeamButton(context),

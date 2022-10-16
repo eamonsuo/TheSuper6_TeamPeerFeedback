@@ -702,18 +702,6 @@ class _TeamDisplayState extends State<TeamDisplay> {
                   icon: Icon(Icons.more_vert),
                   itemBuilder: (BuildContext context) => <PopupMenuEntry>[
                     const PopupMenuItem(
-                      value: 0,
-                      child: ListTile(
-                        title: Text(
-                          'Write to tutor',
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: Color.fromRGBO(38, 153, 251, 60),
-                              fontSize: 13),
-                        ),
-                      ),
-                    ),
-                    const PopupMenuItem(
                       value: 1,
                       child: ListTile(
                         title: Text(
@@ -763,105 +751,6 @@ class _TeamDisplayState extends State<TeamDisplay> {
                     ),
                   ],
                   onSelected: (result) {
-                    // feedbackController.clear();
-                    if (result == 0) {
-                      //WRITE TO TUTOR SUB-GOAL
-
-                      //find the tutor id
-                      String teamTutorID = "";
-                      for (Map<String, String> userDetails in userData) {
-                        if (userDetails.entries.elementAt(2).value == '1') {
-                          teamTutorID = userDetails.entries.elementAt(0).value;
-                        }
-                      }
-
-                      showDialog(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return AlertDialog(
-                                insetPadding:
-                                    EdgeInsets.only(left: 20, right: 20),
-                                scrollable: true,
-                                title: Row(
-                                  children: [
-                                    const Text(
-                                      "Write to Tutor",
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 17,
-                                          color:
-                                              Color.fromRGBO(21, 90, 148, 10)),
-                                    ),
-                                    const Spacer(),
-                                    IconButton(
-                                      onPressed: () =>
-                                          Navigator.of(context).pop(),
-                                      icon: const Icon(Icons.close),
-                                      splashRadius: 15,
-                                    )
-                                  ],
-                                ),
-                                shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(20),
-                                    side: const BorderSide(
-                                        color: Color.fromRGBO(21, 90, 148, 10),
-                                        width: 1.5)),
-                                content: Column(
-                                  children: [
-                                    Container(
-                                        width:
-                                            MediaQuery.of(context).size.width *
-                                                0.7,
-                                        height:
-                                            MediaQuery.of(context).size.height *
-                                                0.7,
-                                        child: TextField(
-                                          controller: writeToTutorController,
-                                          maxLines: null,
-                                          textAlign: TextAlign.left,
-                                          decoration: InputDecoration(
-                                              border: InputBorder.none,
-                                              enabledBorder: OutlineInputBorder(
-                                                borderSide: const BorderSide(
-                                                    width: 3,
-                                                    color: Colors.blue),
-                                                borderRadius:
-                                                    BorderRadius.circular(15),
-                                              ),
-                                              focusedBorder: OutlineInputBorder(
-                                                borderSide: const BorderSide(
-                                                    width: 3,
-                                                    color: Colors.red),
-                                                borderRadius:
-                                                    BorderRadius.circular(15),
-                                              )),
-                                        )),
-                                    TextButton(
-                                        onPressed: () async {
-                                          await TutorMessagesTable.addMessage(
-                                              widget.userID,
-                                              teamTutorID,
-                                              widget.teamID,
-                                              teamTutorID,
-                                              writeToTutorController.text,
-                                              subGoalId:
-                                                  e.entries.elementAt(0).value);
-                                          Navigator.pop(context);
-                                          Navigator.pushReplacement(
-                                            context,
-                                            MaterialPageRoute(
-                                                builder:
-                                                    (BuildContext context) =>
-                                                        super.widget),
-                                          );
-                                        },
-                                        child: const Text("Send"))
-                                  ],
-                                )
-                                /**/
-                                );
-                          });
-                    }
                     if (result == 1) {
                       //View feedback
                       List<Map<String, String>> specificFeedback = [];
