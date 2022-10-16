@@ -41,7 +41,7 @@ A copy of the data (in PDF form) was included in the DECO3801 submission in the 
 This data was current as of the submission date (19/10/2022)
 
 ## External Resources Used
-The code written for the server side REST API and the code written in databaseElements was inspired by code written by Vipin Vijayan (2019). 
+The code written for the server side REST API and the code written in lib/databaseElements was inspired by code written by Vipin Vijayan (2019). 
 
 The video tutorial the code was found through can be accessed on [Youtube here](https://www.youtube.com/watch?v=F4Q6lEhmwCY).
 
