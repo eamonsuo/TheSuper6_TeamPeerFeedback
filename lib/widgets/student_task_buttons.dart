@@ -1,3 +1,4 @@
+import 'package:deco3801_project/databaseElements/FeedbackTable.dart';
 import 'package:deco3801_project/databaseElements/GoalsTable.dart';
 import 'package:deco3801_project/mainStructures/student_home.dart';
 import 'package:deco3801_project/util/ui_colours.dart';
@@ -39,7 +40,8 @@ class _StudentTaskButtons extends State<StudentTaskButtons> {
                       color: Color.fromRGBO(38, 153, 251, 60),
                       fontSize: 14),
                 ),
-                onTap: () => {
+                onTap: () {
+                  var subGoalDescriptionController = TextEditingController();
                   showDialog(
                       context: context,
                       builder: (BuildContext context) {
@@ -107,8 +109,8 @@ class _StudentTaskButtons extends State<StudentTaskButtons> {
                                             MediaQuery.of(context).size.width *
                                                 0.7,
                                         child: TextField(
-                                          // controller:
-                                          //     subGoalDescriptionController,
+                                          controller:
+                                              subGoalDescriptionController,
                                           maxLines: 20,
                                           textAlign: TextAlign.left,
                                           decoration: InputDecoration(
@@ -140,20 +142,80 @@ class _StudentTaskButtons extends State<StudentTaskButtons> {
                             )
                             /**/
                             );
-                      })
+                      });
                   // ==== end of pop up ====
                 },
               ),
             ),
-            const PopupMenuItem(
+            PopupMenuItem(
               child: ListTile(
-                title: Text(
+                title: const Text(
                   'View feedback',
                   style: TextStyle(
                       fontWeight: FontWeight.bold,
                       color: Color.fromRGBO(38, 153, 251, 60),
                       fontSize: 14),
                 ),
+                onTap: () async {
+                  var feedback =
+                      await FeedbackTable.getGoalFeedback(widget.id.toString());
+                  showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          insetPadding: EdgeInsets.only(left: 20, right: 20),
+                          scrollable: true,
+                          title: Row(
+                            children: [
+                              const Text(
+                                "Feedback",
+                                style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 17,
+                                    color: Color.fromRGBO(21, 90, 148, 10)),
+                              ),
+                              const Spacer(),
+                              IconButton(
+                                onPressed: () => Navigator.of(context).pop(),
+                                icon: const Icon(Icons.close),
+                                splashRadius: 15,
+                              )
+                            ],
+                          ),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20),
+                              side: const BorderSide(
+                                  color: Color.fromRGBO(21, 90, 148, 10),
+                                  width: 1.5)),
+                          content: Container(
+                            width: MediaQuery.of(context).size.width * 0.7,
+                            height: MediaQuery.of(context).size.height * 0.7,
+                            child: ListView.separated(
+                              itemCount: feedback.length,
+                              itemBuilder: (context, index) {
+                                return ListTile(
+                                  title: Text(
+                                      feedback.elementAt(index)["feedback_contents"]!,
+                                      style: const TextStyle(
+                                          fontSize: 13,
+                                          color: Color.fromRGBO(
+                                              38, 153, 251, 10))),
+                                  shape: RoundedRectangleBorder(
+                                    side: const BorderSide(
+                                        color: Color.fromRGBO(21, 90, 148, 10),
+                                        width: 0.5),
+                                    borderRadius: BorderRadius.circular(5),
+                                  ),
+                                );
+                              },
+                              separatorBuilder:
+                                  (BuildContext context, int index) =>
+                                      const Divider(),
+                            ),
+                          ),
+                        );
+                      });
+                },
               ),
             ),
             PopupMenuItem(
@@ -264,11 +326,13 @@ class _StudentTaskButtons extends State<StudentTaskButtons> {
                                   ],
                                 ));
                           })
-                      .then((value) => value! ? Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                              builder: (BuildContext context) =>
-                                  StudentHome())) : {} );
+                      .then((value) => value!
+                          ? Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (BuildContext context) =>
+                                      StudentHome()))
+                          : {});
                 },
               ),
             ),
@@ -335,11 +399,13 @@ class _StudentTaskButtons extends State<StudentTaskButtons> {
                                 /**/
                                 );
                           })
-                      .then((value) => value! ? Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                              builder: (BuildContext context) =>
-                                  StudentHome())) : {} );
+                      .then((value) => value!
+                          ? Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (BuildContext context) =>
+                                      StudentHome()))
+                          : {});
                 },
               ),
             ),
