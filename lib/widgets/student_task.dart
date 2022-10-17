@@ -5,10 +5,6 @@ import 'package:flutter/material.dart';
 
 class StudentTask extends StatelessWidget {
 
-  /// Things I still want to add:
-  ///    Truncate long text and have a '...read mode'
-  ///    
-
   String taskTitle;
   String taskDescription;
   double progress;
@@ -21,9 +17,6 @@ class StudentTask extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
-    // String taskTitle = "the super 6";
-    // String taskDesc = goalInfo["goal_desc"];
 
     return Card(
       color: UIColours.white,
