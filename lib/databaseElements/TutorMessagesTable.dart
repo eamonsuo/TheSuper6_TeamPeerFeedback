@@ -34,7 +34,6 @@ class TutorMessagesTable {
 
       // Error Checking on response from web serve
       if (dataList.isEmpty || response.statusCode != 200) {
-        print("error in getAllMessages");
         return [];
       }
       // Organise & output results in json style
@@ -46,10 +45,8 @@ class TutorMessagesTable {
         results.add(Map<String, String>.from(dataList[i]));
       }
 
-      print("results: $results");
       return results;
     } catch (e) {
-      print('Error');
       return [];
     }
   }
@@ -81,7 +78,6 @@ class TutorMessagesTable {
 
       // Error Checking on response from web serve
       if (dataList.isEmpty || response.statusCode != 200) {
-        print("error in getSelectedMessage");
         return [];
       }
 
@@ -94,7 +90,6 @@ class TutorMessagesTable {
         results.add(Map<String, String>.from(dataList[i]));
       }
 
-      print("results: $results");
       return results;
     } catch (e) {
       return [];
@@ -124,16 +119,12 @@ class TutorMessagesTable {
       map["clause"] = 'receiver_id = $userId';
 
       // HTTP POST message sent to server and JSON is returned
-      // print('Start');
       http.Response response =
           await http.post(Uri.parse(DBConstants.url), body: map);
-      // print(response);
       List<dynamic> dataList = jsonDecode(response.body);
-      // print(dataList);
 
       // Error Checking on response from web serve
       if (dataList.isEmpty || response.statusCode != 200) {
-        print("error in getReceivedMessages");
         return [];
       }
       // Organise & output results in json style
@@ -145,7 +136,6 @@ class TutorMessagesTable {
         results.add(Map<String, String>.from(dataList[i]));
       }
 
-      print("results: $results");
       return results;
     } catch (e) {
       return [];
@@ -175,15 +165,12 @@ class TutorMessagesTable {
       map["clause"] = 'team_id = $teamId';
 
       // HTTP POST message sent to server and JSON is returned
-      // print('Start');
       http.Response response =
           await http.post(Uri.parse(DBConstants.url), body: map);
-      // print(response);
       List<dynamic> dataList = jsonDecode(response.body);
 
       // Error Checking on response from web serve
       if (dataList.isEmpty || response.statusCode != 200) {
-        print("error in getReceivedMessages");
         return [];
       }
       // Organise & output results in json style
@@ -195,7 +182,6 @@ class TutorMessagesTable {
         results.add(Map<String, String>.from(dataList[i]));
       }
 
-      print("results: $results");
       return results;
     } catch (e) {
       return [];
@@ -214,12 +200,12 @@ class TutorMessagesTable {
   /// Needs to be called with await to get synchronous operation (double check https://dart.dev/codelabs/async-await)
   /// All fields need to be provided except [subGoalId]. [subGoalId] should be provided when the message is related to/sent from a goal.
   ///
-  /// Returns true when user added successfully, false on error      TODO: maybe return user_id?
+  /// Returns true when user added successfully, false on error
   static Future<bool> addMessage(String senderId, String receiverId,
       String teamId, String tutorId, String messageString,
       {String subGoalId = ''}) async {
     try {
-      var map = new Map<String, dynamic>();
+      var map = Map<String, dynamic>();
       map["action"] = DBConstants.ADD_ACTION;
       map["table"] = DBConstants.TUTOR_MESSAGES_TABLE;
       map["columns"] =
@@ -254,16 +240,14 @@ class TutorMessagesTable {
   ///
   /// [messageId] is the id of the message to be updated
   /// [messageContents] is the message to be updated
-  /// -> This function has LIMITED FUNCTIONALITY. Let dev team know if more columns need to be updated.
   ///
   /// Needs to be called with await to get synchronous operation (double check https://dart.dev/codelabs/async-await)
   ///
   /// Returns true when record updated successfully, false on error
-  /// TODO: FIX: returns true when invalid id provided
   static Future<bool> updateMessages(String messageId,
       {String messageContents = ''}) async {
     try {
-      var map = new Map<String, dynamic>();
+      var map = Map<String, dynamic>();
       map["action"] = DBConstants.UPDATE_ACTION;
       map["table"] = DBConstants.TUTOR_MESSAGES_TABLE;
 
@@ -274,7 +258,6 @@ class TutorMessagesTable {
       }
 
       if (map["columns"] == '') {
-        print("no cols chosen for update");
         return false;
       }
 
@@ -289,7 +272,6 @@ class TutorMessagesTable {
 
       // Error Checking on response from web server
       if (data == DBConstants.ERROR_MESSAGE || response.statusCode != 200) {
-        print("error in updateMessages");
         return false;
       }
 
@@ -306,10 +288,9 @@ class TutorMessagesTable {
   /// Needs to be called with await to get synchronous operation (double check https://dart.dev/codelabs/async-await)
   ///
   /// Returns true when record updated successfully, false on error
-  /// TODO: Returns success when invalid ids are used
   static Future<bool> deleteMessage(String messageId) async {
     try {
-      var map = new Map<String, dynamic>();
+      var map = Map<String, dynamic>();
       map["action"] = DBConstants.DELETE_ACTION;
       map["table"] = DBConstants.TUTOR_MESSAGES_TABLE;
       map["columns"] = '';
@@ -321,7 +302,6 @@ class TutorMessagesTable {
 
       // Error Checking on response from web server
       if (data == DBConstants.ERROR_MESSAGE || response.statusCode != 200) {
-        print("error in deleteMessage");
         return false;
       }
 

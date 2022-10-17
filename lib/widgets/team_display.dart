@@ -1,7 +1,6 @@
 import 'package:deco3801_project/databaseElements/FeedbackTable.dart';
 import 'package:deco3801_project/databaseElements/GoalsTable.dart';
 import 'package:deco3801_project/databaseElements/TeamsTable.dart';
-import 'package:deco3801_project/databaseElements/TutorMessagesTable.dart';
 import 'package:flutter/material.dart';
 
 class TeamDisplay extends StatefulWidget {
@@ -64,10 +63,7 @@ class _TeamDisplayState extends State<TeamDisplay> {
           List<Map<String, String>> userGoals =
               snapshot.data![4] as List<Map<String, String>>;
 
-          List<Map<String, String>> teamSpecificGoals;
-
           //Subgoals for the current goal
-
           return Scaffold(
             appBar: AppBar(
               title: Text(widget.teamName),
@@ -676,15 +672,6 @@ class _TeamDisplayState extends State<TeamDisplay> {
                       .entries
                       .elementAt(1)
                       .value,
-                  /*userGoalsData
-                      .firstWhere((element) =>
-                          element.entries.elementAt(1).value ==
-                          e.entries.elementAt(0).value)
-                      .entries
-                      .elementAt(0)
-                      .value,*/
-                  //e.entries.elementAt(0).value,
-                  //Link this to user goal table TODO
                   style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 13,
@@ -1049,7 +1036,6 @@ class _TeamDisplayState extends State<TeamDisplay> {
                                       ),
                                       TextButton(
                                           onPressed: () async {
-                                            //Update goal in GoalsTable TODO
                                             await GoalsTable.updateGoal(
                                                 e.entries.elementAt(0).value,
                                                 description:

@@ -29,7 +29,6 @@ class GoalsTable {
       map["table"] = DBConstants.GOALS_TABLE;
       map["columns"] = columns.join(', ');
       map["clause"] = '';
-      print(map.toString());
 
       // HTTP POST message sent to server and JSON is returned
       http.Response response =
@@ -38,7 +37,6 @@ class GoalsTable {
 
       // Error Checking on response from web serve
       if (dataList.isEmpty || response.statusCode != 200) {
-        print("error in getAllGoals");
         return [];
       }
 
@@ -48,7 +46,6 @@ class GoalsTable {
         results.add(Map<String, String>.from(dataList[i]));
       }
 
-      print("results: $results");
       return results;
     } catch (e) {
       return [];
@@ -83,7 +80,6 @@ class GoalsTable {
 
       // Error Checking on response from web serve
       if (dataList.isEmpty || response.statusCode != 200) {
-        print("error in getSelectedGoal");
         return [];
       }
 
@@ -93,7 +89,6 @@ class GoalsTable {
         results.add(Map<String, String>.from(dataList[i]));
       }
 
-      print("results: $results");
       return results;
     } catch (e) {
       return [];
@@ -113,13 +108,12 @@ class GoalsTable {
   static Future<Map<String, List>> getTeamGoals(String teamId,
       [List<String> columns = const ['*']]) async {
     try {
-      var map = new Map<String, dynamic>();
+      var map = Map<String, dynamic>();
       map["action"] = DBConstants.GET_ALL_ACTION;
       map["table"] = DBConstants.TEAM_GOALS_TABLE;
       map["columns"] = columns.join(',');
       map["clause"] = "${DBConstants.TG_COL_TEAM_ID} = $teamId";
       Map<String, List> teamGoals = {};
-      List<Map<String, String>> subGoalInfo = [];
 
       http.Response response =
           await http.post(Uri.parse(DBConstants.url), body: map);
@@ -136,10 +130,9 @@ class GoalsTable {
 
       // Error Checking on response from web server
       if (data == DBConstants.ERROR_MESSAGE || response.statusCode != 200) {
-        print("error in getTeamGoals");
         return {};
       }
-      print(teamGoals);
+
       return teamGoals;
     } catch (e) {
       return {};
@@ -170,7 +163,7 @@ class GoalsTable {
             await GoalsTable.getSelectedGoal(teamGoalIds[i]);
         goalInfo.add(goal[0]);
       }
-      print(goalInfo);
+
       return goalInfo;
     } catch (e) {
       return [];
@@ -214,7 +207,6 @@ class GoalsTable {
         result[teamGoalId] = allSubGoals;
       }
 
-      print(result);
       return result;
     } catch (e) {
       return {};
@@ -231,7 +223,7 @@ class GoalsTable {
   static Future<List> getsubGoals(String teamGoalId,
       [List<String> columns = const ['*']]) async {
     try {
-      var map = new Map<String, dynamic>();
+      var map = Map<String, dynamic>();
       map["action"] = DBConstants.GET_ALL_ACTION;
       map["table"] = DBConstants.SUB_GOALS_TABLE;
       map["columns"] = columns.join(',');
@@ -251,11 +243,9 @@ class GoalsTable {
 
       // Error Checking on response from web server
       if (data == DBConstants.ERROR_MESSAGE || response.statusCode != 200) {
-        print("error in getSubGoals");
         return [];
       }
 
-      print(subGoals);
       return subGoals;
     } catch (e) {
       return [];
@@ -283,7 +273,7 @@ class GoalsTable {
             await GoalsTable.getSelectedGoal(subGoalIds[i]);
         goalInfo.add(goal[0]);
       }
-      print(goalInfo);
+
       return goalInfo;
     } catch (e) {
       return [];
@@ -298,7 +288,7 @@ class GoalsTable {
   static Future<String> getTeamGoalFromSubGoal(String subGoalId,
       [List<String> columns = const ['*']]) async {
     try {
-      var map = new Map<String, dynamic>();
+      var map = Map<String, dynamic>();
       map["action"] = DBConstants.GET_ONE_ACTION;
       map["table"] = DBConstants.SUB_GOALS_TABLE;
       map["columns"] = columns.join(',');
@@ -310,7 +300,6 @@ class GoalsTable {
 
       // Error Checking on response from web server
       if (data == DBConstants.ERROR_MESSAGE || response.statusCode != 200) {
-        print("error in getTeamGoalFromSubGoal");
         return "";
       }
 
@@ -331,7 +320,7 @@ class GoalsTable {
   static Future<String> getUserFromSubGoal(String subGoalId,
       [List<String> columns = const ['*']]) async {
     try {
-      var map = new Map<String, dynamic>();
+      var map = Map<String, dynamic>();
       map["action"] = DBConstants.GET_ONE_ACTION;
       map["table"] = DBConstants.USER_GOALS_TABLE;
       map["columns"] = columns.join(',');
@@ -343,7 +332,6 @@ class GoalsTable {
 
       // Error Checking on response from web server
       if (data == DBConstants.ERROR_MESSAGE || response.statusCode != 200) {
-        print("error in getUserFromSubGoal");
         return "";
       }
 
@@ -373,7 +361,6 @@ class GoalsTable {
       map["table"] = DBConstants.USER_GOALS_TABLE;
       map["columns"] = columns.join(', ');
       map["clause"] = '';
-      print(map.toString());
 
       // HTTP POST message sent to server and JSON is returned
       http.Response response =
@@ -382,7 +369,6 @@ class GoalsTable {
 
       // Error Checking on response from web serve
       if (dataList.isEmpty || response.statusCode != 200) {
-        print("error in getAllFromUserGoals");
         return [];
       }
 
@@ -392,7 +378,6 @@ class GoalsTable {
         results.add(Map<String, String>.from(dataList[i]));
       }
 
-      print("results: $results");
       return results;
     } catch (e) {
       return [];
@@ -414,7 +399,7 @@ class GoalsTable {
       String userId,
       [List<String> columns = const ['*']]) async {
     try {
-      var map = new Map<String, dynamic>();
+      var map = Map<String, dynamic>();
       map["action"] = DBConstants.GET_ONE_ACTION;
       map["table"] = DBConstants.USER_GOALS_TABLE;
       map["columns"] = columns.join(',');
@@ -435,11 +420,9 @@ class GoalsTable {
 
       // Error Checking on response from web server
       if (data == DBConstants.ERROR_MESSAGE || response.statusCode != 200) {
-        print("error in getSubGoalsInfoFromUser");
         return [];
       }
 
-      print(subGoals);
       return subGoals;
     } catch (e) {
       return [];
@@ -466,7 +449,6 @@ class GoalsTable {
         teamname = teamInfo[0]['team_name']!;
       }
 
-      print(teamname);
       return teamname;
     } catch (e) {
       return "";
@@ -481,7 +463,7 @@ class GoalsTable {
   static Future<String> getTeamFromTeamGoal(String teamGoalId,
       [List<String> columns = const ['*']]) async {
     try {
-      var map = new Map<String, dynamic>();
+      var map = Map<String, dynamic>();
       map["action"] = DBConstants.GET_ONE_ACTION;
       map["table"] = DBConstants.TEAM_GOALS_TABLE;
       map["columns"] = columns.join(',');
@@ -493,13 +475,10 @@ class GoalsTable {
 
       // Error Checking on response from web server
       if (data == DBConstants.ERROR_MESSAGE || response.statusCode != 200) {
-        print("error in getTeamFromTeamGoal");
         return "";
       }
 
       String teamId = data[0]['team_id'];
-
-      print(teamId);
       return teamId;
     } catch (e) {
       return "";
@@ -530,7 +509,7 @@ class GoalsTable {
         return false;
       }
 
-      var map = new Map<String, dynamic>();
+      var map = Map<String, dynamic>();
       map["action"] = DBConstants.ADD_ACTION;
       map["table"] = DBConstants.GOALS_TABLE;
       map["columns"] =
@@ -552,7 +531,6 @@ class GoalsTable {
 
       // Error Checking on response from web server
       if (data == DBConstants.ERROR_MESSAGE || response.statusCode != 200) {
-        print("error in addGoal");
         return false;
       }
 
@@ -592,7 +570,7 @@ class GoalsTable {
       String deadline = '',
       bool updateTeamGoalProgress = true}) async {
     try {
-      var map = new Map<String, dynamic>();
+      var map = Map<String, dynamic>();
       map["action"] = DBConstants.UPDATE_ACTION;
       map["table"] = DBConstants.GOALS_TABLE;
 
@@ -610,7 +588,6 @@ class GoalsTable {
         map["columns"] += "goal_deadline = '$deadline',";
       }
       if (map["columns"] == '') {
-        print("no cols chosen for update");
         return false;
       }
 
@@ -625,7 +602,6 @@ class GoalsTable {
 
       // Error Checking on response from web server
       if (data == DBConstants.ERROR_MESSAGE || response.statusCode != 200) {
-        print("error in updateGoal");
         return false;
       }
 
@@ -649,7 +625,7 @@ class GoalsTable {
   /// Returns true when record added successfully
   static Future<bool> addGoalToTeam(String teamId, String goalId) async {
     try {
-      var map = new Map<String, dynamic>();
+      var map = Map<String, dynamic>();
       map["action"] = DBConstants.ADD_ACTION;
       map["table"] = DBConstants.TEAM_GOALS_TABLE;
       map["columns"] = '(team_id, goal_id)';
@@ -663,13 +639,11 @@ class GoalsTable {
 
       // Error Checking on response from web server
       if (data == DBConstants.ERROR_MESSAGE || response.statusCode != 200) {
-        print("Error in addGoalToTeam");
         return false;
       }
 
       return true;
     } catch (e) {
-      print('Error in addGoalToTeam');
       return false;
     }
   }
@@ -684,7 +658,7 @@ class GoalsTable {
   /// Returns true when record updated successfully, false on error
   static Future<bool> addGoalToUser(String userId, String goalId) async {
     try {
-      var map = new Map<String, dynamic>();
+      var map = Map<String, dynamic>();
       map["action"] = DBConstants.ADD_ACTION;
       map["table"] = DBConstants.USER_GOALS_TABLE;
       map["columns"] = '(user_id, goal_id)';
@@ -698,13 +672,11 @@ class GoalsTable {
 
       // Error Checking on response from web server
       if (data == DBConstants.ERROR_MESSAGE || response.statusCode != 200) {
-        print("Error in addGoalToUser");
         return false;
       }
 
       return true;
     } catch (e) {
-      print('Error in addGoalToUser');
       return false;
     }
   }
@@ -720,7 +692,7 @@ class GoalsTable {
   static Future<bool> addGoalTosubGoals(
       String subGoalId, String teamGoalId) async {
     try {
-      var map = new Map<String, dynamic>();
+      var map = Map<String, dynamic>();
       map["action"] = DBConstants.ADD_ACTION;
       map["table"] = DBConstants.SUB_GOALS_TABLE;
       map["columns"] = '(user_goal, team_goal)';
@@ -734,13 +706,11 @@ class GoalsTable {
 
       // Error Checking on response from web server
       if (data == DBConstants.ERROR_MESSAGE || response.statusCode != 200) {
-        print("Error in addGoalTosubGoals");
         return false;
       }
 
       return true;
     } catch (e) {
-      print('Error in addGoalTosubGoals');
       return false;
     }
   }
@@ -754,7 +724,7 @@ class GoalsTable {
   /// Returns true when record updated successfully, false on error
   static Future<bool> deleteGoal(String goalId) async {
     try {
-      var map = new Map<String, dynamic>();
+      var map = Map<String, dynamic>();
       map["action"] = DBConstants.DELETE_ACTION;
       map["table"] = DBConstants.GOALS_TABLE;
       map["columns"] = '';
@@ -766,7 +736,6 @@ class GoalsTable {
 
       // Error Checking on response from web server
       if (data == DBConstants.ERROR_MESSAGE || response.statusCode != 200) {
-        print("error in deleteGoal");
         return false;
       }
 

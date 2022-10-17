@@ -36,18 +36,22 @@ class TutorTeamCard extends StatelessWidget {
                           children: [
                         Row(
                           children: [
-                            Text("Team: $name", style: TextStyle(
-                              color: UIColours.darkBlue
-                            ),),
+                            Text(
+                              "Team: $name",
+                              style: TextStyle(color: UIColours.darkBlue),
+                            ),
                             const Spacer(),
                             MembersButton(id, name),
                             HealthScoreInfoButton(),
                           ],
                         ),
-                        Text('Health Score $healthScore%', style: TextStyle(
-                          color: UIColours.blue,
-                          fontSize: 15,
-                        ),),
+                        Text(
+                          'Health Score $healthScore%',
+                          style: TextStyle(
+                            color: UIColours.blue,
+                            fontSize: 15,
+                          ),
+                        ),
                         TeamProgressSlider(healthScore.toDouble())
                       ]))));
         } else {
@@ -90,7 +94,8 @@ class MembersButton extends StatelessWidget {
           padding: EdgeInsets.all(5),
           child: Text(
             "Members",
-            style: TextStyle(color: UIColours.white, fontWeight: FontWeight.bold),
+            style:
+                TextStyle(color: UIColours.white, fontWeight: FontWeight.bold),
           ),
         ),
       ),
@@ -177,12 +182,13 @@ class MemberListItem extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text(username, style: TextStyle(
-            color: UIColours.blue
-          )),
+          Text(username, style: TextStyle(color: UIColours.blue)),
           IconButton(
             splashRadius: 5,
-            icon: Icon(Icons.mode_edit, color: UIColours.darkBlue,),
+            icon: Icon(
+              Icons.mode_edit,
+              color: UIColours.darkBlue,
+            ),
             onPressed: () {
               TextEditingController controller = TextEditingController();
               showDialog<bool>(
@@ -358,7 +364,7 @@ class HealthScoreInfoButton extends StatelessWidget {
                       child: Padding(
                         padding: EdgeInsets.all(4),
                         child: Text(
-                            "A team's health score is determined by the amount of progress they have made on their team goals relative to their set deadlines",
+                            "A team's health score is determined by two factors, the amount of progress they have made on their team goals relative to their set deadlines and the number of messages they have sent to a tutor",
                             style: TextStyle(color: UIColours.blue)),
                       ),
                     ));
