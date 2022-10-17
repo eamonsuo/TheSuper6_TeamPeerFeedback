@@ -27,7 +27,7 @@ class HealthScore {
 
     // Weight of each factor can be altered
     int health = min((goalHealth * 0.7) + (tutorHealth * 0.3), 100).ceil();
-    print(health);
+
     return max(health, 0);
   }
 
@@ -36,8 +36,6 @@ class HealthScore {
   ///
   /// Returns and integer between 0 and 100
   static int _calculateGoalHealth(List<Map<String, String>> goalsInfo) {
-    // print(5 ~/ 3);
-    // print("CALCULATE GOALS: $goalsInfo");
     double goalHealth = 100;
     double individualGoalWeight =
         goalHealth / goalsInfo.length; //Effect of goals weighted evenly
@@ -55,7 +53,6 @@ class HealthScore {
 
       int goalDuration = endDate.difference(startDate).inDays;
       int timeUsed = currentDate.difference(startDate).inDays;
-      int timeRemaining = endDate.difference(currentDate).inDays;
 
       double percentPerDay = 100 / goalDuration;
 
@@ -76,7 +73,7 @@ class HealthScore {
   }
 
   /// This is an internal function which is used to calculate the health score
-  ///   based on messages sent to a tutor
+  ///   based on the number of messages sent to a tutor
   ///
   /// Returns and integer between 0 and 100
   static int _calculateTutorHealth(List<Map<String, String>> messageInfo) {

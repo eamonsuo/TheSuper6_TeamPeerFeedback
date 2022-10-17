@@ -17,34 +17,42 @@ class DBConstants {
   static const String GOALS_COL_GOAL_ID = 'goal_id';
   static const String GOALS_COL_DESCRIPTION = 'goal_desc';
   static const String GOALS_COL_PROGRESS = 'goal_progress';
-  static const String GOALS_COL_USER_ID = 'goal_user_id';
-  static const String GOALS_COL_TEAM_ID = 'goal_team_id';
+  static const String GOALS_COL_STARTTIME = 'goal_starttime';
   static const String GOALS_COL_DEADLINE = 'goal_deadline';
 
-  static const String TEAMS_TABLE = 'teams';
-  static const String TEAMS_COL_ID = 'team_id';
-  static const String TEAMS_COL_NAME = 'team_name';
-  static const String TEAMS_COL_GOAL = 'team_goal';
-
-  static const String USERS_TABLE = 'users';
-  static const String USERS_COL_USER_ID = 'user_id';
-  static const String USERS_COL_USERNAME = 'username';
-  static const String USERS_COL_TEAM_ID = 'team_id';
-  static const String USERS_COL_TUTOR = 'tutor_status';
-
-  static const String USERS_IN_TEAM_TABLE = 'usersInTeams';
-  static const String UIT_COL_USER_ID = 'user_id';
-  static const String UIT_COL_TEAM_ID = 'team_id';
+  static const String SUB_GOALS_TABLE = 'subGoals';
+  static const String SUB_GOALS_COL_SUBGOAL_ID = 'user_goal';
+  static const String SUB_GOALS_COL_TEAM_GOAL_ID = 'team_goal';
 
   static const String TEAM_GOALS_TABLE = 'teamGoals';
   static const String TG_COL_TEAM_ID = 'team_id';
   static const String TG_COL_GOAL_ID = 'goal_id';
 
-  static const String USER_GOALS_TABLE = 'userGoals';
-
-  static const String SUB_GOALS_TABLE = 'subGoals';
+  static const String TEAMS_TABLE = 'teams';
+  static const String TEAMS_COL_ID = 'team_id';
+  static const String TEAMS_COL_NAME = 'team_name';
 
   static const String TUTOR_MESSAGES_TABLE = 'tutorMessages';
+  static const String TUTOR_MESSAGES_COL_MESSAGE_ID = 'message_id';
+  static const String TUTOR_MESSAGES_COL_SENDER_ID = 'sender_id';
+  static const String TUTOR_MESSAGES_COL_RECEIVER_ID = 'receiver_id';
+  static const String TUTOR_MESSAGES_COL_TEAM_ID = 'team_id';
+  static const String TUTOR_MESSAGES_COL_SUBGOAL_ID = 'subgoal_id';
+  static const String TUTOR_MESSAGES_COL_CONTENTS = 'message_contents';
+  static const String TUTOR_MESSAGES_COL_TUTOR_ID = 'tutor_id';
+
+  static const String USER_GOALS_TABLE = 'userGoals';
+  static const String USER_GOALS_COL_USER_ID = 'user_id';
+  static const String USER_GOALS_COL_GOAL_ID = 'goal_id';
+
+  static const String USERS_TABLE = 'users';
+  static const String USERS_COL_USER_ID = 'user_id';
+  static const String USERS_COL_USERNAME = 'username';
+  static const String USERS_COL_TUTOR = 'tutor_status';
+
+  static const String USERS_IN_TEAM_TABLE = 'usersInTeams';
+  static const String UIT_COL_TEAM_ID = 'team_id';
+  static const String UIT_COL_USER_ID = 'user_id';
 
   static const String ERROR_MESSAGE = 'error';
   static const String SUCCESS_MESSAGE = 'success';

@@ -35,7 +35,6 @@ class FeedbackTable {
 
       // Error Checking on response from web serve
       if (dataList.isEmpty || response.statusCode != 200) {
-        print("error in getAllFeedback");
         return [];
       }
       // Organise & output results in json style
@@ -44,10 +43,8 @@ class FeedbackTable {
         results.add(Map<String, String>.from(dataList[i]));
       }
 
-      print("results: $results");
       return results;
     } catch (e) {
-      print('Error');
       return [];
     }
   }
@@ -81,7 +78,6 @@ class FeedbackTable {
 
       // Error Checking on response from web serve
       if (dataList.isEmpty || response.statusCode != 200) {
-        print("error in getSelectedFeedback");
         return [];
       }
 
@@ -91,7 +87,6 @@ class FeedbackTable {
         results.add(Map<String, String>.from(dataList[i]));
       }
 
-      print("results: $results");
       return results;
     } catch (e) {
       return [];
@@ -123,24 +118,22 @@ class FeedbackTable {
       map["clause"] = '';
 
       // HTTP POST message sent to server and JSON is returned
-      // print('Start');
       http.Response response =
           await http.post(Uri.parse(DBConstants.url), body: map);
       List<dynamic> dataList = jsonDecode(response.body);
 
       // Error Checking on response from web serve
       if (dataList.isEmpty || response.statusCode != 200) {
-        print("error in getGoalFeedback");
         return [];
       }
       // Organise & output results in json style
       List<Map<String, String>> results = [];
       for (var i = 0; i < dataList.length; i++) {
-        if (dataList[i]['feedback_goal_id'] == goalId)
+        if (dataList[i]['feedback_goal_id'] == goalId) {
           results.add(Map<String, String>.from(dataList[i]));
+        }
       }
 
-      print("results: $results");
       return results;
     } catch (e) {
       return [];
@@ -161,7 +154,7 @@ class FeedbackTable {
   static Future<bool> addFeedback(
       String userId, String goalId, String feedbackString) async {
     try {
-      var map = new Map<String, dynamic>();
+      var map = Map<String, dynamic>();
       map["action"] = DBConstants.ADD_ACTION;
       map["table"] = DBConstants.FEEDBACK_TABLE;
       map["columns"] =
@@ -177,7 +170,6 @@ class FeedbackTable {
 
       // Error Checking on response from web server
       if (data == DBConstants.ERROR_MESSAGE || response.statusCode != 200) {
-        print("error in addFeedback");
         return false;
       }
 
@@ -204,7 +196,7 @@ class FeedbackTable {
       String goalId = '',
       String feedbackString = ''}) async {
     try {
-      var map = new Map<String, dynamic>();
+      var map = Map<String, dynamic>();
       map["action"] = DBConstants.UPDATE_ACTION;
       map["table"] = DBConstants.FEEDBACK_TABLE;
 
@@ -221,7 +213,6 @@ class FeedbackTable {
             '"$feedbackString",'; // Can't be over 200 characters, allows single apostrophese
       }
       if (map["columns"] == '') {
-        print("no cols chosen for update");
         return false;
       }
 
@@ -236,7 +227,6 @@ class FeedbackTable {
 
       // Error Checking on response from web server
       if (data == DBConstants.ERROR_MESSAGE || response.statusCode != 200) {
-        print("error in updateFeedback");
         return false;
       }
 
@@ -255,7 +245,7 @@ class FeedbackTable {
   /// Returns true when record updated successfully, false on error
   static Future<bool> deleteFeedback(String feedbackId) async {
     try {
-      var map = new Map<String, dynamic>();
+      var map = Map<String, dynamic>();
       map["action"] = DBConstants.DELETE_ACTION;
       map["table"] = DBConstants.FEEDBACK_TABLE;
       map["columns"] = '';
@@ -267,7 +257,6 @@ class FeedbackTable {
 
       // Error Checking on response from web server
       if (data == DBConstants.ERROR_MESSAGE || response.statusCode != 200) {
-        print("error in deleteFeedback");
         return false;
       }
 

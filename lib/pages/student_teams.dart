@@ -1,7 +1,4 @@
 import 'dart:async';
-import 'dart:ffi';
-//import 'dart:html';
-
 import 'package:deco3801_project/databaseElements/FeedbackTable.dart';
 import 'package:deco3801_project/databaseElements/TutorMessagesTable.dart';
 import 'package:flutter/material.dart';
@@ -474,7 +471,6 @@ class _StudentTeamsPageState extends State<StudentTeamsPage> {
                                                     .entries
                                                     .elementAt(0)
                                                     .value);
-                                            print("Added");
                                             Navigator.pop(context);
                                             setState(() {});
                                             //Todo fix page refresh
@@ -1337,15 +1333,6 @@ class _TeamDisplayState extends State<TeamDisplay> {
                       .entries
                       .elementAt(1)
                       .value,
-                  /*userGoalsData
-                      .firstWhere((element) =>
-                          element.entries.elementAt(1).value ==
-                          e.entries.elementAt(0).value)
-                      .entries
-                      .elementAt(0)
-                      .value,*/
-                  //e.entries.elementAt(0).value,
-                  //Link this to user goal table TODO
                   style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 13,
@@ -1823,7 +1810,6 @@ class _TeamDisplayState extends State<TeamDisplay> {
                                       ),
                                       TextButton(
                                           onPressed: () async {
-                                            //Update goal in GoalsTable TODO
                                             await GoalsTable.updateGoal(
                                                 e.entries.elementAt(0).value,
                                                 description:

@@ -35,7 +35,6 @@ class UsersTable {
 
       // Error Checking on response from web serve
       if (dataList.isEmpty || response.statusCode != 200) {
-        print("error in getAllUsers");
         return [];
       }
       // Organise & output results in json style
@@ -44,10 +43,8 @@ class UsersTable {
         results.add(Map<String, String>.from(dataList[i]));
       }
 
-      print("results: $results");
       return results;
     } catch (e) {
-      print('Error');
       return [];
     }
   }
@@ -80,7 +77,6 @@ class UsersTable {
 
       // Error Checking on response from web serve
       if (dataList.isEmpty || response.statusCode != 200) {
-        print("error in getSelectedUser");
         return [];
       }
 
@@ -90,7 +86,6 @@ class UsersTable {
         results.add(Map<String, String>.from(dataList[i]));
       }
 
-      print("results: $results");
       return results;
     } catch (e) {
       return [];
@@ -109,7 +104,7 @@ class UsersTable {
   /// Returns true when user added successfully, false on error
   static Future<bool> addUser(String username, bool tutorStatus) async {
     try {
-      var map = new Map<String, dynamic>();
+      var map = Map<String, dynamic>();
       map["action"] = DBConstants.ADD_ACTION;
       map["table"] = DBConstants.USERS_TABLE;
       map["columns"] = '(user_id, username, tutor_status)';
@@ -126,7 +121,6 @@ class UsersTable {
 
       // Error Checking on response from web server
       if (data == DBConstants.ERROR_MESSAGE || response.statusCode != 200) {
-        print("error in addUser");
         return false;
       }
 
@@ -150,7 +144,7 @@ class UsersTable {
   static Future<bool> updateUser(String userId,
       {String username = '', String tutorStatus = ''}) async {
     try {
-      var map = new Map<String, dynamic>();
+      var map = Map<String, dynamic>();
       map["action"] = DBConstants.UPDATE_ACTION;
       map["table"] = DBConstants.USERS_TABLE;
 
@@ -163,7 +157,6 @@ class UsersTable {
         map["columns"] += "tutor_status = '$tutorStatus',";
       }
       if (map["columns"] == '') {
-        print("no cols chosen for update");
         return false;
       }
 
@@ -178,7 +171,6 @@ class UsersTable {
 
       // Error Checking on response from web server
       if (data == DBConstants.ERROR_MESSAGE || response.statusCode != 200) {
-        print("error in updateUser");
         return false;
       }
 
@@ -198,7 +190,7 @@ class UsersTable {
   /// Returns true when record updated successfully, false on error
   static Future<bool> deleteUser(String userId) async {
     try {
-      var map = new Map<String, dynamic>();
+      var map = Map<String, dynamic>();
       map["action"] = DBConstants.DELETE_ACTION;
       map["table"] = DBConstants.USERS_TABLE;
       map["columns"] = '';
@@ -210,7 +202,6 @@ class UsersTable {
 
       // Error Checking on response from web server
       if (data == DBConstants.ERROR_MESSAGE || response.statusCode != 200) {
-        print("error in deleteUser");
         return false;
       }
 
@@ -228,7 +219,7 @@ class UsersTable {
   static Future<List<String>> getTeamsofUser(String userId,
       [List<String> columns = const ['*']]) async {
     try {
-      var map = new Map<String, dynamic>();
+      var map = Map<String, dynamic>();
       map["action"] = DBConstants.GET_ALL_ACTION;
       map["table"] = DBConstants.USERS_IN_TEAM_TABLE;
       map["columns"] = columns.join(',');
@@ -246,6 +237,7 @@ class UsersTable {
           teams.add(data[i]['team_id']);
         }
       }
+
       return teams;
     } catch (e) {
       return [];
