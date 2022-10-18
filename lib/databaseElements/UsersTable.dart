@@ -92,6 +92,39 @@ class UsersTable {
     }
   }
 
+  /// Get the teams that a user belongs to
+  ///
+  /// [userId] ID of the user
+  ///
+  /// Returns a list of team IDs on success, empty list on error
+  static Future<List<String>> getTeamsofUser(String userId,
+      [List<String> columns = const ['*']]) async {
+    try {
+      var map = Map<String, dynamic>();
+      map["action"] = DBConstants.GET_ALL_ACTION;
+      map["table"] = DBConstants.USERS_IN_TEAM_TABLE;
+      map["columns"] = columns.join(',');
+      map["clause"] = "${DBConstants.UIT_COL_USER_ID} = $userId";
+      List<String> teams = [];
+
+      http.Response response =
+          await http.post(Uri.parse(DBConstants.url), body: map);
+      var data = jsonDecode(response.body);
+
+      for (var i = 0; i < data.length; i++) {
+        var user = data[i]['user_id'];
+
+        if (user == userId) {
+          teams.add(data[i]['team_id']);
+        }
+      }
+
+      return teams;
+    } catch (e) {
+      return [];
+    }
+  }
+
   /// Adds a record into the users table.
   ///
   /// [username] is the name of the user.
@@ -208,39 +241,6 @@ class UsersTable {
       return true;
     } catch (e) {
       return false;
-    }
-  }
-
-  /// Get the teams that a user belongs to
-  ///
-  /// [userId] ID of the user
-  ///
-  /// Returns a list of team IDs on success, empty list on error
-  static Future<List<String>> getTeamsofUser(String userId,
-      [List<String> columns = const ['*']]) async {
-    try {
-      var map = Map<String, dynamic>();
-      map["action"] = DBConstants.GET_ALL_ACTION;
-      map["table"] = DBConstants.USERS_IN_TEAM_TABLE;
-      map["columns"] = columns.join(',');
-      map["clause"] = "${DBConstants.UIT_COL_USER_ID} = $userId";
-      List<String> teams = [];
-
-      http.Response response =
-          await http.post(Uri.parse(DBConstants.url), body: map);
-      var data = jsonDecode(response.body);
-
-      for (var i = 0; i < data.length; i++) {
-        var user = data[i]['user_id'];
-
-        if (user == userId) {
-          teams.add(data[i]['team_id']);
-        }
-      }
-
-      return teams;
-    } catch (e) {
-      return [];
     }
   }
 }

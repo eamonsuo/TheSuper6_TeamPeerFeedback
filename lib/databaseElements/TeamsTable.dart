@@ -94,193 +94,6 @@ class TeamsTable {
     }
   }
 
-  /// Adds a record into the teams table. Adds a record in usersInTeams table
-  ///
-  /// [teamName] is the name of the team.
-  /// [userId] is the user who is creating the team.
-  ///
-  /// Needs to be called with await to get synchronous operation (double check https://dart.dev/codelabs/async-await)
-  ///
-  /// All fields need to be provided, a team_id is automatically generated
-  ///
-  /// Returns true when user added successfully, false on error
-  static Future<bool> addTeam(String teamName, String userId) async {
-    try {
-      var map = Map<String, dynamic>();
-      map["action"] = DBConstants.ADD_ACTION;
-      map["table"] = DBConstants.TEAMS_TABLE;
-      map["columns"] = '(team_id, team_name)';
-
-      var newValues = [teamName];
-      map["clause"] = "(NULL,'${newValues.join("','")}')";
-
-      http.Response response =
-          await http.post(Uri.parse(DBConstants.url), body: map);
-      var data = jsonDecode(response.body);
-
-      // Error Checking on response from web server
-      if (data == DBConstants.ERROR_MESSAGE || response.statusCode != 200) {
-        return false;
-      }
-
-      addUserToTeam(userId);
-      return true;
-    } catch (e) {
-      return false;
-    }
-  }
-
-  /// Updates an existing record in the teams table.
-  ///
-  /// To update columns, pass them as positional parameters
-  ///   e.g. updateTeam('1', teamName: 'Team ChangedName')
-  ///
-  /// [teamId] is the ID of the team being updated.
-  /// [teamName] is the new name of the team.
-  ///
-  /// Needs to be called with await to get synchronous operation (double check https://dart.dev/codelabs/async-await)
-  ///
-  /// Returns true when record updated successfully, false on error
-  static Future<bool> updateTeam(String teamId, {String teamName = ''}) async {
-    try {
-      var map = Map<String, dynamic>();
-      map["action"] = DBConstants.UPDATE_ACTION;
-      map["table"] = DBConstants.TEAMS_TABLE;
-
-      // Add columns which have been specified to be changed
-      map["columns"] = '';
-      if (teamName != '') {
-        map["columns"] += "team_name = '$teamName',";
-      }
-
-      if (map["columns"] == '') {
-        return false;
-      }
-
-      //Remove trailing comma
-      map["columns"] = map["columns"].substring(0, map["columns"].length - 1);
-
-      map["clause"] = "team_id = $teamId";
-
-      http.Response response =
-          await http.post(Uri.parse(DBConstants.url), body: map);
-      var data = jsonDecode(response.body);
-
-      // Error Checking on response from web server
-      if (data == DBConstants.ERROR_MESSAGE || response.statusCode != 200) {
-        return false;
-      }
-
-      return true;
-    } catch (e) {
-      return false;
-    }
-  }
-
-  /// Adds a given user to a given team. Adds a record in usersInTeams table
-  ///
-  /// [userId] user to be added to a team.
-  /// [teamId] if specified it is the team to add the user into, otherwise adds
-  /// user into the most recently created team.
-  ///
-  /// Needs to be called with await to get synchronous operation (double check https://dart.dev/codelabs/async-await)
-  ///
-  /// Returns true on success, false on error
-  static Future<bool> addUserToTeam(String userId, {String teamId = ''}) async {
-    try {
-      var futureTeamId = '';
-      if (teamId == '') {
-        // Add to most recently created team
-        var allTeams = await getAllTeams();
-        futureTeamId = (allTeams[allTeams.length - 1]['team_id'])!;
-      } else {
-        futureTeamId = teamId;
-      }
-
-      var map = Map<String, dynamic>();
-      map["action"] = DBConstants.ADD_ACTION;
-      map["table"] = DBConstants.USERS_IN_TEAM_TABLE;
-      map["columns"] = '(team_id, user_id)';
-
-      var newValues = [futureTeamId, userId];
-      map["clause"] = "('${newValues.join("','")}')";
-
-      http.Response response =
-          await http.post(Uri.parse(DBConstants.url), body: map);
-      var data = jsonDecode(response.body);
-
-      // Error Checking on response from web server
-      if (data == DBConstants.ERROR_MESSAGE || response.statusCode != 200) {
-        return false;
-      }
-
-      return true;
-    } catch (e) {
-      return false;
-    }
-  }
-
-  /// Deletes an existing team from the teams table and the database.
-  ///
-  /// [teamId] is the ID of the team
-  ///
-  /// Needs to be called with await to get synchronous operation (double check https://dart.dev/codelabs/async-await)
-  ///
-  /// Returns true when record deleted successfully, false on error
-  static Future<bool> deleteTeam(String teamId) async {
-    try {
-      var map = Map<String, dynamic>();
-      map["action"] = DBConstants.DELETE_ACTION;
-      map["table"] = DBConstants.TEAMS_TABLE;
-      map["columns"] = '';
-      map["clause"] = "team_id = $teamId";
-
-      http.Response response =
-          await http.post(Uri.parse(DBConstants.url), body: map);
-      var data = jsonDecode(response.body);
-
-      // Error Checking on response from web server
-      if (data == DBConstants.ERROR_MESSAGE || response.statusCode != 200) {
-        return false;
-      }
-
-      return true;
-    } catch (e) {
-      return false;
-    }
-  }
-
-  /// Deletes an existing user from a team in the usersInTeams table.
-  ///
-  /// [userId] is the Id of the user to be deleted
-  /// [teamId] is the ID of the team
-  ///
-  /// Needs to be called with await to get synchronous operation (double check https://dart.dev/codelabs/async-await)
-  ///
-  /// Returns true when record updated successfully, false on error
-  static Future<bool> deleteUserFromTeam(String userId, String teamId) async {
-    try {
-      var map = Map<String, dynamic>();
-      map["action"] = DBConstants.DELETE_ACTION;
-      map["table"] = DBConstants.USERS_IN_TEAM_TABLE;
-      map["columns"] = '';
-      map["clause"] = "team_id = $teamId AND user_id = $userId";
-
-      http.Response response =
-          await http.post(Uri.parse(DBConstants.url), body: map);
-      var data = jsonDecode(response.body);
-
-      // Error Checking on response from web server
-      if (data == DBConstants.ERROR_MESSAGE || response.statusCode != 200) {
-        return false;
-      }
-
-      return true;
-    } catch (e) {
-      return false;
-    }
-  }
-
   /// Gets all of the users in a team
   ///
   /// [teamId] is the ID of the team
@@ -383,6 +196,193 @@ class TeamsTable {
       return results;
     } catch (e) {
       return [];
+    }
+  }
+
+  /// Adds a record into the teams table. Adds a record in usersInTeams table
+  ///
+  /// [teamName] is the name of the team.
+  /// [userId] is the user who is creating the team.
+  ///
+  /// Needs to be called with await to get synchronous operation (double check https://dart.dev/codelabs/async-await)
+  ///
+  /// All fields need to be provided, a team_id is automatically generated
+  ///
+  /// Returns true when user added successfully, false on error
+  static Future<bool> addTeam(String teamName, String userId) async {
+    try {
+      var map = Map<String, dynamic>();
+      map["action"] = DBConstants.ADD_ACTION;
+      map["table"] = DBConstants.TEAMS_TABLE;
+      map["columns"] = '(team_id, team_name)';
+
+      var newValues = [teamName];
+      map["clause"] = "(NULL,'${newValues.join("','")}')";
+
+      http.Response response =
+          await http.post(Uri.parse(DBConstants.url), body: map);
+      var data = jsonDecode(response.body);
+
+      // Error Checking on response from web server
+      if (data == DBConstants.ERROR_MESSAGE || response.statusCode != 200) {
+        return false;
+      }
+
+      addUserToTeam(userId);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// Adds a given user to a given team. Adds a record in usersInTeams table
+  ///
+  /// [userId] user to be added to a team.
+  /// [teamId] if specified it is the team to add the user into, otherwise adds
+  /// user into the most recently created team.
+  ///
+  /// Needs to be called with await to get synchronous operation (double check https://dart.dev/codelabs/async-await)
+  ///
+  /// Returns true on success, false on error
+  static Future<bool> addUserToTeam(String userId, {String teamId = ''}) async {
+    try {
+      var futureTeamId = '';
+      if (teamId == '') {
+        // Add to most recently created team
+        var allTeams = await getAllTeams();
+        futureTeamId = (allTeams[allTeams.length - 1]['team_id'])!;
+      } else {
+        futureTeamId = teamId;
+      }
+
+      var map = Map<String, dynamic>();
+      map["action"] = DBConstants.ADD_ACTION;
+      map["table"] = DBConstants.USERS_IN_TEAM_TABLE;
+      map["columns"] = '(team_id, user_id)';
+
+      var newValues = [futureTeamId, userId];
+      map["clause"] = "('${newValues.join("','")}')";
+
+      http.Response response =
+          await http.post(Uri.parse(DBConstants.url), body: map);
+      var data = jsonDecode(response.body);
+
+      // Error Checking on response from web server
+      if (data == DBConstants.ERROR_MESSAGE || response.statusCode != 200) {
+        return false;
+      }
+
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// Updates an existing record in the teams table.
+  ///
+  /// To update columns, pass them as positional parameters
+  ///   e.g. updateTeam('1', teamName: 'Team ChangedName')
+  ///
+  /// [teamId] is the ID of the team being updated.
+  /// [teamName] is the new name of the team.
+  ///
+  /// Needs to be called with await to get synchronous operation (double check https://dart.dev/codelabs/async-await)
+  ///
+  /// Returns true when record updated successfully, false on error
+  static Future<bool> updateTeam(String teamId, {String teamName = ''}) async {
+    try {
+      var map = Map<String, dynamic>();
+      map["action"] = DBConstants.UPDATE_ACTION;
+      map["table"] = DBConstants.TEAMS_TABLE;
+
+      // Add columns which have been specified to be changed
+      map["columns"] = '';
+      if (teamName != '') {
+        map["columns"] += "team_name = '$teamName',";
+      }
+
+      if (map["columns"] == '') {
+        return false;
+      }
+
+      //Remove trailing comma
+      map["columns"] = map["columns"].substring(0, map["columns"].length - 1);
+
+      map["clause"] = "team_id = $teamId";
+
+      http.Response response =
+          await http.post(Uri.parse(DBConstants.url), body: map);
+      var data = jsonDecode(response.body);
+
+      // Error Checking on response from web server
+      if (data == DBConstants.ERROR_MESSAGE || response.statusCode != 200) {
+        return false;
+      }
+
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// Deletes an existing team from the teams table and the database.
+  ///
+  /// [teamId] is the ID of the team
+  ///
+  /// Needs to be called with await to get synchronous operation (double check https://dart.dev/codelabs/async-await)
+  ///
+  /// Returns true when record deleted successfully, false on error
+  static Future<bool> deleteTeam(String teamId) async {
+    try {
+      var map = Map<String, dynamic>();
+      map["action"] = DBConstants.DELETE_ACTION;
+      map["table"] = DBConstants.TEAMS_TABLE;
+      map["columns"] = '';
+      map["clause"] = "team_id = $teamId";
+
+      http.Response response =
+          await http.post(Uri.parse(DBConstants.url), body: map);
+      var data = jsonDecode(response.body);
+
+      // Error Checking on response from web server
+      if (data == DBConstants.ERROR_MESSAGE || response.statusCode != 200) {
+        return false;
+      }
+
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// Deletes an existing user from a team in the usersInTeams table.
+  ///
+  /// [userId] is the Id of the user to be deleted
+  /// [teamId] is the ID of the team
+  ///
+  /// Needs to be called with await to get synchronous operation (double check https://dart.dev/codelabs/async-await)
+  ///
+  /// Returns true when record updated successfully, false on error
+  static Future<bool> deleteUserFromTeam(String userId, String teamId) async {
+    try {
+      var map = Map<String, dynamic>();
+      map["action"] = DBConstants.DELETE_ACTION;
+      map["table"] = DBConstants.USERS_IN_TEAM_TABLE;
+      map["columns"] = '';
+      map["clause"] = "team_id = $teamId AND user_id = $userId";
+
+      http.Response response =
+          await http.post(Uri.parse(DBConstants.url), body: map);
+      var data = jsonDecode(response.body);
+
+      // Error Checking on response from web server
+      if (data == DBConstants.ERROR_MESSAGE || response.statusCode != 200) {
+        return false;
+      }
+
+      return true;
+    } catch (e) {
+      return false;
     }
   }
 }

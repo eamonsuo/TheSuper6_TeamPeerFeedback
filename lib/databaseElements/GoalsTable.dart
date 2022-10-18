@@ -551,70 +551,6 @@ class GoalsTable {
     }
   }
 
-  /// Updates an existing record in the goals table.
-  ///
-  /// To update columns, pass them as positional parameters
-  ///   e.g. updateGoal('1', progress: '25')
-  ///
-  /// [description] is the description of the goal.
-  /// [progress] is the percentage completion of the goal (e.g. 20% = '20').
-  /// [deadline] date for goal to be due by in format 'DD-MM-YY'.
-  /// [updateTeamGoalProgress] IGONORE THIS PARAMETER - internal use only.
-  ///
-  /// Needs to be called with await to get synchronous operation (double check https://dart.dev/codelabs/async-await)
-  ///
-  /// Returns true when record updated successfully, false on error
-  static Future<bool> updateGoal(String goalId,
-      {String description = '',
-      String progress = '',
-      String deadline = '',
-      bool updateTeamGoalProgress = true}) async {
-    try {
-      var map = Map<String, dynamic>();
-      map["action"] = DBConstants.UPDATE_ACTION;
-      map["table"] = DBConstants.GOALS_TABLE;
-
-      // Add columns which have been specified to be changed
-      map["columns"] = '';
-      if (description != '') {
-        map["columns"] += "goal_desc = '$description',";
-      }
-      if (progress != '') {
-        map["columns"] += "goal_progress = '$progress',";
-      } else {
-        updateTeamGoalProgress = false;
-      }
-      if (deadline != '') {
-        map["columns"] += "goal_deadline = '$deadline',";
-      }
-      if (map["columns"] == '') {
-        return false;
-      }
-
-      //Remove trailing comma
-      map["columns"] = map["columns"].substring(0, map["columns"].length - 1);
-
-      map["clause"] = "goal_id = $goalId";
-
-      http.Response response =
-          await http.post(Uri.parse(DBConstants.url), body: map);
-      var data = jsonDecode(response.body);
-
-      // Error Checking on response from web server
-      if (data == DBConstants.ERROR_MESSAGE || response.statusCode != 200) {
-        return false;
-      }
-
-      if (updateTeamGoalProgress) {
-        _updateTeamGoalProgress(goalId);
-      }
-
-      return true;
-    } catch (e) {
-      return false;
-    }
-  }
-
   /// Links the given goalId and teamId in the teamsGoals Table
   ///
   /// [teamId] is the team ID to be linked to the goal
@@ -707,6 +643,70 @@ class GoalsTable {
       // Error Checking on response from web server
       if (data == DBConstants.ERROR_MESSAGE || response.statusCode != 200) {
         return false;
+      }
+
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// Updates an existing record in the goals table.
+  ///
+  /// To update columns, pass them as positional parameters
+  ///   e.g. updateGoal('1', progress: '25')
+  ///
+  /// [description] is the description of the goal.
+  /// [progress] is the percentage completion of the goal (e.g. 20% = '20').
+  /// [deadline] date for goal to be due by in format 'DD-MM-YY'.
+  /// [updateTeamGoalProgress] IGONORE THIS PARAMETER - internal use only.
+  ///
+  /// Needs to be called with await to get synchronous operation (double check https://dart.dev/codelabs/async-await)
+  ///
+  /// Returns true when record updated successfully, false on error
+  static Future<bool> updateGoal(String goalId,
+      {String description = '',
+      String progress = '',
+      String deadline = '',
+      bool updateTeamGoalProgress = true}) async {
+    try {
+      var map = Map<String, dynamic>();
+      map["action"] = DBConstants.UPDATE_ACTION;
+      map["table"] = DBConstants.GOALS_TABLE;
+
+      // Add columns which have been specified to be changed
+      map["columns"] = '';
+      if (description != '') {
+        map["columns"] += "goal_desc = '$description',";
+      }
+      if (progress != '') {
+        map["columns"] += "goal_progress = '$progress',";
+      } else {
+        updateTeamGoalProgress = false;
+      }
+      if (deadline != '') {
+        map["columns"] += "goal_deadline = '$deadline',";
+      }
+      if (map["columns"] == '') {
+        return false;
+      }
+
+      //Remove trailing comma
+      map["columns"] = map["columns"].substring(0, map["columns"].length - 1);
+
+      map["clause"] = "goal_id = $goalId";
+
+      http.Response response =
+          await http.post(Uri.parse(DBConstants.url), body: map);
+      var data = jsonDecode(response.body);
+
+      // Error Checking on response from web server
+      if (data == DBConstants.ERROR_MESSAGE || response.statusCode != 200) {
+        return false;
+      }
+
+      if (updateTeamGoalProgress) {
+        _updateTeamGoalProgress(goalId);
       }
 
       return true;
