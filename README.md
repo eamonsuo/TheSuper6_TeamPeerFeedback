@@ -15,17 +15,24 @@ A web version of the application is currently active [here](https://deco3801-the
 To compile and run the codebase you must have the Flutter development environment installed. 
 
 Instructions on how to install and setup this environment can be found on the Flutter documentation website [here](https://docs.flutter.dev/get-started/install). 
-
 Steps 1 and 2 must be completed before cloning the codebase. Visual Studio Code is the recommended editor to use.
 
 Once the environment is setup, clone the repository by running
 
-`git clone https://github.com/eamonsuo/TheSuper6_TeamPeerFeedback.git`
+&emsp; `git clone https://github.com/eamonsuo/TheSuper6_TeamPeerFeedback.git`
 
 Once the codebase has been cloned (or if you have downloaded it), it can be opened in your chosen editor.
 
-In order to run the codebase, navigate to the `main.dart` file located `lib/` and click run and debug. 
-The platform on which the application is compiled on can be changed as well. Instructions on how to do it for some editors can be found [here](https://docs.flutter.dev/get-started/test-drive?tab=vscode)
+On first opening the codebase, you need to install the required packages. This can be done by navigation to the terminal and running
+
+&emsp; `cd [path to project]\TheSuper6_TeamPeerFeedback`
+
+&emsp; `flutter pub get`
+
+This will install the required dependencies.
+
+In order to run the codebase, navigate to the `main.dart` file located in `lib/` and click run and debug. 
+The platform on which the application is compiled can be changed as well. Instructions on how to do it for some editors can be found [here](https://docs.flutter.dev/get-started/test-drive?tab=vscode)
 
 ## Additional Files & Data
 
