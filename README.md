@@ -31,7 +31,7 @@ The platform on which the application is compiled on can be changed as well. Ins
 
 #### Server Side Files
 Additional files were written (in PHP) to access data from the remote MySQL database. 
-These files are stored on our team's UQZone server but copies can be viewed under were included in the DECO3801 submission in the folder Additional_Files.
+These files are stored on our team's UQZone server but copies were included in the DECO3801 submission in the folder Additional_Files.
 
 #### Data Used For Application
 The data used for this application was constructed by our team to best detail the application's features.
@@ -48,9 +48,8 @@ The video tutorial the code was found through can be accessed on [Youtube here](
 ## Summary of Software Used
 - Flutter framework, utilising the Dart language to develop the application
 - PHP to write a REST API which accesses the database
-- A remote MySQL database to store the applications data
-- UQZone cloud server to allow remote access to data
-- UQZone cloud server to host website deployment
+- A remote MySQL database to store the application's data
+- UQZone cloud server to allow remote access to data and to host website deployment
 
 ## Authors
 Application designed by: Miguel Dewi Castro & Luke Cronin
